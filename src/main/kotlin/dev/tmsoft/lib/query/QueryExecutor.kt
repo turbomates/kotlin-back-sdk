@@ -1,0 +1,10 @@
+package dev.tmsoft.lib.query
+
+import com.google.inject.Inject
+import dev.tmsoft.lib.exposed.TransactionManager
+
+class QueryExecutor @Inject constructor(private val transactional: TransactionManager) {
+    suspend fun <T> execute(queryObject: QueryObject<T>): T {
+        return transactional { queryObject.getData() }
+    }
+}
