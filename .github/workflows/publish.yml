@@ -40,7 +40,7 @@ jobs:
       - name: Publish to the Github packages
         run: gradle publish
         env:
-          GITHUB_TOKEN: ${{ secrets.CR_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
           GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
   clean:
     needs: publish
