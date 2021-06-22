@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.1.3"
+version = "0.1.4"
 
 repositories {
     jcenter()
