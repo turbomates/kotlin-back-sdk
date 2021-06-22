@@ -134,8 +134,8 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/turbomates/kotlin-back-sdk")
             credentials {
-                username = "shustrik"//System.getenv("GITHUB_ACTOR")
-                password = "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"//System.getenv("GITHUB_TOKEN")
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
     }
