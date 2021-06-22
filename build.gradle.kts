@@ -103,6 +103,7 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             artifactId = "common-lib"
+            groupId = "dev.tmsoft.kotlin"
             from(components["java"])
             pom {
                 name.set("Kotlin backend common library")
