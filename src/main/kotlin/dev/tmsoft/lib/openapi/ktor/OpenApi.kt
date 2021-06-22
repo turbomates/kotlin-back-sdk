@@ -4,22 +4,19 @@ import dev.tmsoft.lib.openapi.OpenAPI
 import dev.tmsoft.lib.openapi.OpenApiKType
 import dev.tmsoft.lib.openapi.Type
 import dev.tmsoft.lib.openapi.openApiKType
-import io.ktor.application.ApplicationCall
-import io.ktor.application.ApplicationCallPipeline
-import io.ktor.application.ApplicationFeature
-import io.ktor.application.call
-import io.ktor.http.ContentType
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.request.path
-import io.ktor.response.respondText
-import io.ktor.util.AttributeKey
-import io.ktor.util.pipeline.PipelineContext
-import kotlin.reflect.KType
+import io.ktor.application.*
+import io.ktor.http.*
+import io.ktor.request.*
+import io.ktor.response.*
+import io.ktor.util.*
+import io.ktor.util.pipeline.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.slf4j.LoggerFactory
+import kotlin.reflect.KType
 
 class OpenApi(configuration: Configuration) {
+    private val logger by lazy { LoggerFactory.getLogger(OpenApi::class.java) }
     private val typeBuilder: (OpenApiKType) -> Type.Object = configuration.typeBuilder
     private val responseBuilder: (OpenApiKType) -> Map<Int, Type> = configuration.responseBuilder
     private val openApi: OpenAPI = configuration.openApi
@@ -79,7 +76,7 @@ class OpenApi(configuration: Configuration) {
                 context.call.respondText(response, contentType = ContentType.Application.Json)
                 context.finish()
             } catch (ex: Exception) {
-                println(ex.localizedMessage)
+                logger.error(ex.message)
             }
         }
     }

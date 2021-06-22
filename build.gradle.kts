@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.1"
+version = "0.1.2"
 
 repositories {
     jcenter()
@@ -33,6 +33,8 @@ dependencies {
     implementation(Deps.kotlin_serialization_json)
     implementation(Deps.rabbitmq_amqp_client)
     implementation(Deps.embedded_postgres)
+    implementation(Deps.swagger_webjar)
+    implementation(Deps.ktor_webjar)
     implementation(Deps.s3)
     runtimeOnly(Deps.logback_classic)
 
@@ -100,12 +102,8 @@ java {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            groupId = "dev.tmsoft.kotlin"
-            artifactId = "library"
-            version = "0.1.1"
             artifactId = "common-lib"
             from(components["java"])
-//            artifact(sou)
             pom {
                 name.set("Kotlin backend common library")
                 description.set("This library contains different resolutions with ktor, exposed, serialization")

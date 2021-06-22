@@ -15,6 +15,7 @@ object Versions {
     const val s3 = "2.16.57"
     const val kotlin_serialization_json = "1.2.1"
     const val embedded_postgres = "0.13.3"
+    const val swagger_webjar = "3.34.0"
 }
 
 object Deps {
@@ -41,6 +42,8 @@ object Deps {
     const val kotlin_test = "org.jetbrains.kotlin:kotlin-test-junit5:${Versions.kotlin}"
     const val embedded_postgres = "com.opentable.components:otj-pg-embedded:${Versions.embedded_postgres}"
     const val junit_jupiter_api = "org.junit.jupiter:junit-jupiter-api:${Versions.junit}"
+    const val swagger_webjar = "org.webjars:swagger-ui:${Versions.swagger_webjar}"
+    const val ktor_webjar = "io.ktor:ktor-webjars:${Versions.ktor}"
 }
 
 object Plugins {
