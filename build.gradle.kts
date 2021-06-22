@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation(Deps.ktor_locations)
+    api(Deps.ktor_locations)
     api(Deps.kotlin_reflect)
     api(Deps.ktor_server_core)
     api(Deps.ktor_auth_jwt)
