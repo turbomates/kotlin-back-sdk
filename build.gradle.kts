@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.1.2"
+version = "0.1.3"
 
 repositories {
     jcenter()
@@ -19,27 +19,28 @@ repositories {
 }
 
 dependencies {
-    implementation(Deps.kotlin_reflect)
     implementation(Deps.ktor_locations)
-    implementation(Deps.ktor_server_core)
-    implementation(Deps.ktor_auth_jwt)
-    implementation(Deps.valiktor_core)
-    implementation(Deps.google_guice)
-    implementation(Deps.postgresqlJDBC)
-    implementation(Deps.exposed_core)
-    implementation(Deps.exposed_dao)
-    implementation(Deps.exposed_jdbc)
-    implementation(Deps.exposed_time)
-    implementation(Deps.kotlin_serialization_json)
-    implementation(Deps.rabbitmq_amqp_client)
-    implementation(Deps.embedded_postgres)
-    implementation(Deps.swagger_webjar)
-    implementation(Deps.ktor_webjar)
-    implementation(Deps.s3)
+    api(Deps.kotlin_reflect)
+    api(Deps.ktor_server_core)
+    api(Deps.ktor_auth_jwt)
+    api(Deps.valiktor_core)
+    api(Deps.google_guice)
+    api(Deps.postgresqlJDBC)
+    api(Deps.exposed_core)
+    api(Deps.exposed_dao)
+    api(Deps.exposed_jdbc)
+    api(Deps.exposed_jdbc)
+    api(Deps.exposed_time)
+    api(Deps.kotlin_serialization_json)
+    api(Deps.rabbitmq_amqp_client)
+    api(Deps.swagger_webjar)
+    api(Deps.ktor_webjar)
+    api(Deps.s3)
     runtimeOnly(Deps.logback_classic)
 
     testImplementation(Deps.ktor_server_test_host)
     testImplementation(Deps.junit_jupiter_api)
+    testImplementation(Deps.embedded_postgres)
     testImplementation(Deps.h2_database)
     testRuntimeOnly(Deps.junit_jupiter_engine)
 }
