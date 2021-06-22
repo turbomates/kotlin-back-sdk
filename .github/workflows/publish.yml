@@ -31,10 +31,8 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
-      - name: Run migrations
-        run: ./gradlew migrationsMigrate -Dbetforge.jdbc.url=jdbc:postgresql://localhost:5432/betforge -Dbetforge.jdbc.user=webmaster -Dbetforge.jdbc.password=test -Dbetforge.applications.admin.username=test -Dbetforge.applications.admin.password=test
       - name: Run tests
-        run: ./gradlew test -Dbetforge.jdbc.url=jdbc:postgresql://localhost:5432/betforge -Dbetforge.jdbc.user=webmaster -Dbetforge.jdbc.password=test -Dbetforge.applications.admin.username=test -Dbetforge.applications.admin.password=test
+        run: ./gradlew test
   publish:
     needs: tests
     runs-on: ubuntu-latest
