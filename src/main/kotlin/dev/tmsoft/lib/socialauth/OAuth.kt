@@ -1,0 +1,145 @@
+package dev.tmsoft.lib.socialauth
+
+import io.ktor.auth.Principal
+
+import io.ktor.application.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.response.*
+import io.ktor.util.*
+/**
+ * OAuth versions used in configuration
+ */
+@Suppress("KDocMissingDocumentation")
+enum class OAuthVersion {
+    V10a, V20
+}
+
+/**
+ * Represents OAuth server settings
+ * @property name configuration name
+ * @property version OAuth version (1a or 2)
+ */
+sealed class OAuthServerSettings(val name: String, val version: OAuthVersion) {
+    /**
+     * OAuth1a server settings
+     * @property requestTokenUrl OAuth server token request URL
+     * @property authorizeUrl OAuth server authorization page URL
+     * @property accessTokenUrl OAuth server access token request URL
+     * @property consumerKey consumer key parameter (provided by OAuth server vendor)
+     * @property consumerSecret a secret key parameter (provided by OAuth server vendor)
+     */
+    class OAuth1aServerSettings(
+        name: String,
+        val requestTokenUrl: String,
+        val authorizeUrl: String,
+        val accessTokenUrl: String,
+
+        val consumerKey: String,
+        val consumerSecret: String,
+
+        val accessTokenInterceptor: HttpRequestBuilder.() -> Unit = {}
+    ) : OAuthServerSettings(name, OAuthVersion.V10a)
+    /**
+     * OAuth2 server settings
+     * @property authorizeUrl OAuth server authorization page URL
+     * @property accessTokenUrl OAuth server access token request URL
+     * @property requestMethod HTTP request method to be used to acquire access token (see vendors documentation)
+     * @property clientId client id parameter (provided by OAuth server vendor)
+     * @property clientSecret client secret parameter (provided by OAuth server vendor)
+     * @property defaultScopes OAuth scopes used by default
+     * @property accessTokenRequiresBasicAuth to send BASIC auth header when an access token is requested
+     * @property passParamsInURL whether to pass request parameters in POST requests in URL instead of body.
+     * @property nonceManager to be used to produce and verify nonce values
+     * @property authorizeUrlInterceptor an interceptor function to customize authorization URL
+     * @property accessTokenInterceptor an interceptor function to customize access token request
+     */
+    class OAuth2ServerSettings(
+        name: String,
+        val authorizeUrl: String,
+        val accessTokenUrl: String,
+        val requestMethod: HttpMethod = HttpMethod.Get,
+
+        val clientId: String,
+        val clientSecret: String,
+        val defaultScopes: List<String> = emptyList(),
+        val accessTokenRequiresBasicAuth: Boolean = false,
+
+        val nonceManager: NonceManager = GenerateOnlyNonceManager,
+
+        val authorizeUrlInterceptor: URLBuilder.() -> Unit = {},
+        val passParamsInURL: Boolean = false,
+        val accessTokenInterceptor: HttpRequestBuilder.() -> Unit = {}
+    ) : OAuthServerSettings(name, OAuthVersion.V20)
+}
+
+/**
+ * OAauth callback parameters
+ */
+sealed class OAuthCallback {
+    /**
+     * An OAuth1a token pair callback parameters
+     * @property token OAuth1a token
+     * @property tokenSecret OAuth1a token secret
+     */
+    data class TokenPair(val token: String, val tokenSecret: String) : OAuthCallback()
+
+    /**
+     * OAuth2 token callback parameter
+     * @property token OAuth2 token provided by server
+     * @property state passed from a client (ktor server) during authorization startup
+     */
+    data class TokenSingle(val token: String, val state: String) : OAuthCallback()
+}
+
+/**
+ * OAuth access token acquired from the server
+ */
+sealed class OAuthAccessTokenResponse : Principal {
+    /**
+     * OAuth1a access token acquired from the server
+     * @property token itself
+     * @property tokenSecret token secret to be used with [token]
+     * @property extraParameters contains additional parameters provided by the server
+     */
+    data class OAuth1a(
+        val token: String,
+        val tokenSecret: String,
+        val extraParameters: Parameters = Parameters.Empty
+    ) : OAuthAccessTokenResponse()
+
+    /**
+     * OAuth2 access token acquired from the server
+     * @property accessToken access token from server
+     * @property tokenType OAuth2 token type (usually Bearer)
+     * @property expiresIn token expiration timestamp
+     * @property refreshToken to be used to refresh access token after expiration
+     * @property extraParameters contains additional parameters provided by the server
+     */
+    data class OAuth2(
+        val accessToken: String,
+        val tokenType: String,
+        val expiresIn: Long,
+        val refreshToken: String?,
+        val extraParameters: Parameters = Parameters.Empty
+    ) : OAuthAccessTokenResponse()
+}
+
+/**
+ * OAuth grant types constants
+ */
+@Suppress("KDocMissingDocumentation")
+object OAuthGrantTypes {
+    const val AuthorizationCode: String = "authorization_code"
+    const val Password: String = "password"
+}
+
+internal suspend fun ApplicationCall.oauthHandleFail(redirectUrl: String) = respondRedirect(redirectUrl)
+
+internal fun String.appendUrlParameters(parameters: String) =
+    when {
+        parameters.isEmpty() -> ""
+        this.endsWith("?") -> ""
+        "?" in this -> "&"
+        else -> "?"
+    }.let { separator -> "$this$separator$parameters" }
