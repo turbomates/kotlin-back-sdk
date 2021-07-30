@@ -40,6 +40,7 @@ dependencies {
     api(Deps.ktor_client_serialization)
     runtimeOnly(Deps.logback_classic)
 
+    testImplementation(Deps.kotlin_test)
     testImplementation(Deps.ktor_server_test_host)
     testImplementation(Deps.junit_jupiter_api)
     testImplementation(Deps.embedded_postgres)
