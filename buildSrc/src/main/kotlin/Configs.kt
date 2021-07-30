@@ -44,6 +44,7 @@ object Deps {
     const val junit_jupiter_api = "org.junit.jupiter:junit-jupiter-api:${Versions.junit}"
     const val swagger_webjar = "org.webjars:swagger-ui:${Versions.swagger_webjar}"
     const val ktor_webjar = "io.ktor:ktor-webjars:${Versions.ktor}"
+    const val ktor_client_cio = "io.ktor:ktor-client-cio:${Versions.ktor}"
 }
 
 object Plugins {

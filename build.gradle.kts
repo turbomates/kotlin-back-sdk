@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.1.6"
+version = "0.1.7"
 
 repositories {
     jcenter()
@@ -36,6 +36,8 @@ dependencies {
     api(Deps.swagger_webjar)
     api(Deps.ktor_webjar)
     api(Deps.s3)
+    api(Deps.ktor_client_cio)
+    api(Deps.ktor_client_serialization)
     runtimeOnly(Deps.logback_classic)
 
     testImplementation(Deps.ktor_server_test_host)
