@@ -1,10 +1,5 @@
 package dev.tmsoft.lib.socialauth
 
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.json.serializer.KotlinxSerializer
-import io.ktor.http.ContentType
 import kotlinx.serialization.Serializable
 import java.net.URLEncoder
 import java.util.Base64
@@ -16,22 +11,11 @@ import javax.crypto.spec.SecretKeySpec
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.HttpHeaders
-import kotlinx.serialization.json.Json
 
 private const val USER_URL = "https://api.twitter.com/1.1/account/verify_credentials.json"
 
 class TwitterAPI(private val clientKey: String, private val clientSecret: String) {
-    private val client = HttpClient(CIO) {
-        install(JsonFeature) {
-            accept(ContentType.Application.Json)
-            serializer = KotlinxSerializer(
-                Json {
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                }
-            )
-        }
-    }
+
     suspend fun getUser(accessToken: String, tokenSecret: String): TwitterUser {
 
         val oauthTimestamp = (System.currentTimeMillis() / 1000).toString()
@@ -71,7 +55,7 @@ class TwitterAPI(private val clientKey: String, private val clientSecret: String
             encode(it.key.lowercase()) + "=\"" + encode(it.value) + "\""
         }.toList().joinToString(", ")
 
-        return client.get<TwitterUser>("$USER_URL?include_email=true") {
+        return socialClient.get<TwitterUser>("$USER_URL?include_email=true") {
             headers {
                 append(HttpHeaders.Authorization, "OAuth $authString")
             }

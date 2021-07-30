@@ -12,14 +12,11 @@
 ## Configure router
 ```
     route.route("/api/login/facebook") {
-        authenticateBySocial<ManagerPrincipal>(
+        authenticateBySocial(
             Auth.FacebookManagerAuth,
             FacebookTransformer(socialManagerProvider),
-        ) {
-            get {
-                handleSocialLogin(call)
-            }
-        }
+            "/api/managers/me"
+        )
     }
 ```
 
