@@ -78,6 +78,7 @@ fun transformSocial(
                 val session = call.sessions.get<Session>() ?: Session()
                 call.sessions.set(session.copy(principal = principal))
                 call.respondRedirect(successUri)
+                this.finish()
             } else {
                 context.authentication.error("SocialAuth", AuthenticationFailedCause.InvalidCredentials)
             }
