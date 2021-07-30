@@ -24,10 +24,12 @@ class TwitterAPI(private val clientKey: String, private val clientSecret: String
     private val client = HttpClient(CIO) {
         install(JsonFeature) {
             accept(ContentType.Application.Json)
-            serializer = KotlinxSerializer(Json {
-                isLenient = true
-                ignoreUnknownKeys = true
-            })
+            serializer = KotlinxSerializer(
+                Json {
+                    isLenient = true
+                    ignoreUnknownKeys = true
+                }
+            )
         }
     }
     suspend fun getUser(accessToken: String, tokenSecret: String): TwitterUser {
@@ -75,7 +77,7 @@ class TwitterAPI(private val clientKey: String, private val clientSecret: String
             }
         }
     }
-    
+
     private fun encode(s: String): String {
         return URLEncoder.encode(s, "UTF-8")
     }

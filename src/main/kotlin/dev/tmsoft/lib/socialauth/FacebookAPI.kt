@@ -17,7 +17,7 @@ class FacebookAPI {
     }
 
     suspend fun getUser(accessToken: String): FacebookUser {
-        return client.get<FacebookUser>(USER_URL+"?fields=id,name,email&access_token=${accessToken}")
+        return client.get<FacebookUser>(USER_URL + "?fields=id,name,email&access_token=$accessToken")
     }
 }
 

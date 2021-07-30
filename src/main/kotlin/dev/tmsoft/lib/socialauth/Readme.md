@@ -2,23 +2,25 @@
 
 ## add configuration 
 ```
-    facebook<ManagerPrincipal>(Auth.FacebookManagerAuth) {
+    facebook(Auth.FacebookManagerAuth) {
         redirectUrl = "http://localhost:3000/api/login/facebook"
         clientId = "44444444444444"
         clientSecret = "55555555555555"
-        provider = socialManagerProvider
     }
 ```
 
 ## Configure router
 ```
-route.route("/api/login/facebook") {
-    authenticate(Auth.FacebookManagerAuth) {
-        get {
-            handleLogin(call)
+    route.route("/api/login/facebook") {
+        authenticateBySocial<ManagerPrincipal>(
+            Auth.FacebookManagerAuth,
+            FacebookTransformer(socialManagerProvider),
+        ) {
+            get {
+                handleSocialLogin(call)
+            }
         }
     }
-}
 ```
 
 ## Provider example

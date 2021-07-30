@@ -15,15 +15,17 @@ class GoogleAPI {
     val client = HttpClient(CIO) {
         install(JsonFeature) {
             accept(ContentType.Application.Json)
-            serializer = KotlinxSerializer(Json {
-                isLenient = true
-                ignoreUnknownKeys = true
-            })
+            serializer = KotlinxSerializer(
+                Json {
+                    isLenient = true
+                    ignoreUnknownKeys = true
+                }
+            )
         }
     }
 
     suspend fun getUser(accessToken: String): GoogleUser {
-        return client.get<GoogleUser>(USER_URL+"?access_token=${accessToken}")
+        return client.get<GoogleUser>(USER_URL + "?access_token=$accessToken")
     }
 }
 
