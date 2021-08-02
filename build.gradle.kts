@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.1.8"
+version = "0.1.9"
 
 repositories {
     jcenter()
@@ -143,5 +143,3 @@ publishing {
         }
     }
 }
-
-
