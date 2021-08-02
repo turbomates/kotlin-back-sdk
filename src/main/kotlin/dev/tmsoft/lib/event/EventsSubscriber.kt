@@ -22,7 +22,7 @@ interface EventSubscribers {
 }
 
 @Suppress("UNCHECKED_CAST")
-inline fun <reified T : Event> EventSubscribers.subscribe(subscriber: EventSubscriber<T>) {
+inline fun <reified T : Event> EventsSubscribers.subscribe(subscriber: EventSubscriber<T>) {
     val key = T::class.companionObjectInstance as? Event.Key<T>
     if (key == null && T::class != Event::class) {
         throw InvalidKeyException("wrong subscriber")
