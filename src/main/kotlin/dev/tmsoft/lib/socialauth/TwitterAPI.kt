@@ -11,12 +11,13 @@ import javax.crypto.spec.SecretKeySpec
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.HttpHeaders
+import io.ktor.client.features.ClientRequestException
 
 private const val USER_URL = "https://api.twitter.com/1.1/account/verify_credentials.json"
 
 class TwitterAPI(private val clientKey: String, private val clientSecret: String) {
 
-    suspend fun getUser(accessToken: String, tokenSecret: String): TwitterUser {
+    suspend fun getUser(accessToken: String, tokenSecret: String): TwitterUser? {
 
         val oauthTimestamp = (System.currentTimeMillis() / 1000).toString()
         val oauthNonce = UUID.randomUUID().toString().lowercase()
@@ -55,10 +56,14 @@ class TwitterAPI(private val clientKey: String, private val clientSecret: String
             encode(it.key.lowercase()) + "=\"" + encode(it.value) + "\""
         }.toList().joinToString(", ")
 
-        return socialClient.get<TwitterUser>("$USER_URL?include_email=true") {
-            headers {
-                append(HttpHeaders.Authorization, "OAuth $authString")
+        return try {
+            socialClient.get<TwitterUser>("$USER_URL?include_email=true") {
+                headers {
+                    append(HttpHeaders.Authorization, "OAuth $authString")
+                }
             }
+        } catch (exception: ClientRequestException) {
+            null
         }
     }
 

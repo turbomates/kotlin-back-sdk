@@ -42,7 +42,9 @@ class GoogleTransformer<T : Principal>(private val provider: SocialProvider<T>) 
             is OAuthAccessTokenResponse.OAuth2 -> {
                 val api = GoogleAPI()
                 val user = api.getUser(principal.accessToken)
-                provider.load(user.email, SocialToken(SocialAuthType.GOOGLE, principal))
+                if (user != null) {
+                    provider.load(user.email, SocialToken(SocialAuthType.GOOGLE, principal))
+                } else null
             }
             else -> null
         }

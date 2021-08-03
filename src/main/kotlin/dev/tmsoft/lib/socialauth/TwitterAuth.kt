@@ -41,7 +41,9 @@ class TwitterTransformer<T : Principal>(private val clientKey: String, private v
             is OAuthAccessTokenResponse.OAuth1a -> {
                 val api = TwitterAPI(clientKey, clientSecret)
                 val user = api.getUser(principal.token, principal.tokenSecret)
-                provider.load(user.email, SocialToken(SocialAuthType.TWITTER, principal))
+                if (user != null) {
+                    provider.load(user.email, SocialToken(SocialAuthType.TWITTER, principal))
+                } else null
             }
             else -> null
         }
