@@ -41,7 +41,9 @@ class FacebookTransformer<T : Principal>(private val provider: SocialProvider<T>
             is OAuthAccessTokenResponse.OAuth2 -> {
                 val api = FacebookAPI()
                 val user = api.getUser(principal.accessToken)
-                provider.load(user.email, SocialToken(SocialAuthType.FACEBOOK, principal))
+                if (user != null) {
+                    provider.load(user.email, SocialToken(SocialAuthType.FACEBOOK, principal))
+                } else null
             }
             else -> null
         }
