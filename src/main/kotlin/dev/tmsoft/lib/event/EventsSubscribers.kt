@@ -3,12 +3,12 @@ package dev.tmsoft.lib.event
 import org.slf4j.LoggerFactory
 import kotlin.reflect.full.companionObjectInstance
 
-class EventsSubscribers {
+class EventsSubscribers : EventSubscribers {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val subscribers: MutableMap<Event.Key<out Event>, MutableList<EventSubscriber<out Event>>> =
         mutableMapOf()
 
-    fun subscribe(subscriber: EventsSubscriber) {
+    override fun subscribe(subscriber: EventsSubscriber) {
         subscriber.subscribers().forEach {
             addToMap(it.key, it.subscriber)
         }
@@ -23,7 +23,7 @@ class EventsSubscribers {
         key?.let { subscribe(it, subscriber) }
     }
 
-    fun <T : Event> subscribe(key: Event.Key<T>, subscriber: EventSubscriber<T>) {
+    override fun <T : Event> subscribe(key: Event.Key<T>, subscriber: EventSubscriber<T>) {
         addToMap(key, subscriber)
     }
 
