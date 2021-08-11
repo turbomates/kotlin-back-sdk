@@ -16,6 +16,7 @@ object Versions {
     const val kotlin_serialization_json = "1.2.2"
     const val embedded_postgres = "0.13.4"
     const val swagger_webjar = "3.51.1"
+    const val jedis = "3.6.3"
 }
 
 object Deps {
@@ -45,6 +46,7 @@ object Deps {
     const val swagger_webjar = "org.webjars:swagger-ui:${Versions.swagger_webjar}"
     const val ktor_webjar = "io.ktor:ktor-webjars:${Versions.ktor}"
     const val ktor_client_cio = "io.ktor:ktor-client-cio:${Versions.ktor}"
+    const val jedis = "redis.clients:jedis:${Versions.jedis}"
 }
 
 object Plugins {
