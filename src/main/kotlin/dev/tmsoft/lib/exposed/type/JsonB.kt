@@ -32,7 +32,10 @@ class PostgreSQLJson<out T : Any>(
     private val serializer: KSerializer<T>,
     module: SerializersModule = EmptySerializersModule
 ) : ColumnType() {
-    private val json = Json { Json.Default }
+    private val json = Json {
+        serializersModule = module
+    }
+
     override fun sqlType() = "jsonb"
 
     override fun setParameter(stmt: PreparedStatementApi, index: Int, value: Any?) {
