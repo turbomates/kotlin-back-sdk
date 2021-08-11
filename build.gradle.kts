@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.1.11"
+version = "0.1.12"
 
 repositories {
     jcenter()
@@ -38,6 +38,7 @@ dependencies {
     api(Deps.s3)
     api(Deps.ktor_client_cio)
     api(Deps.ktor_client_serialization)
+    api(Deps.jedis)
     runtimeOnly(Deps.logback_classic)
 
     testImplementation(Deps.kotlin_test)
