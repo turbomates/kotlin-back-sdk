@@ -36,7 +36,7 @@ class DescriptionBuilder(private val type: OpenApiKType) {
         }
     }
 
-    private fun buildType(): Type.Object {
+    fun buildType(): Type.Object {
         return type.objectType(type.jvmErasure.simpleName!!)
     }
 
