@@ -85,7 +85,7 @@ object ResponseSerializer : KSerializer<Response> {
         val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
         val tree: JsonElement = when (value) {
             is Response.Error -> {
-                output.json.encodeToJsonElement("error" to value.error)
+                JsonObject(mapOf("error" to output.json.encodeToJsonElement(value.error)))
             }
             is Response.Ok -> {
                 JsonObject(mapOf("data" to JsonPrimitive("ok")))
@@ -137,7 +137,7 @@ object ErrorSerializer : KSerializer<Error> {
     override fun serialize(encoder: Encoder, value: Error) {
         val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
         val error: MutableMap<String, JsonElement> = mutableMapOf("message" to JsonPrimitive(value.message))
-        if (value.property != null && !value.property.isBlank()) error["property"] = JsonPrimitive(value.property)
+        if (value.property != null && value.property.isNotBlank()) error["property"] = JsonPrimitive(value.property)
         if (value.value != null)
             error["value"] = output.json.encodeToJsonElement(
                 resolveSerializer(value.value) as KSerializer<Any>,

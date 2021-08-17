@@ -22,16 +22,7 @@ class DescriptionBuilder(private val type: OpenApiKType) {
                 200 to buildType()
             )
             type.jvmErasure.isSubclassOf(Response.Error::class) -> mapOf(
-                422 to Type.Object(
-                    "error",
-                    listOf(
-                        Property(
-                            "error",
-                            Type.String()
-                        )
-                    ),
-                    example = buildJsonObject { put("error", "Wrong response") }
-                )
+                422 to getErrorType()
             )
             type.jvmErasure.isSubclassOf(Response.Errors::class) -> mapOf(
                 422 to buildType()
@@ -45,8 +36,21 @@ class DescriptionBuilder(private val type: OpenApiKType) {
         }
     }
 
-    fun buildType(): Type.Object {
+    private fun buildType(): Type.Object {
         return type.objectType(type.jvmErasure.simpleName!!)
+    }
+
+    private fun getErrorType(): Type {
+        return Type.Object(
+            "error",
+            listOf(
+                Property(
+                    "error",
+                    Type.String()
+                )
+            ),
+            example = buildJsonObject { put("error", "Wrong response") }
+        )
     }
 
     private fun getOkType(): Type {
@@ -73,6 +77,9 @@ class DescriptionBuilder(private val type: OpenApiKType) {
                 }
                 projectionType.type.isSubtypeOf(typeOf<Response.Errors>()) -> {
                     result[422] = projectionType.objectType("errors")
+                }
+                projectionType.type.isSubtypeOf(typeOf<Response.Error>()) -> {
+                    result[422] = getErrorType()
                 }
                 else -> {
                     result[200] = projectionType.objectType(projectionType.jvmErasure.simpleName!!)
