@@ -4,7 +4,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -53,15 +52,3 @@ object LocalTimeSerializer : KSerializer<LocalTime> {
     }
 }
 
-@Serializer(forClass = Locale::class)
-object LocaleSerializer : KSerializer<Locale> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Locale", PrimitiveKind.STRING)
-
-    override fun serialize(encoder: Encoder, value: Locale) {
-        encoder.encodeString(value.toString().replace("-", "_"))
-    }
-
-    override fun deserialize(decoder: Decoder): Locale {
-        return Locale(decoder.decodeString().replace("_", "-"))
-    }
-}
