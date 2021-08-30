@@ -1,5 +1,7 @@
 package dev.tmsoft.lib.filter
 
+import dev.tmsoft.lib.date.localDateFormat
+import dev.tmsoft.lib.date.localDateTimeFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -27,16 +29,11 @@ sealed class Value {
         val typedValue = when (columnType) {
             is IntegerColumnType -> value.toInt()
             is DoubleColumnType -> value.toDouble()
-            is JavaLocalDateColumnType -> LocalDate.parse(value, datePattern)
-            is JavaLocalDateTimeColumnType -> LocalDateTime.parse(value, dateTimePattern)
+            is JavaLocalDateColumnType -> LocalDate.parse(value, localDateFormat)
+            is JavaLocalDateTimeColumnType -> LocalDateTime.parse(value, localDateTimeFormat)
             else -> value
         }
         return QueryParameter(typedValue, columnType)
-    }
-
-    companion object {
-        val datePattern: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val dateTimePattern: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     }
 }
 
