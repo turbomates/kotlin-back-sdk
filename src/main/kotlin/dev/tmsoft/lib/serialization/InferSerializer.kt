@@ -2,7 +2,6 @@ package dev.tmsoft.lib.serialization
 
 import dev.tmsoft.lib.date.LocalDateSerializer
 import dev.tmsoft.lib.date.LocalDateTimeSerializer
-import dev.tmsoft.lib.date.LocaleSerializer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Locale
