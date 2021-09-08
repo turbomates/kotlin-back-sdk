@@ -1,5 +1,6 @@
 package dev.tmsoft.lib.exposed
 
+import dev.tmsoft.lib.Config
 import dev.tmsoft.lib.exposed.dao.Column
 import dev.tmsoft.lib.exposed.dao.EmbeddableColumn
 import dev.tmsoft.lib.exposed.dao.Embedded
@@ -83,7 +84,7 @@ class EmbeddedTest {
 
     @Test
     fun changes() {
-        val database = Database.connect("jdbc:h2:mem:test", driver = "org.h2.Driver", user = "root", password = "")
+        val database = Database.connect(Config.h2DatabaseUrl, driver = Config.h2Driver, user = Config.h2User, password = Config.h2Password)
         transaction(database) {
             SchemaUtils.create(Accounts)
             val money = Money(10, Currency("EUR"))
@@ -104,7 +105,7 @@ class EmbeddedTest {
 
     @Test
     fun selections() {
-        val database = Database.connect("jdbc:h2:mem:test", driver = "org.h2.Driver", user = "root", password = "")
+        val database = Database.connect(Config.h2DatabaseUrl, driver = Config.h2Driver, user = Config.h2User, password = Config.h2Password)
         transaction(database) {
             SchemaUtils.create(Accounts)
             val money = Money(10, Currency("EUR"))
