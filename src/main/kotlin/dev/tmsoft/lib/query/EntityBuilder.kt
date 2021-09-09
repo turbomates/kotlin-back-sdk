@@ -13,38 +13,37 @@ import org.jetbrains.exposed.sql.targetTables
  * @param rootMapper root table mapping expression
  * @param dependenciesMappers key - IdTable instance of the entity you are trying to map, value - mapping expression
  */
-inline fun <T> Query.fold(
+fun <T> Query.fold(
     rootTable: IdTable<*>,
     rootMapper: ResultRow.() -> T,
-    dependenciesMappers: MutableMap<IdTable<*>, ResultRow.(T) -> Unit>?
+    dependenciesMappers: Map<IdTable<*>, ResultRow.(T) -> T> = emptyMap()
 ): List<T> {
-    checkCorrectRootTable(rootTable)
+    checkCorrectMappingTable(rootTable)
     val dependencies: MutableMap<IdTable<*>, MutableMap<String, MutableSet<String>>> = mutableMapOf()
     val roots: MutableMap<String, T> = mutableMapOf()
     forEach { resultRow ->
-        if(resultRow.getOrNull(rootTable.id) != null) {
+        if (resultRow.getOrNull(rootTable.id) != null) {
             val root: T
             val rootKey = resultRow[rootTable.id].value.toString()
             if (roots.contains(rootKey)) {
-                root = roots[rootKey]!!
+                root = roots.getValue(rootKey)
             } else {
                 root = rootMapper(resultRow)
                 roots[rootKey] = root
             }
-            if (dependenciesMappers != null) {
-                for ((dependencyTable, dependencyMapper) in dependenciesMappers) {
-                    if (resultRow.getOrNull(dependencyTable.id) != null) {
-                        val uniqueDependencyKeys = dependencies[dependencyTable]?.get(rootKey)
-                        val currentDependencyKey = resultRow[dependencyTable.id].value.toString()
-                        if ((uniqueDependencyKeys != null && !uniqueDependencyKeys.contains(currentDependencyKey)) || uniqueDependencyKeys == null) {
-                            dependencyMapper(resultRow, root)
-                        }
-                        if (uniqueDependencyKeys == null) {
-                            dependencies[dependencyTable] = mutableMapOf()
-                            dependencies[dependencyTable]?.put(rootKey, mutableSetOf(currentDependencyKey))
-                        } else {
-                            dependencies[dependencyTable]?.get(rootKey)?.add(currentDependencyKey)
-                        }
+            for ((dependencyTable, dependencyMapper) in dependenciesMappers) {
+                checkCorrectMappingTable(dependencyTable)
+                if (resultRow.getOrNull(dependencyTable.id) != null) {
+                    val uniqueDependencyKeys = dependencies[dependencyTable]?.get(rootKey)
+                    val currentDependencyKey = resultRow[dependencyTable.id].value.toString()
+                    if ((uniqueDependencyKeys != null && !uniqueDependencyKeys.contains(currentDependencyKey)) || uniqueDependencyKeys == null) {
+                        dependencyMapper(resultRow, root)
+                    }
+                    if (uniqueDependencyKeys == null) {
+                        dependencies[dependencyTable] = mutableMapOf()
+                        dependencies[dependencyTable]?.put(rootKey, mutableSetOf(currentDependencyKey))
+                    } else {
+                        dependencies[dependencyTable]?.get(rootKey)?.add(currentDependencyKey)
                     }
                 }
             }
@@ -53,9 +52,9 @@ inline fun <T> Query.fold(
     return roots.values.toList()
 }
 
-fun Query.checkCorrectRootTable(rootTable: IdTable<*>) {
+private fun Query.checkCorrectMappingTable(table: IdTable<*>) {
     val tablesInQuery = (set as Join).targetTables().map { it.tableName }
-    if(!tablesInQuery.contains(rootTable.tableName)) {
-        throw IllegalArgumentException("The corresponding root table is not present in the resulting query")
+    if (!tablesInQuery.contains(table.tableName)) {
+        throw IllegalArgumentException("The corresponding table is not present in the resulting query")
     }
 }

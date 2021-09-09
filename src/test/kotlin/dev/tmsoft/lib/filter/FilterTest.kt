@@ -1,10 +1,12 @@
 package dev.tmsoft.lib.filter
 
+import dev.tmsoft.lib.Config.h2DatabaseUrl
+import dev.tmsoft.lib.Config.h2Driver
+import dev.tmsoft.lib.Config.h2Password
+import dev.tmsoft.lib.Config.h2User
 import dev.tmsoft.lib.exposed.Currency
 import dev.tmsoft.lib.exposed.Money
 import dev.tmsoft.lib.exposed.money
-import java.time.LocalDate
-import kotlin.test.assertTrue
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
@@ -16,11 +18,13 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
+import kotlin.test.assertTrue
 
 class FilterTest {
     @Test
     fun `simple query`() {
-        val database = Database.connect("jdbc:h2:mem:test", driver = "org.h2.Driver", user = "root", password = "")
+        val database = Database.connect(h2DatabaseUrl, driver = h2Driver, user = h2User, password = h2Password)
         transaction(database) {
             SchemaUtils.create(UserTable)
             val money = Money(10, Currency("EUR"))
