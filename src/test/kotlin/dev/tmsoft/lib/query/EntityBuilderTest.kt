@@ -64,7 +64,7 @@ class EntityBuilderTest {
             Presidents to { country -> country.apply { presidents.add(toPresident()) } },
             Facts to { country ->
                 val fact: Fact = toFact()
-                country.presidents.filter { it.id == fact.presidentId }.map { it.facts.add(fact) }
+                country.presidents.first { it.id == fact.presidentId }.facts.add(fact)
                 country
             }
         )
