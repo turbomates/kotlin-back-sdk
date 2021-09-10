@@ -45,6 +45,23 @@ class EntityBuilderTest {
     }
 
     @Test
+    fun `build entity without join`() {
+        val countries = getCountriesData()
+        transactionalOperations {
+            countries.forEach { country ->
+                database.createCountry(country)
+                country.countryLanguages.forEach { database.createLanguage(it) }
+                country.presidents.forEach { database.createPresident(it) }
+            }
+            assertEquals(
+                countries,
+                Countries.selectAll()
+                    .fold(Countries, { toCountry() })
+            )
+        }
+    }
+
+    @Test
     fun `build root only`() {
         val countries = expectedDataRelativeCountry()
         transactionalOperations {
