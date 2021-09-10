@@ -4,6 +4,7 @@ import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.Join
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.targetTables
 
 /**
@@ -53,8 +54,9 @@ fun <T> Query.fold(
 }
 
 private fun Query.checkCorrectMappingTable(table: IdTable<*>) {
-    val tablesInQuery = (set as Join).targetTables().map { it.tableName }
-    if (!tablesInQuery.contains(table.tableName)) {
+    val joinedTablesNames = (set as? Join)?.targetTables()?.map { it.tableName }
+    val mainTableName = (set as? Table)?.tableName
+    if (mainTableName != table.tableName && (joinedTablesNames != null && !joinedTablesNames.contains(table.tableName))) {
         throw IllegalArgumentException("The corresponding table is not present in the resulting query")
     }
 }
