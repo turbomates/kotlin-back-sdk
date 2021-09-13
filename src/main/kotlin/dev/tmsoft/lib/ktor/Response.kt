@@ -9,7 +9,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.response.ApplicationSendPipeline
 import io.ktor.response.respondFile
 import io.ktor.routing.Route
-import kotlin.collections.set
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -24,6 +23,7 @@ import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.encodeToJsonElement
+import kotlin.collections.set
 
 @Serializable(with = ResponseSerializer::class)
 sealed class Response {
@@ -73,6 +73,24 @@ fun Response.status(): HttpStatusCode {
         is Response.Errors -> HttpStatusCode.UnprocessableEntity
         is Response.Either<*, *> -> this.data.fold({ it.status() }, { it.status() }) as HttpStatusCode
         else -> HttpStatusCode.OK
+    }
+}
+
+object ResponseEitherSerializer : KSerializer<Response.Either<*, *>> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ResponseEitherSerializerDescriptor")
+
+    @InternalSerializationApi
+    @Suppress("UNCHECKED_CAST")
+    override fun serialize(encoder: Encoder, value: Response.Either<*, *>) {
+        val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
+        val anon = { response: Response -> output.json.encodeToJsonElement(response) }
+        val tree: JsonElement = value.data.fold(anon, anon) as JsonObject
+
+        output.encodeJsonElement(tree)
+    }
+
+    override fun deserialize(decoder: Decoder): Response.Either<*, *> {
+        throw NotImplementedError()
     }
 }
 
