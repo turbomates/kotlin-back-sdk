@@ -1,6 +1,5 @@
 package dev.tmsoft.lib.exposed.dao
 
-import kotlin.properties.ReadOnlyProperty
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.InnerTableLink
@@ -10,13 +9,14 @@ import org.jetbrains.exposed.dao.Referrers
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Table
+import kotlin.properties.ReadOnlyProperty
 
 open class PrivateEntityClass<ID : Comparable<ID>, out T : Entity<ID>>(private val base: EntityClass<ID, T>) {
     open fun new(init: T.() -> Unit) = base.new(null, init)
 
-    internal operator fun get(id: EntityID<ID>): T = base[id]
+    fun get(id: EntityID<ID>): T = base[id]
 
-    internal operator fun get(id: ID): T = base[id]
+    operator fun get(id: ID): T = base[id]
 
     infix fun <REF : Comparable<REF>> referencedOn(column: Column<REF>) = base.referencedOn(column)
 
