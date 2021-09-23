@@ -1,7 +1,7 @@
 object Versions {
     const val h2database = "1.4.200"
-    const val kotlin = "1.5.21"
-    const val ktor = "1.6.2"
+    const val kotlin = "1.5.31"
+    const val ktor = "1.6.3"
     const val junit = "5.7.2"
     const val test_logger = "3.0.0"
     const val postgresqlJDBC = "42.2.23"
