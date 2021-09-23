@@ -43,7 +43,7 @@ jobs:
           --url https://github.com/detekt/detekt/releases/download/v1.18.1/detekt-cli-1.18.1-all.jar \
           --silent \
           --location \
-          --output $dest/detekt.jar
+          --output detekt.jar
         chmod a+x $dest/detekt.jar
         echo $dest >> $GITHUB_PATH
 
@@ -51,7 +51,6 @@ jobs:
     - name: Run Detekt
       continue-on-error: true
       run: |
-       cd $GITHUB_PATH
        ls -al
        java -jar $GITHUB_PATH/detekt.jar --input ${{ github.workspace }} --report sarif:${{ github.workspace }}/detekt.sarif.json
 
