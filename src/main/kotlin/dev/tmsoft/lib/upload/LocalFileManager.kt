@@ -12,14 +12,12 @@ open class LocalFileManager(private val domain: String) : FileManager {
         fileName: String?
     ): Path = withContext(Dispatchers.IO) {
         val name = fileName ?: UUID.randomUUID().toString()
-        val dir = "$BASE_UPLOADS_DIR/$bucket".lowercase()
-
-        val file = File(dir)
-        if (!file.exists()) file.mkdirs()
+        val dir = File("$BASE_UPLOADS_DIR/$bucket")
+        if (!dir.exists()) dir.mkdirs()
 
         val fullFileName = "$name.${image.extension}".lowercase()
-        val path = "$dir/$fullFileName".lowercase()
-        File(path).writeBytes(image.content.readAllBytes())
+        val path = "$bucket/$fullFileName".lowercase()
+        File("$BASE_UPLOADS_DIR/$path").writeBytes(image.content.readAllBytes())
 
         path
     }
