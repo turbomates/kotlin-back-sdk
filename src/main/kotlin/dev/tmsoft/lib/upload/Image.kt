@@ -28,24 +28,29 @@ class Image(request: String) {
     }
 
     private fun parseContent(request: String): ByteArrayInputStream {
-        val startOfContent = request.indexOf(";base64,")
+        val startOfContent = request.indexOf(DELIMITER)
         if (startOfContent == -1) {
             return ByteArrayInputStream(Base64.getDecoder().decode(request))
         }
-        return ByteArrayInputStream(Base64.getDecoder().decode(request.substring(startOfContent + 8, request.length)))
+        return ByteArrayInputStream(
+            Base64.getDecoder().decode(request.substring(startOfContent + DELIMITER.length, request.length))
+        )
     }
 
     private fun parseExtension(request: String): String {
-        val startOfType = request.indexOf("image/")
-        val endOfType = request.indexOf(";base64,")
+        val extensionDelimiter = "image/"
+        val startOfType = request.indexOf(extensionDelimiter)
+        val endOfType = request.indexOf(DELIMITER)
         if (startOfType == -1) {
             val imageInputStream =
                 ImageIO.createImageInputStream(ByteArrayInputStream(Base64.getDecoder().decode(request)))
             return imageInputStream.formatName() ?: "svg"
         }
-        return request.substring(startOfType + 6, endOfType).normalize()
+        return request.substring(startOfType + extensionDelimiter.length, endOfType).normalize()
     }
 }
+
+private const val DELIMITER = ";base64,"
 
 // Mime Type for svg image/svg+xml remove xml
 private fun String.normalize(): String {

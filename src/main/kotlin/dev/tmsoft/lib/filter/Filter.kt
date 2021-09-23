@@ -57,7 +57,7 @@ abstract class Filter(val table: Table) {
         return field
     }
 
-    fun filter(query: Query, parameters: PathValues): Query {
+    fun apply(query: Query, parameters: PathValues): Query {
         var buildQuery = query.copy()
         fields.forEach { field ->
             val values = parameters[field.name] ?: emptyList()
@@ -99,8 +99,8 @@ abstract class Filter(val table: Table) {
     }
 }
 
-fun Query.filter(filter: Filter, values: PathValues): Query {
-    return filter.filter(this, values)
+fun Query.apply(filter: Filter, values: PathValues): Query {
+    return filter.apply(this, values)
 }
 
 fun Query.addJoin(body: ColumnSet.() -> ColumnSet): Query {

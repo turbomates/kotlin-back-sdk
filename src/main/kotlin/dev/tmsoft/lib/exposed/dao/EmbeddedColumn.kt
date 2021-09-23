@@ -74,6 +74,10 @@ abstract class EmbeddableColumn<T : Embedded>(private val table: Table, private 
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        return super.equals(other)
+    }
+
     override fun toString(): String {
         return getRealColumns().joinToString(",") {
             "${table.tableName}.${it.name}"

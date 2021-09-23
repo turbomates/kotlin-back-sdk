@@ -1,6 +1,5 @@
 package dev.tmsoft.lib.ktor
 
-import com.google.inject.AbstractModule
 import com.google.inject.Inject
 import com.google.inject.Injector
 import io.ktor.application.ApplicationCall
@@ -12,12 +11,7 @@ class ControllerPipelineFactory @Inject constructor(private val injector: Inject
         clazz: KClass<TController>,
         context: PipelineContext<*, ApplicationCall>
     ): TController {
-        val controllerInjector = injector.createChildInjector(object : AbstractModule() {
-            override fun configure() {
-            }
-        })
-
-        val controller = controllerInjector.getInstance(clazz.java)
+        val controller = injector.getInstance(clazz.java)
         controller.pipeline = context
 
         return controller

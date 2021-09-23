@@ -264,7 +264,7 @@ fun Route.buildFullPath(): String {
     return toString().replace(Regex("\\/\\(.*?\\)"), "")
 }
 
-val Route.openApi: OpenApi
+val Route.openApi: OpenAPI
     get() {
-        return application.feature(OpenApi)
+        return application.feature(OpenAPI)
     }

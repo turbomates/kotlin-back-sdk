@@ -4,6 +4,8 @@ import dev.tmsoft.lib.Config.h2DatabaseUrl
 import dev.tmsoft.lib.Config.h2Driver
 import dev.tmsoft.lib.Config.h2Password
 import dev.tmsoft.lib.Config.h2User
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.Column
@@ -15,16 +17,10 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
-class EntityBuilderTest {
+class QueryFoldTest {
 
-    private val database: Database
-
-    init {
-        database = Database.connect(h2DatabaseUrl, driver = h2Driver, user = h2User, password = h2Password)
-    }
+    private val database: Database = Database.connect(h2DatabaseUrl, driver = h2Driver, user = h2User, password = h2Password)
 
     @Test
     fun `build entity with non-existent root table`() {

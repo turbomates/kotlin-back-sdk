@@ -38,8 +38,8 @@ class SubscriberWorker(private val dao: EventsDatabaseAccess, private val publis
                     }
                     dao.publish(id)
                 }
-            } catch (e: Throwable) {
-                println("Exception from the real time event publishing: $e")
+            } catch (logging: Throwable) {
+                logger.error("Exception from the real time event publishing: $logging")
             }
         }
     }

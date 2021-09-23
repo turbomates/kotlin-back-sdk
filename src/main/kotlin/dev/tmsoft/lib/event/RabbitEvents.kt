@@ -82,15 +82,17 @@ class RabbitEvents(private val connection: Connection, private val exchange: Str
                 val callback = subscribers[event.key] as? EventSubscriber<Event>
                 callback?.invoke(event)
                 channel.basicAck(message.envelope.deliveryTag, false)
-            } catch (ex: Throwable) {
+            } catch (logging: Throwable) {
                 channel.basicNack(message.envelope.deliveryTag, false, true)
-                logger.error("Broken event: ${String(message.body)}. Message: ${ex.message}.")
+                logger.error("Broken event: ${String(message.body)}. Message: ${logging.message}.")
             }
         }
     }
 
     private class ListenerCancelCallback : CancelCallback {
+        private val logger by lazy { LoggerFactory.getLogger(javaClass) }
         override fun handle(consumerTag: String?) {
+            logger.error("Listener was cancelled $consumerTag")
         }
     }
 }

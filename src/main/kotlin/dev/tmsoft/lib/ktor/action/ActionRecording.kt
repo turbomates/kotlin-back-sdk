@@ -4,6 +4,7 @@ import io.ktor.application.Application
 import io.ktor.application.ApplicationCallPipeline
 import io.ktor.application.ApplicationFeature
 import io.ktor.application.feature
+import io.ktor.http.HttpStatusCode
 import io.ktor.request.ApplicationReceivePipeline
 import io.ktor.request.ApplicationReceiveRequest
 import io.ktor.request.contentCharset
@@ -56,7 +57,7 @@ class ActionRecording(config: Configuration) {
         }
 
         pipeline.sendPipeline.intercept(ApplicationSendPipeline.After) {
-            if (context.response.status()?.value == 200) {
+            if (context.response.status() == HttpStatusCode.OK) {
                 storage.add(context.attributes.getOrNull(actionRecording) ?: trackingInformation.build(this))
             }
         }

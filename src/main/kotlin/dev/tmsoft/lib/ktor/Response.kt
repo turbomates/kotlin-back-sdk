@@ -9,6 +9,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.response.ApplicationSendPipeline
 import io.ktor.response.respondFile
 import io.ktor.routing.Route
+import kotlin.collections.set
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -23,7 +24,6 @@ import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.encodeToJsonElement
-import kotlin.collections.set
 
 @Serializable(with = ResponseSerializer::class)
 sealed class Response {
@@ -137,7 +137,7 @@ object ResponseSerializer : KSerializer<Response> {
                 val anon = { response: Response -> output.json.encodeToJsonElement(ResponseSerializer, response) }
                 value.data.fold(anon, anon) as JsonObject
             }
-            else -> throw Exception("Response serialization: shouldn't reach here")
+            else -> throw ResponseException("Response serialization: shouldn't reach here")
         }
         output.encodeJsonElement(tree)
     }
@@ -146,6 +146,8 @@ object ResponseSerializer : KSerializer<Response> {
         throw NotImplementedError()
     }
 }
+
+class ResponseException(message: String) : Exception(message)
 
 object ErrorSerializer : KSerializer<Error> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ErrorSerializerDescriptor")

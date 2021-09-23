@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin(KotlinModules.jvm).version(Versions.kotlin) apply true
-    id(Plugins.ktlint_gradle).version(Versions.ktlint_gradle)
+    id(Plugins.detekt).version(Versions.detekt)
     kotlin(Plugins.kotlin_serialization).version(Versions.kotlin)
     id(Plugins.test_logger) version Versions.test_logger
     id("maven-publish")
@@ -49,25 +49,21 @@ dependencies {
     testRuntimeOnly(Deps.junit_jupiter_engine)
 }
 
-ktlint {
-    version.set("0.41.0")
-    debug.set(false)
-    verbose.set(true)
-    android.set(false)
-    outputToConsole.set(true)
-    outputColorName.set("RED")
-    ignoreFailures.set(true)
-    enableExperimentalRules.set(false)
-    disabledRules.set(setOf("import-ordering"))
-    reporters {
-        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
-        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
-    }
-
-    filter {
-        include("**/kotlin/**")
+detekt {
+    toolVersion = Versions.detekt
+    ignoreFailures = false
+    parallel = true
+    allRules = false
+    config = files("detekt.yml")
+    buildUponDefaultConfig = true
+    reports {
+        xml.enabled = true
+        html.enabled = false
+        txt.enabled = false
+        sarif.enabled = false
     }
 }
+
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
