@@ -12,10 +12,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveOrNull
 import io.ktor.response.respond
 
-/**
- * Represents a form-based authentication provider
- * @param name is the name of the provider, or `null` for a default provider
- */
 class JsonFormAuthenticationProvider<T : Principal> internal constructor(config: Configuration<T>) :
     AuthenticationProvider(config) {
 
@@ -67,7 +63,7 @@ fun <T : Principal> Authentication.Configuration.jsonForm(
         } else {
             val cause =
                 if (credentials == null) AuthenticationFailedCause.NoCredentials else AuthenticationFailedCause.InvalidCredentials
-            context.challenge(formAuthenticationChallengeKey, cause) {
+            context.challenge(FORM_AUTHENTICATION_CHALLENGE_KEY, cause) {
                 call.respond(HttpStatusCode.Unauthorized, "Bad credentials")
                 it.complete()
             }
@@ -76,4 +72,4 @@ fun <T : Principal> Authentication.Configuration.jsonForm(
     register(provider)
 }
 
-private val formAuthenticationChallengeKey: Any = "JsonFormAuth"
+private const val FORM_AUTHENTICATION_CHALLENGE_KEY: String = "JsonFormAuth"

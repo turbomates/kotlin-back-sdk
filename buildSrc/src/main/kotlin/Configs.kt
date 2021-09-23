@@ -9,7 +9,7 @@ object Versions {
     const val valiktor_core = "0.12.0"
     const val logback_classic = "1.3.0-alpha6"
     const val rabbitmq_amqp_client = "5.13.0"
-    const val ktlint_gradle = "10.1.0"
+    const val detekt = "1.18.1"
     const val exposed = "0.32.1"
     const val mockito = "2.2.0"
     const val s3 = "2.17.8"
@@ -51,7 +51,7 @@ object Deps {
 
 object Plugins {
     const val test_logger = "com.adarshr.test-logger"
-    const val ktlint_gradle = "org.jlleitschuh.gradle.ktlint"
+    const val detekt= "io.gitlab.arturbosch.detekt"
     const val kotlin_serialization = "plugin.serialization"
 }
 

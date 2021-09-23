@@ -1,6 +1,5 @@
 package dev.tmsoft.lib.openapi.ktor
 
-import dev.tmsoft.lib.openapi.OpenAPI
 import dev.tmsoft.lib.openapi.OpenApiKType
 import dev.tmsoft.lib.openapi.Type
 import dev.tmsoft.lib.openapi.openApiKType
@@ -19,20 +18,25 @@ import kotlin.reflect.KType
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
+import dev.tmsoft.lib.openapi.OpenAPI as SwaggerOpenAPI
 
-class OpenApi(configuration: Configuration) {
-    private val logger by lazy { LoggerFactory.getLogger(OpenApi::class.java) }
+class OpenAPI(configuration: Configuration) {
+    private val logger by lazy { LoggerFactory.getLogger(OpenAPI::class.java) }
     private val typeBuilder: (OpenApiKType) -> Type.Object = configuration.typeBuilder
     private val responseBuilder: (OpenApiKType) -> Map<Int, Type> = configuration.responseBuilder
-    private val openApi: OpenAPI = configuration.openApi
+    private val documentationBuilder: SwaggerOpenAPI = configuration.documentationBuilder
     private val path: String = configuration.path
+    private val json = Json {
+        encodeDefaults = false
+    }
 
     class Configuration {
         var typeBuilder: (OpenApiKType) -> Type.Object = { type -> type.objectType("response") }
-        var responseBuilder: (OpenApiKType) -> Map<Int, Type> = { type -> mapOf(200 to type.type()) }
+        var responseBuilder: (OpenApiKType) -> Map<Int, Type> =
+            { type -> mapOf(HttpStatusCode.OK.value to type.type()) }
         var path = "/openapi.json"
-        var configure: (OpenAPI) -> Unit = {}
-        var openApi: OpenAPI = OpenAPI("localhost")
+        var configure: (SwaggerOpenAPI) -> Unit = {}
+        var documentationBuilder: SwaggerOpenAPI = SwaggerOpenAPI("localhost")
     }
 
     fun addToPath(
@@ -42,9 +46,9 @@ class OpenApi(configuration: Configuration) {
         body: KType? = null,
         pathParams: KType? = null
     ) {
-        openApi.addToPath(
+        documentationBuilder.addToPath(
             path,
-            OpenAPI.Method.valueOf(method.value),
+            SwaggerOpenAPI.Method.valueOf(method.value),
             response?.openApiKType?.let(responseBuilder) ?: emptyMap(),
             body?.openApiKType?.let(typeBuilder),
             pathParams?.openApiKType?.let(typeBuilder)
@@ -53,12 +57,12 @@ class OpenApi(configuration: Configuration) {
 
     fun addToPath(
         path: String,
-        method: OpenAPI.Method,
+        method: SwaggerOpenAPI.Method,
         responses: Map<Int, Type> = emptyMap(),
         body: Type.Object? = null,
         pathParams: Type.Object? = null
     ) {
-        openApi.addToPath(
+        documentationBuilder.addToPath(
             path,
             method,
             responses,
@@ -67,34 +71,36 @@ class OpenApi(configuration: Configuration) {
         )
     }
 
+
     suspend fun intercept(
         context: PipelineContext<Unit, ApplicationCall>
     ) {
         if (context.call.request.path() == path) {
             try {
-                val response = Json {
-                    encodeDefaults = false
-                }
-                    .encodeToString(openApi.root)
+                val response = json.encodeToString(documentationBuilder.root)
                 context.call.response.status(HttpStatusCode.OK)
 
                 context.call.respondText(response, contentType = ContentType.Application.Json)
                 context.finish()
-            } catch (ex: Exception) {
-                logger.error(ex.message)
+            } catch (ignore: Throwable) {
+                logger.error(ignore.message)
             }
         }
     }
 
     /**
-     * Installable feature for [OpenApi].
+     * Installable feature for [OpenAPI].
      */
-    companion object Feature : ApplicationFeature<ApplicationCallPipeline, Configuration, OpenApi> {
-        override val key = AttributeKey<OpenApi>("OpenApi")
-        override fun install(pipeline: ApplicationCallPipeline, configure: Configuration.() -> Unit): OpenApi {
+    companion object Feature :
+        ApplicationFeature<ApplicationCallPipeline, Configuration, dev.tmsoft.lib.openapi.ktor.OpenAPI> {
+        override val key = AttributeKey<dev.tmsoft.lib.openapi.ktor.OpenAPI>("OpenApi")
+        override fun install(
+            pipeline: ApplicationCallPipeline,
+            configure: Configuration.() -> Unit
+        ): dev.tmsoft.lib.openapi.ktor.OpenAPI {
             val configuration = Configuration().apply(configure)
-            val feature = OpenApi(configuration)
-            configuration.configure(feature.openApi)
+            val feature = OpenAPI(configuration)
+            configuration.configure(feature.documentationBuilder)
             pipeline.intercept(ApplicationCallPipeline.Features) {
                 feature.intercept(this)
             }

@@ -77,14 +77,10 @@ class OpenApiKType(val type: KType) {
                 }
             }
             memberType.isMap() -> {
-                var firstType = memberType.arguments[0].type!!
-                if (projectionTypes.containsKey(firstType.toString())) {
-                    firstType = projectionTypes.getValue(firstType.toString())
-                }
-                var secondType = memberType.arguments[1].type!!
-                if (projectionTypes.containsKey(secondType.toString())) {
-                    secondType = projectionTypes.getValue(secondType.toString())
-                }
+                val argType = memberType.arguments[0].type!!
+                val firstType = projectionTypes.getOrDefault(argType.toString(), argType)
+                val argSecondType = memberType.arguments[1].type!!
+                val secondType = projectionTypes.getOrDefault(argSecondType.toString(), argSecondType)
                 Type.Object(
                     "map",
                     properties = listOf(
@@ -102,10 +98,7 @@ class OpenApiKType(val type: KType) {
             memberType.isPrimitive() ->
                 memberType.openApiType
             else -> {
-                var projectionType = memberType
-                if (projectionTypes.containsKey(memberType.toString())) {
-                    projectionType = projectionTypes.getValue(memberType.toString())
-                }
+                var projectionType = projectionTypes.getOrDefault(memberType.toString(), memberType)
                 buildType(projectionType.jvmErasure.simpleName!!, projectionType)
             }
         }
@@ -113,12 +106,12 @@ class OpenApiKType(val type: KType) {
 
     private fun KType.isPrimitive(): Boolean {
         return javaClass.isPrimitive ||
-            isSubtypeOf(typeOf<String?>()) ||
-            isSubtypeOf(typeOf<Int?>()) ||
-            isSubtypeOf(typeOf<Float?>()) ||
-            isSubtypeOf(typeOf<Double?>()) ||
-            isSubtypeOf(typeOf<Boolean?>()) ||
-            isSubtypeOf(typeOf<UUID?>())
+                isSubtypeOf(typeOf<String?>()) ||
+                isSubtypeOf(typeOf<Int?>()) ||
+                isSubtypeOf(typeOf<Float?>()) ||
+                isSubtypeOf(typeOf<Double?>()) ||
+                isSubtypeOf(typeOf<Boolean?>()) ||
+                isSubtypeOf(typeOf<UUID?>())
     }
 
     private fun KType.isCollection(): Boolean {

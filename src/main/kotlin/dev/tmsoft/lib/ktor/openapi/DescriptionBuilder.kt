@@ -15,23 +15,23 @@ class DescriptionBuilder(private val type: OpenApiKType) {
     fun buildResponseMap(): Map<Int, Type> {
         return when {
             type.jvmErasure.isSubclassOf(Response.Ok::class) -> mapOf(
-                200 to getOkType()
+                HttpStatus.OK.code to getOkType()
             )
             type.jvmErasure.isSubclassOf(Response.Either::class) -> buildEitherResponseMap()
             type.jvmErasure.isSubclassOf(Response.Listing::class) -> mapOf(
-                200 to buildType()
+                HttpStatus.OK.code to buildType()
             )
             type.jvmErasure.isSubclassOf(Response.Error::class) -> mapOf(
-                422 to getErrorType()
+                HttpStatus.UnprocessableEntity.code to getErrorType()
             )
             type.jvmErasure.isSubclassOf(Response.Errors::class) -> mapOf(
-                422 to buildType()
+                HttpStatus.UnprocessableEntity.code to buildType()
             )
             type.jvmErasure.isSubclassOf(Response.Data::class) -> mapOf(
-                200 to buildType()
+                HttpStatus.OK.code to buildType()
             )
             else -> mapOf(
-                200 to type.type()
+                HttpStatus.OK.code to type.type()
             )
         }
     }
@@ -73,19 +73,24 @@ class DescriptionBuilder(private val type: OpenApiKType) {
             var projectionType = type.getArgumentProjectionType(argument.type!!)
             when {
                 projectionType.type.isSubtypeOf(typeOf<Response.Ok>()) -> {
-                    result[200] = getOkType()
+                    result[HttpStatus.OK.code] = getOkType()
                 }
                 projectionType.type.isSubtypeOf(typeOf<Response.Errors>()) -> {
-                    result[422] = projectionType.objectType("errors")
+                    result[HttpStatus.UnprocessableEntity.code] = projectionType.objectType("errors")
                 }
                 projectionType.type.isSubtypeOf(typeOf<Response.Error>()) -> {
-                    result[422] = getErrorType()
+                    result[HttpStatus.UnprocessableEntity.code] = getErrorType()
                 }
                 else -> {
-                    result[200] = projectionType.objectType(projectionType.jvmErasure.simpleName!!)
+                    result[HttpStatus.OK.code] = projectionType.objectType(projectionType.jvmErasure.simpleName!!)
                 }
             }
         }
         return result
+    }
+
+    enum class HttpStatus(val code: Int) {
+        OK(200),
+        UnprocessableEntity(422)
     }
 }

@@ -1,7 +1,7 @@
 package dev.tmsoft.lib.event
 
-import org.slf4j.LoggerFactory
 import kotlin.reflect.full.companionObjectInstance
+import org.slf4j.LoggerFactory
 
 class EventsSubscribers : EventSubscribers {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -33,8 +33,8 @@ class EventsSubscribers : EventSubscribers {
         subscribers.forEach {
             try {
                 it(event)
-            } catch (e: Throwable) {
-                logger.error(e.message)
+            } catch (logging: Throwable) {
+                logger.error(logging.message)
             }
         }
     }

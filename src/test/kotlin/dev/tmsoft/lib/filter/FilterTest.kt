@@ -36,7 +36,7 @@ class FilterTest {
             }
 
             val query = UserTable.selectAll()
-                .filter(
+                .apply(
                     UserFilter,
                     PathValues(
                         mapOf(
