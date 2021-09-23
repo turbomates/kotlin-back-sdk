@@ -35,6 +35,7 @@ style:
     active: false
   MagicNumber:
     active: true
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
     ignoreRanges: true
     ignorePropertyDeclaration: true
     ignoreNumbers:
