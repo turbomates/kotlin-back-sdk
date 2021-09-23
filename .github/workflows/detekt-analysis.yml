@@ -45,6 +45,7 @@ jobs:
           --location \
           --output $dest/detekt.jar
         chmod a+x $dest/detekt.jar
+        echo $GITHUB_PATH
         echo $dest >> $GITHUB_PATH
 
     # Performs static analysis using Detekt
