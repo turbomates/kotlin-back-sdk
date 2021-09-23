@@ -43,7 +43,7 @@ jobs:
           --url https://github.com/detekt/detekt/releases/download/v1.18.1/detekt-cli-1.18.1-all.jar \
           --silent \
           --location \
-          --output detekt.jar
+          --output $dest/detekt.jar
         chmod a+x $dest/detekt.jar
         echo $dest >> $GITHUB_PATH
 
