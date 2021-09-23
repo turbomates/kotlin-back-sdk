@@ -43,11 +43,19 @@ jobs:
           --output detekt.jar
         chmod a+x detekt.jar
 
+    - name: Copy config
+      run: |
+        curl --request GET \
+          --url https://raw.githubusercontent.com/turbomates/kotlin-back-sdk/main/detekt.yml \
+          --silent \
+          --location \
+          --output detekt.yml
+
     # Performs static analysis using Detekt
     - name: Run Detekt
       continue-on-error: true
       run: |
-       java -jar detekt.jar --input ${{ github.workspace }} --report sarif:${{ github.workspace }}/detekt.sarif.json
+       java -jar detekt.jar --input ${{ github.workspace }}  --config detekt.yml --report sarif:${{ github.workspace }}/detekt.sarif.json
 
     # Modifies the SARIF output produced by Detekt so that absolute URIs are relative
     # This is so we can easily map results onto their source files
