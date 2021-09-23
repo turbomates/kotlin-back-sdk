@@ -40,7 +40,7 @@ jobs:
       run: |
         dest=$( mktemp -d )
         curl --request GET \
-          --url https://github.com/detekt/detekt/releases/download/$DETEKT_RELEASE_TAG/detekt-cli-$DETEKT_RELEASE_TAG-all.jar \
+          --url https://github.com/detekt/detekt/releases/download/v1.18.1/detekt-cli-1.18.1-all.jar \
           --silent \
           --location \
           --output $dest/detekt
@@ -51,7 +51,7 @@ jobs:
     - name: Run Detekt
       continue-on-error: true
       run: |
-        detekt --input ${{ github.workspace }} --report sarif:${{ github.workspace }}/detekt.sarif.json
+       java -jar detekt --input ${{ github.workspace }} --report sarif:${{ github.workspace }}/detekt.sarif.json
 
     # Modifies the SARIF output produced by Detekt so that absolute URIs are relative
     # This is so we can easily map results onto their source files
