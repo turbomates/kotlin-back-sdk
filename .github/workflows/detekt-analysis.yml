@@ -24,9 +24,6 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-env:
-  DETEKT_RELEASE_TAG: v1.18.1
-
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "scan"
@@ -40,7 +37,7 @@ jobs:
       run: |
         dest=$( mktemp -d )
         curl --request GET \
-          --url https://github.com/detekt/detekt/releases/download/v$DETEKT_RELEASE_TAG/detekt-cli-$DETEKT_RELEASE_TAG-all.jar \
+          --url https://github.com/detekt/detekt/releases/download/v1.18.1/detekt-cli-1.18.1-all.jar \
           --silent \
           --location \
           --output detekt.jar
