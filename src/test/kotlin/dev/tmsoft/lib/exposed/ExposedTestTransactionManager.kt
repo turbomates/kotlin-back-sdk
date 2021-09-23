@@ -2,10 +2,10 @@ package dev.tmsoft.lib.exposed
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import java.sql.Connection
+import org.jetbrains.exposed.sql.DEFAULT_REPETITION_ATTEMPTS
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.statements.api.ExposedSavepoint
-import org.jetbrains.exposed.sql.transactions.DEFAULT_REPETITION_ATTEMPTS
 import org.jetbrains.exposed.sql.transactions.TransactionInterface
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
