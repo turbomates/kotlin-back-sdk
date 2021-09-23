@@ -45,6 +45,8 @@ jobs:
           --location \
           --output $dest/detekt.jar
         chmod a+x $dest/detekt.jar
+        pwd
+        echo $GITHUB_PATH
         echo $dest >> $GITHUB_PATH
 
     # Performs static analysis using Detekt
@@ -52,6 +54,8 @@ jobs:
       continue-on-error: true
       run: |
        ls -al
+       pwd
+       echo $GITHUB_PATH
        java -jar $GITHUB_PATH/detekt.jar --input ${{ github.workspace }} --report sarif:${{ github.workspace }}/detekt.sarif.json
 
     # Modifies the SARIF output produced by Detekt so that absolute URIs are relative
