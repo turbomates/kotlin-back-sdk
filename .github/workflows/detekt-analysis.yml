@@ -40,7 +40,7 @@ jobs:
       run: |
         dest=$( mktemp -d )
         curl --request GET \
-          --url https://github.com/detekt/detekt/releases/download/v1.18.1/detekt-cli-1.18.1-all.jar \
+          --url https://github.com/detekt/detekt/releases/download/v$DETEKT_RELEASE_TAG/detekt-cli-$DETEKT_RELEASE_TAG-all.jar \
           --silent \
           --location \
           --output detekt.jar
