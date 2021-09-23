@@ -51,6 +51,6 @@ jobs:
     steps:
       - uses: smartsquaregmbh/delete-old-packages@v0.3.1
         with:
-          keep: 2
+          keep: 4
           names: |
             dev.tmsoft.kotlin.common-lib
