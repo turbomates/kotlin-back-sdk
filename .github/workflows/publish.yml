@@ -52,6 +52,6 @@ jobs:
       - uses: smartsquaregmbh/delete-old-packages@v0.3.1
         with:
           keep: 4
-          version-pattern: "^\\d+\\.20.\\d+$"
+          version-pattern: "^\\d+\\.2.\\d+$"
           names: |
             dev.tmsoft.kotlin.common-lib
