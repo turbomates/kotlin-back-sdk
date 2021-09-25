@@ -7,7 +7,6 @@ object Versions {
     const val postgresqlJDBC = "42.2.23"
     const val google_guice = "5.0.1"
     const val valiktor_core = "0.12.0"
-    const val logback_classic = "1.3.0-alpha10"
     const val rabbitmq_amqp_client = "5.13.1"
     const val detekt = "1.18.1"
     const val exposed = "0.35.1"
@@ -16,6 +15,7 @@ object Versions {
     const val embedded_postgres = "0.13.4"
     const val swagger_webjar = "3.52.1"
     const val jedis = "3.7.0"
+    const val log4j = "2.14.1"
 }
 
 object Deps {
@@ -29,7 +29,8 @@ object Deps {
     const val google_guice = "com.google.inject:guice:${Versions.google_guice}"
     const val rabbitmq_amqp_client = "com.rabbitmq:amqp-client:${Versions.rabbitmq_amqp_client}"
     const val valiktor_core = "org.valiktor:valiktor-core:${Versions.valiktor_core}"
-    const val logback_classic = "ch.qos.logback:logback-classic:${Versions.logback_classic}"
+    const val log4j_api = "org.apache.logging.log4j:log4j-api:${Versions.log4j}"
+    const val log4j_core = "org.apache.logging.log4j:log4j-core:${Versions.log4j}"
     const val junit_jupiter_engine = "org.junit.jupiter:junit-jupiter-engine:${Versions.junit}"
     const val exposed_core = "org.jetbrains.exposed:exposed-core:${Versions.exposed}"
     const val exposed_dao = "org.jetbrains.exposed:exposed-dao:${Versions.exposed}"
