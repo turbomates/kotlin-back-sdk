@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.2.7"
+version = "0.2.8"
 
 repositories {
     mavenCentral()
@@ -21,6 +21,7 @@ dependencies {
     api(Deps.ktor_locations)
     api(Deps.kotlin_reflect)
     api(Deps.ktor_server_sessions)
+    api(Deps.ktor_serialization)
     api(Deps.ktor_server_core)
     api(Deps.ktor_auth_jwt)
     api(Deps.ktor_auth)

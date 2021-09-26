@@ -17,12 +17,13 @@ object Versions {
     const val swagger_webjar = "3.52.1"
     const val jedis = "3.7.0"
     const val log4j = "2.14.1"
-    const val hoplite="1.4.7"
+    const val hoplite = "1.4.7"
     const val hikaricp = "5.0.0"
 }
 
 object Deps {
     const val ktor_server_sessions = "io.ktor:ktor-server-sessions:${Versions.ktor}"
+    const val ktor_serialization = "io.ktor:ktor-serialization:${Versions.ktor}"
     const val kotlin_reflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     const val ktor_locations = "io.ktor:ktor-locations:${Versions.ktor}"
     const val ktor_server_test_host = "io.ktor:ktor-server-test-host:${Versions.ktor}"
