@@ -99,7 +99,7 @@ abstract class Filter(val table: Table) {
     }
 }
 
-fun Query.apply(filter: Filter, values: PathValues): Query {
+fun Query.filter(filter: Filter, values: PathValues): Query {
     return filter.apply(this, values)
 }
 
