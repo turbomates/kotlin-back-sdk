@@ -56,6 +56,7 @@ object Deps {
     const val ktor_webjar = "io.ktor:ktor-webjars:${Versions.ktor}"
     const val ktor_client_cio = "io.ktor:ktor-client-cio:${Versions.ktor}"
     const val jedis = "redis.clients:jedis:${Versions.jedis}"
+    const val log4j_slf4j = "org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4j}"
 }
 
 object Plugins {

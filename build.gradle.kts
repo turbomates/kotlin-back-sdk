@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.2.8"
+version = "0.2.9"
 
 repositories {
     mavenCentral()
@@ -45,6 +45,7 @@ dependencies {
     api(Deps.ktor_client_serialization)
     api(Deps.jedis)
     api(Deps.log4j_api)
+    api(Deps.log4j_slf4j)
     runtimeOnly(Deps.log4j_core)
 
     testApi(Deps.kotlin_test)
