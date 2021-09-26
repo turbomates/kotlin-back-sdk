@@ -7,19 +7,19 @@ import dev.tmsoft.lib.Config.h2User
 import dev.tmsoft.lib.exposed.Currency
 import dev.tmsoft.lib.exposed.Money
 import dev.tmsoft.lib.exposed.money
+import java.time.LocalDate
+import kotlin.test.assertTrue
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.OrOp
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.`java-time`.date
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.javatime.date
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
-import kotlin.test.assertTrue
 
 class FilterTest {
     @Test
