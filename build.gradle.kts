@@ -45,11 +45,11 @@ dependencies {
     api(Deps.log4j_api)
     runtimeOnly(Deps.log4j_core)
 
-    testImplementation(Deps.kotlin_test)
-    testImplementation(Deps.ktor_server_test_host)
-    testImplementation(Deps.junit_jupiter_api)
+    testApi(Deps.kotlin_test)
+    testApi(Deps.ktor_server_test_host)
+    testApi(Deps.junit_jupiter_api)
+    testApi(Deps.h2_database)
     testImplementation(Deps.embedded_postgres)
-    testImplementation(Deps.h2_database)
     testRuntimeOnly(Deps.junit_jupiter_engine)
 }
 
