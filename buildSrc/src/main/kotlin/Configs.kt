@@ -1,6 +1,7 @@
 object Versions {
     const val h2database = "1.4.200"
     const val kotlin = "1.5.31"
+    const val kotlin_serialization = "1.5.31"
     const val ktor = "1.6.3"
     const val junit = "5.8.1"
     const val test_logger = "3.0.0"
@@ -16,15 +17,18 @@ object Versions {
     const val swagger_webjar = "3.52.1"
     const val jedis = "3.7.0"
     const val log4j = "2.14.1"
+    const val hoplite="1.4.7"
 }
 
 object Deps {
+    const val ktor_server_sessions = "io.ktor:ktor-server-sessions:${Versions.ktor}"
     const val kotlin_reflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     const val ktor_locations = "io.ktor:ktor-locations:${Versions.ktor}"
     const val ktor_server_test_host = "io.ktor:ktor-server-test-host:${Versions.ktor}"
     const val ktor_server_core = "io.ktor:ktor-server-core:${Versions.ktor}"
     const val ktor_client_serialization = "io.ktor:ktor-client-serialization:${Versions.ktor}"
     const val ktor_auth_jwt = "io.ktor:ktor-auth-jwt:${Versions.ktor}"
+    const val ktor_auth = "io.ktor:ktor-auth:${Versions.ktor}"
     const val postgresqlJDBC = "org.postgresql:postgresql:${Versions.postgresqlJDBC}"
     const val google_guice = "com.google.inject:guice:${Versions.google_guice}"
     const val rabbitmq_amqp_client = "com.rabbitmq:amqp-client:${Versions.rabbitmq_amqp_client}"
@@ -35,10 +39,13 @@ object Deps {
     const val exposed_core = "org.jetbrains.exposed:exposed-core:${Versions.exposed}"
     const val exposed_dao = "org.jetbrains.exposed:exposed-dao:${Versions.exposed}"
     const val exposed_jdbc = "org.jetbrains.exposed:exposed-jdbc:${Versions.exposed}"
-    const val kotlin_serialization_json = "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlin_serialization_json}"
+    const val kotlin_serialization = "org.jetbrains.kotlin:kotlin-serialization:${Versions.kotlin_serialization}"
+    const val kotlin_serialization_json =
+        "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlin_serialization_json}"
     const val exposed_time = "org.jetbrains.exposed:exposed-java-time:${Versions.exposed}"
     const val h2_database = "com.h2database:h2:${Versions.h2database}"
     const val s3 = "aws.sdk.kotlin:s3:${Versions.s3}"
+    const val hoplite = "com.sksamuel.hoplite:hoplite-core:${Versions.hoplite}"
     const val kotlin_test = "org.jetbrains.kotlin:kotlin-test-junit5:${Versions.kotlin}"
     const val embedded_postgres = "com.opentable.components:otj-pg-embedded:${Versions.embedded_postgres}"
     const val junit_jupiter_api = "org.junit.jupiter:junit-jupiter-api:${Versions.junit}"
@@ -50,7 +57,7 @@ object Deps {
 
 object Plugins {
     const val test_logger = "com.adarshr.test-logger"
-    const val detekt= "io.gitlab.arturbosch.detekt"
+    const val detekt = "io.gitlab.arturbosch.detekt"
     const val kotlin_serialization = "plugin.serialization"
 }
 

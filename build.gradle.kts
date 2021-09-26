@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.2.3"
+version = "0.2.5"
 
 repositories {
     mavenCentral()
@@ -20,8 +20,10 @@ repositories {
 dependencies {
     api(Deps.ktor_locations)
     api(Deps.kotlin_reflect)
+    api(Deps.ktor_server_sessions)
     api(Deps.ktor_server_core)
     api(Deps.ktor_auth_jwt)
+    api(Deps.ktor_auth)
     api(Deps.valiktor_core)
     api(Deps.google_guice)
     api(Deps.postgresqlJDBC)
@@ -30,11 +32,13 @@ dependencies {
     api(Deps.exposed_jdbc)
     api(Deps.exposed_jdbc)
     api(Deps.exposed_time)
+    api(Deps.kotlin_serialization)
     api(Deps.kotlin_serialization_json)
     api(Deps.rabbitmq_amqp_client)
     api(Deps.swagger_webjar)
     api(Deps.ktor_webjar)
     api(Deps.s3)
+    api(Deps.hoplite)
     api(Deps.ktor_client_cio)
     api(Deps.ktor_client_serialization)
     api(Deps.jedis)
