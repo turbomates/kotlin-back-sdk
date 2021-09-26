@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.2.6"
+version = "0.2.7"
 
 repositories {
     mavenCentral()
@@ -27,6 +27,7 @@ dependencies {
     api(Deps.valiktor_core)
     api(Deps.google_guice)
     api(Deps.postgresqlJDBC)
+    api(Deps.hikaricp)
     api(Deps.exposed_core)
     api(Deps.exposed_dao)
     api(Deps.exposed_jdbc)
@@ -47,8 +48,8 @@ dependencies {
 
     testApi(Deps.kotlin_test)
     testApi(Deps.ktor_server_test_host)
-    testApi(Deps.junit_jupiter_api)
     testApi(Deps.h2_database)
+    testImplementation(Deps.junit_jupiter_api)
     testImplementation(Deps.embedded_postgres)
     testRuntimeOnly(Deps.junit_jupiter_engine)
 }
