@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.2.11"
+version = "0.2.12"
 
 repositories {
     mavenCentral()
@@ -49,7 +49,9 @@ dependencies {
     runtimeOnly(Deps.log4j_core)
 
     testImplementation(Deps.kotlin_test)
-    testImplementation(Deps.ktor_server_test_host)
+    testImplementation(Deps.ktor_server_test_host){
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+    }
     testImplementation(Deps.h2_database)
     testImplementation(Deps.junit_jupiter_api)
     testImplementation(Deps.embedded_postgres)
