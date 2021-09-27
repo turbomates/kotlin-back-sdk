@@ -18,7 +18,7 @@ import kotlinx.serialization.serializer
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.`java-time`.datetime
+import org.jetbrains.exposed.sql.javatime.datetime
 
 data class Saga<T : Saga.Data>(val id: SagaId, val data: T) {
     val timeout: Int = 0

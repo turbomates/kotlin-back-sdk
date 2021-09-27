@@ -4,7 +4,6 @@ import dev.tmsoft.lib.date.localDateFormat
 import dev.tmsoft.lib.date.localDateTimeFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import org.jetbrains.exposed.sql.AndOp
 import org.jetbrains.exposed.sql.DoubleColumnType
 import org.jetbrains.exposed.sql.EnumerationColumnType
@@ -19,8 +18,8 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.QueryParameter
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.wrap
 import org.jetbrains.exposed.sql.StringColumnType
-import org.jetbrains.exposed.sql.`java-time`.JavaLocalDateColumnType
-import org.jetbrains.exposed.sql.`java-time`.JavaLocalDateTimeColumnType
+import org.jetbrains.exposed.sql.javatime.JavaLocalDateColumnType
+import org.jetbrains.exposed.sql.javatime.JavaLocalDateTimeColumnType
 import org.jetbrains.exposed.sql.lowerCase
 
 sealed class Value {

@@ -25,7 +25,7 @@ suspend fun S3Client.bucketExists(s3bucket: String) =
     try {
         headBucket { bucket = s3bucket }
         true
-    } catch (e: Exception) { // Checking Service Exception coming in future release
+    } catch (ignore: Exception) { // Checking Service Exception coming in future release
         false
     }
 

@@ -10,7 +10,6 @@ import io.ktor.response.ApplicationSendPipeline
 import io.ktor.response.respondFile
 import io.ktor.routing.Route
 import kotlin.collections.set
-import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
@@ -79,7 +78,6 @@ fun Response.status(): HttpStatusCode {
 object ResponseEitherSerializer : KSerializer<Response.Either<*, *>> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ResponseEitherSerializerDescriptor")
 
-    @InternalSerializationApi
     @Suppress("UNCHECKED_CAST")
     override fun serialize(encoder: Encoder, value: Response.Either<*, *>) {
         val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
@@ -97,7 +95,6 @@ object ResponseEitherSerializer : KSerializer<Response.Either<*, *>> {
 object ResponseSerializer : KSerializer<Response> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ResponseSerializerDescriptor")
 
-    @InternalSerializationApi
     @Suppress("UNCHECKED_CAST")
     override fun serialize(encoder: Encoder, value: Response) {
         val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
@@ -152,7 +149,6 @@ class ResponseException(message: String) : Exception(message)
 object ErrorSerializer : KSerializer<Error> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ErrorSerializerDescriptor")
 
-    @InternalSerializationApi
     @Suppress("UNCHECKED_CAST")
     override fun serialize(encoder: Encoder, value: Error) {
         val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")

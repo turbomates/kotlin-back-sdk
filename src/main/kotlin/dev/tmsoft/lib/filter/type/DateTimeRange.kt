@@ -6,8 +6,8 @@ import java.time.LocalTime
 import org.jetbrains.exposed.sql.ExpressionWithColumnType
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.QueryParameter
-import org.jetbrains.exposed.sql.`java-time`.JavaLocalDateColumnType
 import org.jetbrains.exposed.sql.andWhere
+import org.jetbrains.exposed.sql.javatime.JavaLocalDateColumnType
 
 data class DateTimeRange(val from: LocalDateTime? = null, val to: LocalDateTime? = null)
 

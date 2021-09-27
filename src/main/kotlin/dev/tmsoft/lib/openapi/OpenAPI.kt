@@ -124,9 +124,9 @@ class OpenAPI(var host: String) {
                     parameters?.plus(pathParams?.toParameterObject() ?: emptyList())
                         ?: pathParams?.toParameterObject()
                     )
-        val body = body?.toRequestBodyObject() ?: this.requestBody
-        val responses = this.responses + responses.mapValues { it.value.toResponseObject() }
-        return copy(parameters = parameters, requestBody = body, responses = responses)
+        val bodyResult = body?.toRequestBodyObject() ?: this.requestBody
+        val responsesResult = this.responses + responses.mapValues { it.value.toResponseObject() }
+        return copy(parameters = parameters, requestBody = bodyResult, responses = responsesResult)
     }
 }
 

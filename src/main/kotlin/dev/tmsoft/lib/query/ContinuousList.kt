@@ -1,7 +1,6 @@
 package dev.tmsoft.lib.query
 
 import dev.tmsoft.lib.serialization.elementSerializer
-import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.ListSerializer
@@ -67,7 +66,6 @@ class ContinuousList<T>(
 object ContinuousListSerializer : KSerializer<ContinuousList<*>> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ContinuousListDescriptor")
 
-    @InternalSerializationApi
     @Suppress("UNCHECKED_CAST")
     override fun serialize(encoder: Encoder, value: ContinuousList<*>) {
         val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")

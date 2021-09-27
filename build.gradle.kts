@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.2.10"
+version = "0.2.11"
 
 repositories {
     mavenCentral()
@@ -48,9 +48,9 @@ dependencies {
     api(Deps.log4j_slf4j)
     runtimeOnly(Deps.log4j_core)
 
-    testApi(Deps.kotlin_test)
-    testApi(Deps.ktor_server_test_host)
-    testApi(Deps.h2_database)
+    testImplementation(Deps.kotlin_test)
+    testImplementation(Deps.ktor_server_test_host)
+    testImplementation(Deps.h2_database)
     testImplementation(Deps.junit_jupiter_api)
     testImplementation(Deps.embedded_postgres)
     testRuntimeOnly(Deps.junit_jupiter_engine)
@@ -76,11 +76,12 @@ tasks.withType<KotlinCompile> {
     kotlinOptions {
         jvmTarget = "15"
         freeCompilerArgs = listOf(
-            "-Xuse-experimental=io.ktor.locations.KtorExperimentalLocationsAPI",
-            "-Xuse-experimental=kotlin.ExperimentalStdlibApi",
-            "-Xuse-experimental=kotlinx.serialization.InternalSerializationApi",
-            "-Xuse-experimental=kotlinx.serialization.ExperimentalSerializationApi",
+            "-Xopt-in=io.ktor.locations.KtorExperimentalLocationsAPI",
+            "-Xopt-in=kotlin.ExperimentalStdlibApi",
+            "-Xopt-in=kotlinx.serialization.InternalSerializationApi",
+            "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi",
             "-Xopt-in=kotlin.RequiresOptIn",
+            "-Xopt-in=kotlin.time.ExperimentalTime",
             "-Xlambdas=indy"
         )
     }

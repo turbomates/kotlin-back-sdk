@@ -5,9 +5,9 @@ import dev.tmsoft.lib.exposed.type.jsonb
 import java.time.LocalDateTime
 import java.util.UUID
 import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.`java-time`.datetime
-import org.jetbrains.exposed.sql.`java-time`.second
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.javatime.datetime
+import org.jetbrains.exposed.sql.javatime.second
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.update
 
