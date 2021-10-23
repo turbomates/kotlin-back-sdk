@@ -19,7 +19,7 @@ class EventListenerInterceptor : GlobalStatementInterceptor {
         val pairEvents = transaction.events.raiseEvents().toList()
         val events = pairEvents.map { it.first }
         events.save()
-        (pairEvents.filter { it.second != null } as Sequence<Pair<Event, Any>>).save()
+        (pairEvents.filter { it.second != null } as List<Pair<Event, Any>>).save()
         if (events.isNotEmpty()) {
             transaction.registerInterceptor(PublishEventsInterceptor(events))
         }
@@ -44,7 +44,8 @@ internal fun List<Event>.save() {
     }
 }
 
-internal fun Sequence<Pair<Event, Any>>.save() {
+@JvmName("saveEventAny")
+internal fun List<Pair<Event, Any>>.save() {
     EventSourcingTable.batchInsert(this) { pair ->
         this[EventSourcingTable.id] = UUID.randomUUID()
         this[EventSourcingTable.event] = EventWrapper(pair.first)
