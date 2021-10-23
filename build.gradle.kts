@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.2.13"
+version = "0.3.1"
 
 repositories {
     mavenCentral()
@@ -53,9 +53,7 @@ dependencies {
         exclude(group = "ch.qos.logback", module = "logback-classic")
     }
     testImplementation(Deps.h2_database)
-    testImplementation(Deps.junit_jupiter_api)
     testImplementation(Deps.embedded_postgres)
-    testRuntimeOnly(Deps.junit_jupiter_engine)
 }
 
 detekt {

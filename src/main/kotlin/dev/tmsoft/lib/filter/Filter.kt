@@ -19,6 +19,7 @@ abstract class Filter(val table: Table) {
     fun add(
         name: String,
         column: Column<*>,
+        possibleValues: List<String>? = null,
         function: (Query.(values: List<Value>) -> Query)? = null
     ): Field {
         val field = Field(
@@ -32,7 +33,7 @@ abstract class Filter(val table: Table) {
                     }
                 }
             },
-            column.possibleValues()
+            possibleValues ?: column.possibleValues()
         )
 
         fields.add(field)
@@ -41,6 +42,7 @@ abstract class Filter(val table: Table) {
 
     fun add(
         name: String,
+        possibleValues: List<String>? = null,
         function: (Query.(value: List<Value>) -> Query)? = null
     ): Field {
         val column = table.columns.find { it.name == name }
@@ -50,14 +52,14 @@ abstract class Filter(val table: Table) {
             if (function == null) {
                 throw NotEnoughInformation("Please provide function and conditions")
             }
-            Field(name, function, emptyList())
+            Field(name, function, possibleValues ?: emptyList())
         }
 
         fields.add(field)
         return field
     }
 
-    fun apply(query: Query, parameters: PathValues): Query {
+    fun filter(query: Query, parameters: PathValues): Query {
         var buildQuery = query.copy()
         fields.forEach { field ->
             val values = parameters[field.name] ?: emptyList()
@@ -100,7 +102,7 @@ abstract class Filter(val table: Table) {
 }
 
 fun Query.filter(filter: Filter, values: PathValues): Query {
-    return filter.apply(this, values)
+    return filter.filter(this, values)
 }
 
 fun Query.addJoin(body: ColumnSet.() -> ColumnSet): Query {

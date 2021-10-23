@@ -26,25 +26,19 @@ import kotlinx.serialization.json.encodeToJsonElement
 
 @Serializable(with = ResponseSerializer::class)
 sealed class Response {
-    @Serializable(with = ResponseSerializer::class)
     class Error(val error: dev.tmsoft.lib.validation.Error) : Response()
 
     @Serializable
     object Ok : Response()
 
-    @Serializable(with = ResponseSerializer::class)
     class Data<T : Any>(val data: T) : Response()
 
-    @Serializable(with = ResponseSerializer::class)
     class File(val file: java.io.File) : Response()
 
-    @Serializable(with = ResponseSerializer::class)
     class Errors(val errors: List<dev.tmsoft.lib.validation.Error>) : Response()
 
-    @Serializable(with = ResponseSerializer::class)
     class Listing<T : Any>(val list: ContinuousList<T>) : Response()
 
-    @Serializable(with = ResponseSerializer::class)
     class Either<TL : Response, TR : Response>(val data: dev.tmsoft.lib.structure.Either<TL, TR>) : Response()
 }
 

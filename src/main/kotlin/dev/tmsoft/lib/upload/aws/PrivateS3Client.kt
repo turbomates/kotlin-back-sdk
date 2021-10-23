@@ -1,6 +1,6 @@
 package dev.tmsoft.lib.upload.aws
 
-import aws.sdk.kotlin.runtime.auth.StaticCredentialsProvider
+import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import aws.sdk.kotlin.services.s3.S3Client
 import aws.sdk.kotlin.services.s3.model.BucketLocationConstraint
 import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest

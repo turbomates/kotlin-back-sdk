@@ -11,13 +11,15 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 
-class RabbitEvents(private val connection: Connection, private val exchange: String, private val prefix: String) :
+class RabbitEvents(
+    private val connection: Connection,
+    private val exchange: String,
+    private val prefix: String,
+    private val json: Json
+) :
     Publisher,
     EventSubscribers {
     private val channel: Channel = connection.createChannel()
-    private val json: Json by lazy {
-        Json { useArrayPolymorphism = true }
-    }
 
     init {
         channel.declareLocalExchange(exchange)
