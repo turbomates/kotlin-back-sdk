@@ -6,6 +6,10 @@ class EventStore {
         events.add(Pair(event, null))
     }
 
+    fun addEvent(event: Event, id: Any) {
+        events.add(Pair(event, id))
+    }
+
     fun raiseEvents(): Sequence<Pair<Event, Any?>> = sequence {
         events.forEach {
             yield(it)
