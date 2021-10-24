@@ -5,8 +5,10 @@ import dev.tmsoft.lib.date.LocalDateTimeSerializer
 import dev.tmsoft.lib.ktor.Response
 import dev.tmsoft.lib.ktor.ResponseDataSerializer
 import dev.tmsoft.lib.ktor.ResponseEitherSerializer
+import dev.tmsoft.lib.ktor.ResponseErrorSerializer
 import dev.tmsoft.lib.ktor.ResponseListingSerializer
 import dev.tmsoft.lib.ktor.ResponseOkSerializer
+import dev.tmsoft.lib.validation.Error
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Locale
@@ -81,6 +83,7 @@ fun resolveSerializer(value: Any): KSerializer<*> {
         is Response.Listing<*> -> ResponseListingSerializer
         is Response.Either<*, *> -> ResponseEitherSerializer
         is Response.Data<*> -> ResponseDataSerializer
+        is Error -> ResponseErrorSerializer
         else -> value::class.serializer()
     }
 }
