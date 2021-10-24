@@ -2,6 +2,11 @@ package dev.tmsoft.lib.serialization
 
 import dev.tmsoft.lib.date.LocalDateSerializer
 import dev.tmsoft.lib.date.LocalDateTimeSerializer
+import dev.tmsoft.lib.ktor.Response
+import dev.tmsoft.lib.ktor.ResponseDataSerializer
+import dev.tmsoft.lib.ktor.ResponseEitherSerializer
+import dev.tmsoft.lib.ktor.ResponseListingSerializer
+import dev.tmsoft.lib.ktor.ResponseOkSerializer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Locale
@@ -28,7 +33,7 @@ fun Collection<*>.elementSerializer(): KSerializer<*> {
     if (serializers.size > 1) {
         error(
             "Serializing collections of different element types is not yet supported. " +
-                "Selected serializers: ${serializers.map { it.descriptor.serialName }}"
+                    "Selected serializers: ${serializers.map { it.descriptor.serialName }}"
         )
     }
 
@@ -72,6 +77,10 @@ fun resolveSerializer(value: Any): KSerializer<*> {
         is LocalDateTime -> LocalDateTimeSerializer
         is Locale -> LocaleSerializer
         is UUID -> UUIDSerializer
+        is Response.Ok -> ResponseOkSerializer
+        is Response.Listing<*> -> ResponseListingSerializer
+        is Response.Either<*, *> -> ResponseEitherSerializer
+        is Response.Data<*> -> ResponseDataSerializer
         else -> value::class.serializer()
     }
 }

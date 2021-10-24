@@ -15,6 +15,7 @@ import org.jetbrains.exposed.sql.statements.StatementInterceptor
 import org.jetbrains.exposed.sql.transactions.transactionScope
 
 class EventListenerInterceptor : GlobalStatementInterceptor {
+    @Suppress("UNCHECKED_CAST")
     override fun beforeCommit(transaction: Transaction) {
         val pairEvents = transaction.events.raiseEvents().toList()
         val events = pairEvents.map { it.first }

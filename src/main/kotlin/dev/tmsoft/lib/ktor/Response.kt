@@ -1,3 +1,5 @@
+@file:UseSerializers(ResponseErrorSerializer::class)
+
 package dev.tmsoft.lib.ktor
 
 import dev.tmsoft.lib.query.ContinuousList
@@ -13,7 +15,7 @@ import kotlin.collections.set
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -22,23 +24,27 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.encodeToJsonElement
 
-@Serializable(with = ResponseSerializer::class)
+@Serializable
 sealed class Response {
+    @Serializable
     class Error(val error: dev.tmsoft.lib.validation.Error) : Response()
 
-    @Serializable
+    @Serializable(with = ResponseOkSerializer::class)
     object Ok : Response()
 
+    @Serializable(with = ResponseDataSerializer::class)
     class Data<T : Any>(val data: T) : Response()
 
     class File(val file: java.io.File) : Response()
 
+    @Serializable
     class Errors(val errors: List<dev.tmsoft.lib.validation.Error>) : Response()
 
+    @Serializable(with = ResponseListingSerializer::class)
     class Listing<T : Any>(val list: ContinuousList<T>) : Response()
 
+    @Serializable(with = ResponseEitherSerializer::class)
     class Either<TL : Response, TR : Response>(val data: dev.tmsoft.lib.structure.Either<TL, TR>) : Response()
 }
 
@@ -69,13 +75,18 @@ fun Response.status(): HttpStatusCode {
     }
 }
 
-object ResponseEitherSerializer : KSerializer<Response.Either<*, *>> {
+object ResponseEitherSerializer : KSerializer<Response.Either<out Response, out Response>> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ResponseEitherSerializerDescriptor")
 
     @Suppress("UNCHECKED_CAST")
-    override fun serialize(encoder: Encoder, value: Response.Either<*, *>) {
+    override fun serialize(encoder: Encoder, value: Response.Either<out Response, out Response>) {
         val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
-        val anon = { response: Response -> output.json.encodeToJsonElement(response) }
+        val anon = { response: Response ->
+            output.json.encodeToJsonElement(
+                resolveSerializer(response) as KSerializer<Response>,
+                response
+            )
+        }
         val tree: JsonElement = value.data.fold(anon, anon) as JsonObject
 
         output.encodeJsonElement(tree)
@@ -86,62 +97,8 @@ object ResponseEitherSerializer : KSerializer<Response.Either<*, *>> {
     }
 }
 
-object ResponseSerializer : KSerializer<Response> {
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ResponseSerializerDescriptor")
-
-    @Suppress("UNCHECKED_CAST")
-    override fun serialize(encoder: Encoder, value: Response) {
-        val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
-        val tree: JsonElement = when (value) {
-            is Response.Error -> {
-                JsonObject(mapOf("error" to output.json.encodeToJsonElement(value.error)))
-            }
-            is Response.Ok -> {
-                JsonObject(mapOf("data" to JsonPrimitive("ok")))
-            }
-            is Response.Data<*> -> {
-                // toDo bug with inline classed and encodeToJsonElement
-                val encoded = output.json.encodeToString(
-                    resolveSerializer(value.data) as KSerializer<Any>,
-                    value.data
-                )
-                JsonObject(
-                    mapOf(
-                        "data" to output.json.parseToJsonElement(encoded)
-                    )
-                )
-            }
-            is Response.Listing<*> -> {
-                output.json.encodeToJsonElement(ContinuousListSerializer, value.list)
-            }
-            is Response.Errors -> {
-                JsonObject(
-                    mapOf(
-                        "errors" to output.json.encodeToJsonElement(
-                            ListSerializer(Error.serializer()),
-                            value.errors
-                        )
-                    )
-                )
-            }
-            is Response.Either<*, *> -> {
-                val anon = { response: Response -> output.json.encodeToJsonElement(ResponseSerializer, response) }
-                value.data.fold(anon, anon) as JsonObject
-            }
-            else -> throw ResponseException("Response serialization: shouldn't reach here")
-        }
-        output.encodeJsonElement(tree)
-    }
-
-    override fun deserialize(decoder: Decoder): Response {
-        throw NotImplementedError()
-    }
-}
-
-class ResponseException(message: String) : Exception(message)
-
-object ErrorSerializer : KSerializer<Error> {
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ErrorSerializerDescriptor")
+object ResponseErrorSerializer : KSerializer<Error> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ResponseErrorSerializerDescriptor")
 
     @Suppress("UNCHECKED_CAST")
     override fun serialize(encoder: Encoder, value: Error) {
@@ -159,6 +116,58 @@ object ErrorSerializer : KSerializer<Error> {
     }
 
     override fun deserialize(decoder: Decoder): Error {
+        throw NotImplementedError()
+    }
+}
+
+object ResponseOkSerializer : KSerializer<Response.Ok> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ResponseOkSerializerDescriptor")
+
+    override fun serialize(encoder: Encoder, value: Response.Ok) {
+        val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
+        output.encodeJsonElement(JsonObject(mapOf("data" to JsonPrimitive("ok"))))
+    }
+
+    override fun deserialize(decoder: Decoder): Response.Ok {
+        throw NotImplementedError()
+    }
+}
+
+object ResponseDataSerializer : KSerializer<Response.Data<Any>> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ResponseDataSerializerDescriptor")
+
+    @Suppress("UNCHECKED_CAST")
+    override fun serialize(encoder: Encoder, value: Response.Data<Any>) {
+        // toDo bug with inline classed and encodeToJsonElement
+        val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
+        val encoded = output.json.encodeToJsonElement(
+            resolveSerializer(value.data) as KSerializer<Any>,
+            value.data
+        )
+        output.encodeJsonElement(
+            JsonObject(
+                mapOf(
+                    "data" to encoded
+                )
+            )
+        )
+    }
+
+    override fun deserialize(decoder: Decoder): Response.Data<Any> {
+        throw NotImplementedError()
+    }
+}
+
+object ResponseListingSerializer : KSerializer<Response.Listing<Any>> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ResponseListingSerializerDescriptor")
+
+    override fun serialize(encoder: Encoder, value: Response.Listing<Any>) {
+        // toDo bug with inline classed and encodeToJsonElement
+        val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
+        output.encodeJsonElement(output.json.encodeToJsonElement(ContinuousListSerializer, value.list))
+    }
+
+    override fun deserialize(decoder: Decoder): Response.Listing<Any> {
         throw NotImplementedError()
     }
 }
