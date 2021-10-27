@@ -2,62 +2,51 @@ import com.adarshr.gradle.testlogger.theme.ThemeType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin(KotlinModules.jvm).version(Versions.kotlin) apply true
-    id(Plugins.detekt).version(Versions.detekt)
-    kotlin(Plugins.kotlin_serialization).version(Versions.kotlin)
-    id(Plugins.test_logger) version Versions.test_logger
+    kotlin("jvm").version(deps.versions.kotlin.asProvider().get()) apply true
+    alias(deps.plugins.detekt)
+    alias(deps.plugins.test.logger)
+    alias(deps.plugins.kotlin.serialization)
     id("maven-publish")
     signing
 }
 
 group = "dev.tmsoft.lib"
-version = "0.3.4"
+version = "0.3.5"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    api(Deps.ktor_locations)
-    api(Deps.kotlin_reflect)
-    api(Deps.ktor_server_sessions)
-    api(Deps.ktor_serialization)
-    api(Deps.ktor_server_core)
-    api(Deps.ktor_auth_jwt)
-    api(Deps.ktor_auth)
-    api(Deps.valiktor_core)
-    api(Deps.google_guice)
-    api(Deps.postgresqlJDBC)
-    api(Deps.hikaricp)
-    api(Deps.exposed_core)
-    api(Deps.exposed_dao)
-    api(Deps.exposed_jdbc)
-    api(Deps.exposed_jdbc)
-    api(Deps.exposed_time)
-    api(Deps.kotlin_serialization)
-    api(Deps.kotlin_serialization_json)
-    api(Deps.rabbitmq_amqp_client)
-    api(Deps.swagger_webjar)
-    api(Deps.ktor_webjar)
-    api(Deps.s3)
-    api(Deps.hoplite)
-    api(Deps.ktor_client_cio)
-    api(Deps.ktor_client_serialization)
-    api(Deps.jedis)
-    api(Deps.log4j_api)
-    api(Deps.log4j_slf4j)
-    runtimeOnly(Deps.log4j_core)
+    api(deps.bundles.ktor.server)
+    api(deps.bundles.ktor.client)
+    api(deps.bundles.exposed)
+    api(deps.kotlin.reflect)
+    api(deps.valiktor.core)
+    api(deps.google.guice)
+    api(deps.postgresqlJDBC)
+    api(deps.hikaricp)
+    api(deps.kotlin.serialization)
+    api(deps.kotlin.serialization.json)
+    api(deps.rabbitmq.amqp.client)
+    api(deps.swagger.webjar)
+    api(deps.s3)
+    api(deps.hoplite)
+    api(deps.jedis)
+    api(deps.log4j.api)
+    api(deps.log4j.slf4j)
+    runtimeOnly(deps.log4j.core)
 
-    testImplementation(Deps.kotlin_test)
-    testImplementation(Deps.ktor_server_test_host){
+    testImplementation(deps.kotlin.test)
+    testImplementation(deps.ktor.server.test.host) {
         exclude(group = "ch.qos.logback", module = "logback-classic")
     }
-    testImplementation(Deps.h2_database)
-    testImplementation(Deps.embedded_postgres)
+    testImplementation(deps.embedded.postgres)
+    testImplementation(deps.h2.database)
 }
 
 detekt {
-    toolVersion = Versions.detekt
+    toolVersion = deps.versions.detekt.get()
     ignoreFailures = false
     parallel = true
     allRules = false
