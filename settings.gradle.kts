@@ -9,7 +9,7 @@ dependencyResolutionManagement {
             version("log4j", "2.14.1")
             version("detekt", "1.18.1")
             version("hoplite", "1.4.9")
-            version("kotlin", "1.5.10")
+            version("kotlin", "1.5.31")
             version("s3", "0.8.0-alpha")
             version("hikaricp", "5.0.0")
             version("exposed", "0.35.3")
@@ -57,17 +57,20 @@ dependencyResolutionManagement {
             alias("jedis").to("redis.clients", "jedis").versionRef("jedis")
             alias("s3").to("aws.sdk.kotlin", "s3").versionRef("s3")
 
-            bundle("ktor", listOf(
+            bundle("ktor_client", listOf(
+                "ktor_client_cio",
+                "ktor_client_serialization"
+            ))
+
+            bundle("ktor_server", listOf(
                 "ktor_auth",
                 "ktor_webjar",
                 "ktor_auth_jwt",
                 "ktor_locations",
-                "ktor_client_cio",
                 "ktor_server_core",
                 "ktor_serialization",
                 "ktor_server_sessions",
-                "ktor_server_test_host",
-                "ktor_client_serialization"
+                "ktor_server_test_host"
             ))
 
             bundle("exposed", listOf(

@@ -18,7 +18,8 @@ repositories {
 }
 
 dependencies {
-    api(deps.bundles.ktor)
+    api(deps.bundles.ktor.server)
+    api(deps.bundles.ktor.client)
     api(deps.bundles.exposed)
     api(deps.kotlin.reflect)
     api(deps.valiktor.core)
