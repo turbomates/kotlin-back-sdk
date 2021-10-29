@@ -14,6 +14,7 @@ import org.jetbrains.exposed.sql.GreaterEqOp
 import org.jetbrains.exposed.sql.IntegerColumnType
 import org.jetbrains.exposed.sql.LessEqOp
 import org.jetbrains.exposed.sql.LikeOp
+import org.jetbrains.exposed.sql.LongColumnType
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.QueryParameter
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.wrap
@@ -26,6 +27,7 @@ sealed class Value {
     abstract fun op(column: ExpressionWithColumnType<*>): Op<Boolean>
     protected fun ExpressionWithColumnType<*>.typedWrap(value: String): QueryParameter<*> {
         val typedValue = when (columnType) {
+            is LongColumnType -> value.toLong()
             is IntegerColumnType -> value.toInt()
             is DoubleColumnType -> value.toDouble()
             is JavaLocalDateColumnType -> LocalDate.parse(value, localDateFormat)
@@ -62,6 +64,7 @@ class RangeValue(val from: String? = null, val to: String? = null) : Value() {
     override fun op(column: ExpressionWithColumnType<*>): Op<Boolean> {
         return column.expression(from, to)
     }
+
     @Suppress("UNCHECKED_CAST")
     private fun ExpressionWithColumnType<*>.expression(from: String?, to: String?): Op<Boolean> {
         return when (columnType) {

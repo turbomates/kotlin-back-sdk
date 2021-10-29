@@ -34,6 +34,7 @@ class PostgreSQLJson<out T : Any>(
 ) : ColumnType() {
     private val json = Json {
         serializersModule = module
+        encodeDefaults = true
     }
 
     override fun sqlType() = "jsonb"
