@@ -1,5 +1,12 @@
 package dev.tmsoft.lib.socialauth
 
-interface SocialAPI<T> {
+import kotlinx.serialization.Serializable
+
+interface SocialAPI<T: SocialUser> {
     suspend fun getUser(accessToken: String): T?
+}
+
+@Serializable
+abstract class SocialUser {
+    abstract val id: String
 }

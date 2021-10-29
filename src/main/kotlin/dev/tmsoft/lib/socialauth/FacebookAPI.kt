@@ -17,4 +17,8 @@ class FacebookAPI: SocialAPI<FacebookUser> {
 }
 
 @Serializable
-data class FacebookUser(val id: String, val name: String?, val email: String?)
+data class FacebookUser(
+    override val id: String,
+    val name: String?,
+    val email: String?
+): SocialUser()

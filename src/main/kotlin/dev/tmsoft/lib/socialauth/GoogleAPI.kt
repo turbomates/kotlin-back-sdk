@@ -17,4 +17,8 @@ class GoogleAPI: SocialAPI<GoogleUser> {
 }
 
 @Serializable
-data class GoogleUser(val sub: String?, val name: String?, val email: String?)
+data class GoogleUser(
+    override val id: String,
+    val name: String?,
+    val email: String?
+): SocialUser()
