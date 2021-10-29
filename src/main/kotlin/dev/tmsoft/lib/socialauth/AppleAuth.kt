@@ -35,13 +35,13 @@ fun Authentication.Configuration.apple(
     }
 }
 
-class AppleTransformer<T : Principal>(private val api: AppleAPI, private val provider: SocialProvider<T>) : SocialPrincipalTransformer {
-    override suspend fun transform(principal: OAuthAccessTokenResponse): Principal? =
-        when (principal) {
-            is OAuthAccessTokenResponse.OAuth2 -> {
-                val user = api.getUser(principal.accessToken)
-                provider.load(user.email, SocialToken(SocialAuthType.APPLE, principal))
-            }
-            else -> null
-        }
-}
+// class AppleTransformer<T : Principal>(private val api: AppleAPI, private val provider: SocialProvider<T>) : SocialPrincipalTransformer {
+//     override suspend fun transform(principal: OAuthAccessTokenResponse): Principal? =
+//         when (principal) {
+//             is OAuthAccessTokenResponse.OAuth2 -> {
+//                 val user = api.getUser(principal.accessToken)
+//                 provider.load(user?.email, SocialToken(SocialAuthType.APPLE, principal))
+//             }
+//             else -> null
+//         }
+// }
