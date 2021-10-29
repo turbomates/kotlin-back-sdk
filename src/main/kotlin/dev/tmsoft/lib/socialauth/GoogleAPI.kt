@@ -6,10 +6,10 @@ import kotlinx.serialization.Serializable
 
 private const val USER_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
 
-class GoogleAPI: SocialAPI {
-    override suspend fun getUser(accessToken: String): SocialUser? {
+class GoogleAPI: SocialAPI<GoogleUser> {
+    override suspend fun getUser(accessToken: String): GoogleUser? {
         return try {
-            socialClient.get<GoogleUser>(USER_URL + "?access_token=$accessToken")
+            socialClient.get<GoogleUser>("$USER_URL?access_token=$accessToken")
         } catch (ignore: ClientRequestException) {
             null
         }
@@ -17,4 +17,4 @@ class GoogleAPI: SocialAPI {
 }
 
 @Serializable
-data class GoogleUser(val sub: String?, val name: String?, val email: String?) : SocialUser()
+data class GoogleUser(val sub: String?, val name: String?, val email: String?)

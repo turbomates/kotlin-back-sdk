@@ -40,7 +40,7 @@ class AppleTransformer<T : Principal>(private val api: AppleAPI, private val pro
         when (principal) {
             is OAuthAccessTokenResponse.OAuth2 -> {
                 val user = api.getUser(principal.accessToken)
-                provider.load((user as AppleUser).email, SocialToken(SocialAuthType.APPLE, principal))
+                provider.load(user?.email, SocialToken(SocialAuthType.APPLE, principal))
             }
             else -> null
         }

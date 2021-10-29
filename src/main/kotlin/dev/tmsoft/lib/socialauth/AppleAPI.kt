@@ -9,15 +9,15 @@ import kotlinx.serialization.Serializable
 
 private const val VALIDATION_URL = "https://appleid.apple.com/auth/token"
 
-class AppleAPI(private val clientSecret: String, private val clientId: String): SocialAPI {
-    override suspend fun getUser(code: String): SocialUser? {
+class AppleAPI(private val clientSecret: String, private val clientId: String): SocialAPI<AppleUser> {
+    override suspend fun getUser(accessToken: String): AppleUser? {
         return try {
             val validatedUser = socialClient.post<ValidatedUser>(VALIDATION_URL) {
                 contentType(ContentType.Application.Json)
                 body = UserInformation(
                     clientId,
                     clientSecret,
-                    code,
+                    accessToken,
                     "authorization_code"
                 )
             }
@@ -42,7 +42,7 @@ data class ValidatedUser(
 data class AppleUser(
     val id: String,
     val email: String?
-): SocialUser()
+)
 
 @Serializable
 data class UserInformation(

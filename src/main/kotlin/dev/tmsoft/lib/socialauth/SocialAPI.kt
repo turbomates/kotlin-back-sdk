@@ -1,8 +1,5 @@
 package dev.tmsoft.lib.socialauth
 
-interface SocialAPI {
-    suspend fun getUser(accessToken: String): SocialUser?
+interface SocialAPI<T> {
+    suspend fun getUser(accessToken: String): T?
 }
-
-abstract class SocialUser
-
