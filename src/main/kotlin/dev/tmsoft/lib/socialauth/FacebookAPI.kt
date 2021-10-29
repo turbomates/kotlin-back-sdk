@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 
 private const val USER_URL = "https://graph.facebook.com/v11.0/me"
 
-class FacebookAPI {
-    suspend fun getUser(accessToken: String): FacebookUser? {
+class FacebookAPI: SocialAPI {
+    override suspend fun getUser(accessToken: String): SocialUser? {
         return try {
             socialClient.get<FacebookUser>(USER_URL + "?fields=id,name,email&access_token=$accessToken")
         } catch (ignore: ClientRequestException) {
@@ -17,4 +17,4 @@ class FacebookAPI {
 }
 
 @Serializable
-data class FacebookUser(val id: String, val name: String?, val email: String?)
+data class FacebookUser(val id: String, val name: String?, val email: String?): SocialUser()
