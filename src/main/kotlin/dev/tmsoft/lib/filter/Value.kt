@@ -5,6 +5,7 @@ import dev.tmsoft.lib.date.localDateTimeFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import org.jetbrains.exposed.sql.AndOp
+import org.jetbrains.exposed.sql.BooleanColumnType
 import org.jetbrains.exposed.sql.DoubleColumnType
 import org.jetbrains.exposed.sql.EnumerationColumnType
 import org.jetbrains.exposed.sql.EnumerationNameColumnType
@@ -30,6 +31,7 @@ sealed class Value {
             is LongColumnType -> value.toLong()
             is IntegerColumnType -> value.toInt()
             is DoubleColumnType -> value.toDouble()
+            is BooleanColumnType -> value.toBoolean()
             is JavaLocalDateColumnType -> LocalDate.parse(value, localDateFormat)
             is JavaLocalDateTimeColumnType -> LocalDateTime.parse(value, localDateTimeFormat)
             else -> value
