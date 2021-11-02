@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.3.9"
+version = "0.3.10"
 
 repositories {
     mavenCentral()
@@ -35,9 +35,11 @@ dependencies {
     api(deps.jedis)
     api(deps.log4j.api)
     api(deps.log4j.slf4j)
+    api(deps.email)
     runtimeOnly(deps.log4j.core)
 
     testImplementation(deps.kotlin.test)
+    testImplementation(deps.greenmail)
     testImplementation(deps.ktor.server.test.host) {
         exclude(group = "ch.qos.logback", module = "logback-classic")
     }
