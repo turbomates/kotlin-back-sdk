@@ -28,7 +28,7 @@ value class Email(private val address: String) {
                     "([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,4})$"
         ).matcher(address).matches()
         if (!isValid) {
-            throw Exception("Email $address is wrong")
+            throw InvalidEmailAddress(address)
         }
     }
 
@@ -36,3 +36,5 @@ value class Email(private val address: String) {
         return address
     }
 }
+
+class InvalidEmailAddress(email: String) : Exception("Email: $email is invalid")
