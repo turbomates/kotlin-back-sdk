@@ -4,7 +4,7 @@ enableFeaturePreview("VERSION_CATALOGS")
 dependencyResolutionManagement {
     versionCatalogs {
         create("deps") {
-            version("ktor", "1.6.2")
+            version("ktor", "1.6.5")
             version("jedis", "3.7.0")
             version("log4j", "2.14.1")
             version("detekt", "1.18.1")
@@ -23,7 +23,11 @@ dependencyResolutionManagement {
             version("rabbitmq_amqp_client", "5.13.1")
             version("kotlin_serialization", "1.5.31")
             version("kotlin_serialization_json", "1.3.0")
+            version("email", "1.6.2")
+            version("greenmail", "1.6.5")
 
+            alias("greenmail").to("com.icegreen", "greenmail-junit5").versionRef("greenmail")
+            alias("email").to("com.sun.mail", "javax.mail").versionRef("email")
             alias("ktor_auth").to("io.ktor", "ktor-auth").versionRef("ktor")
             alias("ktor_webjar").to("io.ktor", "ktor-webjars").versionRef("ktor")
             alias("ktor_auth_jwt").to("io.ktor", "ktor-auth-jwt").versionRef("ktor")
@@ -69,8 +73,7 @@ dependencyResolutionManagement {
                 "ktor_locations",
                 "ktor_server_core",
                 "ktor_serialization",
-                "ktor_server_sessions",
-                "ktor_server_test_host"
+                "ktor_server_sessions"
             ))
 
             bundle("exposed", listOf(
