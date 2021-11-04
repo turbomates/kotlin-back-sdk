@@ -8,5 +8,5 @@ interface SocialAPI<T: SocialUser> {
 
 @Serializable
 abstract class SocialUser {
-    abstract val id: String
+    abstract val id: String?
 }
