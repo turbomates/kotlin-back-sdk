@@ -2,6 +2,7 @@ package dev.tmsoft.lib.socialauth
 
 import io.ktor.client.features.ClientRequestException
 import io.ktor.client.request.get
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 private const val USER_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
@@ -18,7 +19,8 @@ class GoogleAPI: SocialAPI<GoogleUser> {
 
 @Serializable
 data class GoogleUser(
-    override val id: String?,
+    @SerialName("sub")
+    override val id: String,
     val name: String?,
     val email: String?
 ): SocialUser()
