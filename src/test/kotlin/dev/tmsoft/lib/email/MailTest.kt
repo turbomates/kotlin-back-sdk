@@ -20,11 +20,11 @@ class MailTest {
 
         val message =
             Message(
-                Address(Email("test@gmail.com"), "test user"),
-                listOf(Address(Email("test-next@gmail.com"), "test next")),
+                Address("test@gmail.com", "test user"),
+                listOf(Address("test-next@gmail.com", "test next")),
                 subject
             ) {
-                replyTo.add(Address(Email("test-reply@gmail.com"), "test reply"))
+                replyTo = listOf(Address("test-reply@gmail.com", "test reply"))
                 html = body
             }
         mail.send(message)

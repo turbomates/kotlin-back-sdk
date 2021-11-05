@@ -4,20 +4,17 @@ import java.io.File
 import java.util.regex.Pattern
 
 class Message(val from: Address, val to: List<Address>, val subject: String?, block: Message.() -> Unit) {
-    val replyTo: MutableList<Address> = mutableListOf()
+    var replyTo: List<Address> = emptyList()
     var html: String? = null
     var plain: String? = null
-    val attaches: MutableList<File> = mutableListOf()
+    var attaches: List<File> = emptyList()
 
     init {
         block()
     }
 }
 
-data class Address(val email: Email, val name: String)
-
-@JvmInline
-value class Email(private val address: String) {
+data class Address(val email: String, val name: String? = null) {
     init {
         val isValid = Pattern.compile(
             "^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]|[\\w-]{2,}))@" +
@@ -26,15 +23,12 @@ value class Email(private val address: String) {
                     "([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?" +
                     "[0-9]{1,2}|25[0-5]|2[0-4][0-9]))|" +
                     "([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,4})$"
-        ).matcher(address).matches()
+        ).matcher(email).matches()
         if (!isValid) {
-            throw InvalidEmailAddress(address)
+            throw InvalidEmailAddress(email)
         }
     }
-
-    override fun toString(): String {
-        return address
-    }
 }
+
 
 class InvalidEmailAddress(email: String) : Exception("Email: $email is invalid")

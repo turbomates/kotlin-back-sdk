@@ -74,6 +74,6 @@ class JavaxMail(val config: SMTPConfig) : Mail {
     }
 
     private fun Address.convert(): InternetAddress {
-        return InternetAddress(email.toString(), name)
+        return InternetAddress(email, name)
     }
 }
