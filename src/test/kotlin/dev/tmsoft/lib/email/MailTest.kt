@@ -17,7 +17,6 @@ class MailTest {
         val subject = "Test Subject"
         val body = "<p>Hi!</p>"
         val mail = JavaxMail(SMTPConfig("localhost", 3025, SMTPSecure.TLS))
-
         val message =
             Message(
                 Address("test@gmail.com", "test user"),

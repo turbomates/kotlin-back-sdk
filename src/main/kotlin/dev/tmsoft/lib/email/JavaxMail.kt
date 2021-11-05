@@ -12,10 +12,7 @@ import javax.mail.internet.MimeMultipart
 
 
 class JavaxMail(val config: SMTPConfig) : Mail {
-    private val session: Session
-    private val transport: Transport
-
-    init {
+    private val session: Session by lazy {
         val props = Properties()
         props["mail.smtp.host"] = config.host
         props["mail.smtp.port"] = config.port
@@ -31,12 +28,14 @@ class JavaxMail(val config: SMTPConfig) : Mail {
                 override fun getPasswordAuthentication(): PasswordAuthentication {
                     return PasswordAuthentication(config.username, config.password);
                 }
-
             }
         }
-        session = Session.getDefaultInstance(props, authenticator)
-        transport = session.transport
+        Session.getDefaultInstance(props, authenticator)
+    }
+    private val transport: Transport by lazy {
+        val transport = session.transport
         transport.connect()
+        transport
     }
 
     override fun send(message: Message): Boolean {
@@ -75,5 +74,11 @@ class JavaxMail(val config: SMTPConfig) : Mail {
 
     private fun Address.convert(): InternetAddress {
         return InternetAddress(email, name)
+    }
+
+    private fun connect() {
+        if (!transport.isConnected) {
+            transport.connect()
+        }
     }
 }
