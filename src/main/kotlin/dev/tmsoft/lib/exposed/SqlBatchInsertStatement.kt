@@ -11,7 +11,7 @@ import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.statements.api.PreparedStatementApi
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 
-class SqlBatchInsertStatement(private val table: Table) :
+class SqlBatchInsertStatement(private val table: Table, private val ignore: Boolean) :
     UpdateBuilder<List<Int>>(StatementType.INSERT, listOf(table)) {
     private val batchValues: MutableList<Map<Column<*>, Any?>> = mutableListOf()
     override val isAlwaysBatch = true
@@ -50,7 +50,7 @@ class SqlBatchInsertStatement(private val table: Table) :
             toString()
         }
         return transaction.db.dialect.functionProvider.insert(
-            false,
+            ignore,
             table,
             prepareSQLArguments.map { it.first },
             sql,
@@ -86,11 +86,12 @@ class SqlBatchInsertStatement(private val table: Table) :
 
 fun <T : Table, E> T.singleSQLBatchInsert(
     data: Iterable<E>,
+    ignore: Boolean = false,
     body: SqlBatchInsertStatement.(E) -> Unit
 ): List<ResultRow> {
     if (data.count() == 0) return emptyList()
 
-    val statement = SqlBatchInsertStatement(this)
+    val statement = SqlBatchInsertStatement(this, ignore)
     data.forEach {
         statement.body(it)
         statement.addBatch()
