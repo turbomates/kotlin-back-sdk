@@ -86,7 +86,7 @@ class RabbitEvents(
                 channel.basicAck(message.envelope.deliveryTag, false)
             } catch (logging: Throwable) {
                 channel.basicNack(message.envelope.deliveryTag, false, true)
-                logger.error("Broken event: ${String(message.body)}. Message: ${logging.message}.")
+                logger.error("Broken event: ${String(message.body)}. Message: ${logging.message}. Stacktrace: ${ logging.printStackTrace()}")
             }
         }
     }

@@ -76,9 +76,4 @@ class JavaxMail(val config: SMTPConfig) : Mail {
         return InternetAddress(email, name)
     }
 
-    private fun connect() {
-        if (!transport.isConnected) {
-            transport.connect()
-        }
-    }
 }
