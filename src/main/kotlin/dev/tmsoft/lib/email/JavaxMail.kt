@@ -39,6 +39,7 @@ class JavaxMail(val config: SMTPConfig) : Mail {
     }
 
     override fun send(message: Message): Boolean {
+        connect()
         transport.sendMessage(
             convertMessage(message),
             message.to.map { it.convert() }.toTypedArray()
@@ -76,4 +77,9 @@ class JavaxMail(val config: SMTPConfig) : Mail {
         return InternetAddress(email, name)
     }
 
+    private fun connect() {
+        if (!transport.isConnected) {
+            transport.connect()
+        }
+    }
 }
