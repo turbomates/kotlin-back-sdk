@@ -1,56 +1,47 @@
 package dev.tmsoft.lib.socialauth
 
+import com.auth0.jwk.UrlJwkProvider
 import com.auth0.jwt.JWT
-import io.ktor.client.features.ClientRequestException
-import io.ktor.client.request.post
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
+import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.exceptions.JWTVerificationException
+import java.security.interfaces.RSAPublicKey
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlinx.serialization.Serializable
+import org.slf4j.LoggerFactory
 
-private const val VALIDATION_URL = "https://appleid.apple.com/auth/token"
+private const val VALIDATION_TOKEN = "https://appleid.apple.com/auth/keys"
 
-class AppleAPI(
-    private val clientId: String,
-    private val clientSecret: String
-): SocialAPI<AppleUser> {
+class AppleAPI : SocialAPI<AppleUser> {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     override suspend fun getUser(accessToken: String): AppleUser? {
         return try {
-            val validatedUser = socialClient.post<ValidatedUser>(VALIDATION_URL) {
-                contentType(ContentType.Application.Json)
-                body = UserInformation(
-                    clientId,
-                    clientSecret,
-                    accessToken,
-                    "authorization_code"
-                )
-            }
-            val updatedInformation = JWT.decode(validatedUser.idToken).claims
+            val token = JWT.decode(accessToken)
+            val jwk = UrlJwkProvider(VALIDATION_TOKEN).get(token.keyId)
+            JWT.require(Algorithm.RSA256(jwk.publicKey as RSAPublicKey,null))
+                .build()
+                .verify(accessToken)
+
+            if (token.claims.getValue("iss").asString() != "https://appleid.apple.com" ||
+                token.claims.getValue("exp").asLong() < LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+            ) throw JWTVerificationException("Iss didn't come from Apple or time is expired")
+
             AppleUser(
-                updatedInformation["sub"]!!.asString(),
-                updatedInformation["email"]?.asString()
+                token.claims.getValue("sub").asString(),
+                token.claims.getValue("email").asString()
             )
-        } catch (ignore: ClientRequestException) {
-            null
+        } catch (ignore: JWTVerificationException) {
+            logger.debug("Apple `idToken` Verification Exception: ${ignore.message}"); null
+        } catch (ignore: AppleTokenValidationException) {
+            logger.debug("Apple Token Data Validation Exception: ${ignore.message}"); null
         }
     }
 }
-
-@Serializable
-data class ValidatedUser(
-    val accessToken: String,
-    val idToken: String
-)
+class AppleTokenValidationException(message: String) : Exception(message)
 
 @Serializable
 data class AppleUser(
     override val id: String,
     val email: String?
 ): SocialUser()
-
-@Serializable
-data class UserInformation(
-    val clientId: String,
-    val clientSecret: String,
-    val code: String?,
-    val grantType: String
-)
