@@ -14,14 +14,16 @@ import javax.crypto.spec.SecretKeySpec
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlinx.serialization.Serializable
+import org.slf4j.LoggerFactory
 
 private const val USER_URL = "https://api.twitter.com/1.1/account/verify_credentials.json"
 
 class TwitterAPI(private val clientKey: String, private val clientSecret: String) {
+    private val logger by lazy { LoggerFactory.getLogger(javaClass) }
 
     @OptIn(ExperimentalTime::class)
     suspend fun getUser(accessToken: String, tokenSecret: String): TwitterUser? {
-        val oauthTimestamp =  Duration.microseconds(System.currentTimeMillis()).inWholeSeconds.toString()
+        val oauthTimestamp = Duration.microseconds(System.currentTimeMillis()).inWholeSeconds.toString()
         val oauthNonce = UUID.randomUUID().toString().lowercase()
 
         val parameters: SortedMap<String, String> = TreeMap()
@@ -65,6 +67,7 @@ class TwitterAPI(private val clientKey: String, private val clientSecret: String
                 }
             }
         } catch (ignore: ClientRequestException) {
+            logger.debug("Twitter auth request error: ${ignore.message} ${ignore.stackTraceToString()}")
             null
         }
     }
@@ -73,5 +76,6 @@ class TwitterAPI(private val clientKey: String, private val clientSecret: String
         return URLEncoder.encode(s, "UTF-8")
     }
 }
+
 @Serializable
 data class TwitterUser(val id: String?, val name: String?, val email: String?)
