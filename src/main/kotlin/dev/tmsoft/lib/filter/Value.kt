@@ -24,7 +24,7 @@ import org.jetbrains.exposed.sql.javatime.JavaLocalDateColumnType
 import org.jetbrains.exposed.sql.javatime.JavaLocalDateTimeColumnType
 import org.jetbrains.exposed.sql.lowerCase
 
-sealed class Value {
+abstract class Value {
     abstract fun op(column: ExpressionWithColumnType<*>): Op<Boolean>
     protected fun ExpressionWithColumnType<*>.typedWrap(value: String): QueryParameter<*> {
         val typedValue = when (columnType) {
