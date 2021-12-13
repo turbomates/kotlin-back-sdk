@@ -14,7 +14,6 @@ jobs:
     services:
       postgres:
         image: timescale/timescaledb:latest-pg14
-        args: ["-c", "shared_preload_libraries=timescaledb,pg_stat_statements", "-c", "pg_stat_statements.track=all"]
         env:
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
