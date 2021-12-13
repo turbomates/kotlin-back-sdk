@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.3.22"
+version = "0.3.23"
 
 repositories {
     mavenCentral()
@@ -92,6 +92,11 @@ tasks.withType<Test> {
     testLogging {
         events("PASSED", "STARTED", "FAILED", "SKIPPED")
         // showStandardStreams = true
+    }
+    doFirst {
+        System.getProperties().forEach { (k, v) ->
+            systemProperty(k.toString(), v.toString())
+        }
     }
 }
 

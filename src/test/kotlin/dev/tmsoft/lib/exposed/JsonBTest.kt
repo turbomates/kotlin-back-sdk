@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
 class JsonBTest {
     @Test
     fun column() {
-        rollbackTransaction {
+        transaction(testDatabase)  {
             SchemaUtils.create(JsonBTable)
             transaction {
                 JsonBTable.insert {
@@ -26,12 +26,13 @@ class JsonBTest {
             }
             val content = JsonBTable.selectAll().first().let { it[JsonBTable.content].first().name }
             assertEquals("content", content)
+            SchemaUtils.drop(JsonBTable)
         }
     }
 
     @Test
     fun select() {
-        rollbackTransaction {
+        transaction(testDatabase)  {
             SchemaUtils.create(JsonBTable)
             transaction {
                 JsonBTable.insert {
@@ -48,6 +49,7 @@ class JsonBTest {
                 }.single()
                     .let { it[JsonBTable.content].first().name }
             assertEquals("content", content)
+            SchemaUtils.drop(JsonBTable)
         }
     }
 }
