@@ -4,6 +4,7 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.Masked
 import com.sksamuel.hoplite.PropertySource
+import dev.tmsoft.lib.buildConfiguration
 import dev.tmsoft.lib.config.hoplite.EnvironmentVariablesPropertySource
 import java.sql.Connection
 import org.jetbrains.exposed.sql.DEFAULT_REPETITION_ATTEMPTS
@@ -120,12 +121,4 @@ internal val testDatabase by lazy {
         }
     )
 }
-data class Config(val jdbc: Jdbc)
-data class Jdbc(val url: String, val user: String, val password: Masked)
-fun buildConfiguration(): Jdbc {
-    return ConfigLoader.Builder()
-        .addSource(PropertySource.resource("/local.properties", optional = true))
-        .addSource(PropertySource.resource("/default.properties", optional = true))
-        .build()
-        .loadConfigOrThrow<Config>().jdbc
-}
+
