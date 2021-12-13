@@ -1,6 +1,10 @@
 package dev.tmsoft.lib.exposed
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
+import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.Masked
+import com.sksamuel.hoplite.PropertySource
+import dev.tmsoft.lib.config.hoplite.EnvironmentVariablesPropertySource
 import java.sql.Connection
 import org.jetbrains.exposed.sql.DEFAULT_REPETITION_ATTEMPTS
 import org.jetbrains.exposed.sql.Database
@@ -99,19 +103,12 @@ class ExposedTestTransactionManager(
     }
 }
 
-fun <T> rollbackTransaction(db: Database = testDatabase, statement: Transaction.() -> T): T {
-    val postgres = EmbeddedPostgres.builder()
-        .setPort(12346).start()
-    val result = transaction(db) { val result = statement(); rollback(); result }
-    postgres.close()
-    return result
-}
-
 internal val testDatabase by lazy {
+    val config = buildConfiguration()
     Database.connect(
-        "jdbc:postgresql://localhost:12346/postgres?user=postgres&password=postgres",
-        user = "postgres",
-        password = "",
+        config.url,
+        user = config.user,
+        password = config.password.toString(),
         driver = "org.postgresql.Driver",
         databaseConfig = DatabaseConfig { useNestedTransactions = true },
         manager = { database ->
@@ -122,4 +119,13 @@ internal val testDatabase by lazy {
             )
         }
     )
+}
+data class Config(val jdbc: Jdbc)
+data class Jdbc(val url: String, val user: String, val password: Masked)
+fun buildConfiguration(): Jdbc {
+    return ConfigLoader.Builder()
+        .addSource(PropertySource.resource("/local.properties", optional = true))
+        .addSource(PropertySource.resource("/default.properties", optional = true))
+        .build()
+        .loadConfigOrThrow<Config>().jdbc
 }

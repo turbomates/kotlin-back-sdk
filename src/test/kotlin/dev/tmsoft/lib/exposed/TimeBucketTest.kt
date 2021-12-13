@@ -1,14 +1,9 @@
 package dev.tmsoft.lib.exposed
 
-import dev.tmsoft.lib.Config
 import dev.tmsoft.lib.exposed.timescale.sql.function.timeBucket
-import java.util.UUID
 import kotlin.test.assertEquals
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.QueryBuilder
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.datetime
@@ -17,25 +12,21 @@ import org.jetbrains.exposed.sql.sum
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
-import kotlin.test.assertTrue
 
 class TimeBucketTest {
     @Test
     fun `query group by time bucket`() {
-        val database = Database.connect(
-            Config.h2DatabaseUrl,
-            driver = Config.h2Driver,
-            user = Config.h2User,
-            password = Config.h2Password
-        )
-        transaction(database) {
+        transaction(testDatabase)  {
             SchemaUtils.create(Accounts)
+
+            exec("CREATE EXTENSION IF NOT EXISTS timescaledb;")
+            exec("SELECT create_hypertable('${Accounts.tableName}', 'created_at', migrate_data => true);")
+
             (1..5).forEach { index ->
                 Accounts.insert {
                     it[name] = "test $index"
                     it[balance] = index
-                    it[reference] = UUID.randomUUID()
-                    it[createdAt] = LocalDateTime.of(2021, 1, 1, index, 0)
+                    it[createdAt] = LocalDateTime.of(2021, 1, index, 12, 0)
                 }
             }
             val createdAtTimeBucket = Accounts.createdAt.timeBucket("2 days").alias("data")
@@ -44,15 +35,14 @@ class TimeBucketTest {
                 .selectAll()
                 .groupBy(createdAtTimeBucket)
 
-            assertTrue(query.prepareSQL(QueryBuilder(true)).contains("time_bucket"))
-            // assertEquals(3, query.count())
+            assertEquals(3, query.count())
+            SchemaUtils.drop(Accounts)
         }
     }
 
-    object Accounts : IntIdTable("test") {
+    object Accounts : Table("test") {
         val name = varchar("name", 255).nullable()
         val balance = integer("balance")
         val createdAt = datetime("created_at").default(LocalDateTime.now())
-        val reference = uuid("reference").uniqueIndex("uniq_referenec")
     }
 }
