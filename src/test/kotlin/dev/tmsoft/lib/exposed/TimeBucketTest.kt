@@ -20,7 +20,7 @@ class TimeBucketTest {
             SchemaUtils.create(Accounts)
 
             exec("CREATE EXTENSION IF NOT EXISTS timescaledb;")
-            exec("SELECT create_hypertable('${Accounts.tableName}', 'created_at', migrate_data => true);")
+            exec("SELECT create_hypertable('${Accounts.tableName}', 'created_at');")
 
             (1..5).forEach { index ->
                 Accounts.insert {
