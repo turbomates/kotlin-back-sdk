@@ -109,7 +109,7 @@ internal val testDatabase by lazy {
     Database.connect(
         config.url,
         user = config.user,
-        password = config.password.toString(),
+        password = config.password.value,
         driver = "org.postgresql.Driver",
         databaseConfig = DatabaseConfig { useNestedTransactions = true },
         manager = { database ->

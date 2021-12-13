@@ -93,6 +93,11 @@ tasks.withType<Test> {
         events("PASSED", "STARTED", "FAILED", "SKIPPED")
         // showStandardStreams = true
     }
+    doFirst {
+        System.getProperties().forEach { (k, v) ->
+            systemProperty(k.toString(), v.toString())
+        }
+    }
 }
 
 java {

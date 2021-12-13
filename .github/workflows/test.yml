@@ -15,7 +15,8 @@ jobs:
       postgres:
         image: timescale/timescaledb:latest-pg13
         env:
-          POSTGRES_USER: postgres
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
           POSTGRES_DB: postgres
         ports:
           - 5432:5432
@@ -31,5 +32,5 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
       - name: Run tests
-        run: ./gradlew test 
+        run: ./gradlew test -Dconfig.override.jdbc.url=jdbc:postgresql://localhost:5432/postgres -Dconfig.override.jdbc.user=test -Dconfig.override.jdbc.password=test
 
