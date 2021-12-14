@@ -45,14 +45,14 @@ private fun List<String>.convert(): List<Value> = map { it.convert() }
 
 private fun String.convert(): Value {
     return when {
-        this.first() == '{' && this.last() == '}' -> {
-            val mapValue = this.substring(1, this.length - 1).split(",").associate { it.split(":").let { (k, v) -> k to v.convert() } }
+        first() == '{' && last() == '}' -> {
+            val mapValue = substring(1, length - 1).split(",").associate { it.split(":").let { (k, v) -> k to v.convert() } }
             MapValue(mapValue)
         }
-        this.first() == '[' && this.last() == ']' ->
-            ListValue(this.substring(1, this.length - 1).split(",").map { it.convert() })
-        this.contains("~") ->
-            RangeValue(this.split("~").first().filterValue(), this.split("~")[1].filterValue())
+        first() == '[' && last() == ']' ->
+            ListValue(substring(1, length - 1).split(",").map { it.convert() })
+        contains("~") ->
+            RangeValue(split("~").first().filterValue(), split("~")[1].filterValue())
         else ->
             SingleValue(this)
     }
