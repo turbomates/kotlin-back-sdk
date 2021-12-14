@@ -11,10 +11,7 @@ import org.jetbrains.exposed.sql.javatime.JavaLocalDateTimeColumnType
 import java.lang.UnsupportedOperationException
 
 abstract class Value {
-    open fun op(column: ExpressionWithColumnType<*>): Op<Boolean> {
-        throw UnsupportedOperationException("$this is not supported operations with columns")
-    }
-
+    abstract fun op(column: ExpressionWithColumnType<*>): Op<Boolean>
     protected fun ExpressionWithColumnType<*>.typedWrap(value: String): QueryParameter<*> {
         val typedValue = when (columnType) {
             is LongColumnType -> value.toLong()
@@ -87,4 +84,8 @@ class ListValue(val values: List<Value>) : Value() {
     }
 }
 
-class MapValue(val value: Map<String, Value>) : Value()
+class MapValue(val value: Map<String, Value>) : Value() {
+    override fun op(column: ExpressionWithColumnType<*>): Op<Boolean> {
+        throw UnsupportedOperationException("$this is not supported operations with columns")
+    }
+}
