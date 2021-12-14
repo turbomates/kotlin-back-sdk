@@ -8,9 +8,13 @@ import java.time.LocalDateTime
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.wrap
 import org.jetbrains.exposed.sql.javatime.JavaLocalDateColumnType
 import org.jetbrains.exposed.sql.javatime.JavaLocalDateTimeColumnType
+import java.lang.UnsupportedOperationException
 
 abstract class Value {
-    abstract fun op(column: ExpressionWithColumnType<*>): Op<Boolean>
+    open fun op(column: ExpressionWithColumnType<*>): Op<Boolean> {
+        throw UnsupportedOperationException("$this is not supported operations with columns")
+    }
+
     protected fun ExpressionWithColumnType<*>.typedWrap(value: String): QueryParameter<*> {
         val typedValue = when (columnType) {
             is LongColumnType -> value.toLong()
@@ -83,8 +87,4 @@ class ListValue(val values: List<Value>) : Value() {
     }
 }
 
-class MapValue(val value: Map<String, Value>) : Value() {
-    override fun op(column: ExpressionWithColumnType<*>): Op<Boolean> {
-        return OrOp(value.values.map { it.op(column) })
-    }
-}
+class MapValue(val value: Map<String, Value>) : Value()
