@@ -54,6 +54,43 @@ class FilterTest {
             )
         }
     }
+
+    @Test
+    fun `list query`() {
+        val database = Database.connect(h2DatabaseUrl, driver = h2Driver, user = h2User, password = h2Password)
+        transaction(database) {
+            SchemaUtils.create(UserTable)
+            val money = Money(10, Currency("EUR"))
+            UserTable.insert {
+                it[name] = "test"
+                it[number] = 1
+                it[balance] = money
+                it[modifyAt] = LocalDate.now()
+            }
+
+            UserTable.insert {
+                it[name] = "test_2"
+                it[number] = 2
+                it[balance] = money
+                it[modifyAt] = LocalDate.now()
+            }
+
+            val query = UserTable.selectAll()
+                .filter(
+                    UserFilter,
+                    PathValues(
+                        mapOf(
+                            "full_name" to listOf(ListValue(listOf(SingleValue("test"), SingleValue("test_2")))),
+                            "number" to listOf(ListValue(listOf(SingleValue("1"), SingleValue("2"))))
+                        )
+                    )
+                )
+            assertTrue(
+                 query.prepareSQL(this)
+                    .contains("((LOWER(\"USER\".FULL_NAME) LIKE ?) OR (LOWER(\"USER\".FULL_NAME) LIKE ?)) AND ((\"USER\".\"NUMBER\" = ?) OR (\"USER\".\"NUMBER\" = ?))")
+            )
+        }
+    }
 }
 
 object UserFilter : Filter(UserTable) {

@@ -2,27 +2,12 @@ package dev.tmsoft.lib.filter
 
 import dev.tmsoft.lib.date.localDateFormat
 import dev.tmsoft.lib.date.localDateTimeFormat
+import org.jetbrains.exposed.sql.*
 import java.time.LocalDate
 import java.time.LocalDateTime
-import org.jetbrains.exposed.sql.AndOp
-import org.jetbrains.exposed.sql.BooleanColumnType
-import org.jetbrains.exposed.sql.DoubleColumnType
-import org.jetbrains.exposed.sql.EnumerationColumnType
-import org.jetbrains.exposed.sql.EnumerationNameColumnType
-import org.jetbrains.exposed.sql.EqOp
-import org.jetbrains.exposed.sql.ExpressionWithColumnType
-import org.jetbrains.exposed.sql.GreaterEqOp
-import org.jetbrains.exposed.sql.IntegerColumnType
-import org.jetbrains.exposed.sql.LessEqOp
-import org.jetbrains.exposed.sql.LikeOp
-import org.jetbrains.exposed.sql.LongColumnType
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.QueryParameter
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.wrap
-import org.jetbrains.exposed.sql.StringColumnType
 import org.jetbrains.exposed.sql.javatime.JavaLocalDateColumnType
 import org.jetbrains.exposed.sql.javatime.JavaLocalDateTimeColumnType
-import org.jetbrains.exposed.sql.lowerCase
 
 abstract class Value {
     abstract fun op(column: ExpressionWithColumnType<*>): Op<Boolean>
@@ -89,5 +74,17 @@ class RangeValue(val from: String? = null, val to: String? = null) : Value() {
                 }
             }
         }
+    }
+}
+
+class ListValue(val values: List<Value>) : Value() {
+    override fun op(column: ExpressionWithColumnType<*>): Op<Boolean> {
+        return OrOp(values.map { it.op(column) })
+    }
+}
+
+class MapValue(val value: Map<String, Value>) : Value() {
+    override fun op(column: ExpressionWithColumnType<*>): Op<Boolean> {
+        return OrOp(value.values.map { it.op(column) })
     }
 }
