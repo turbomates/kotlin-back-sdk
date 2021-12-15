@@ -1,23 +1,33 @@
 package dev.tmsoft.lib.filter
 
-class QueryConverter(private val str: String) {
+class QueryConverter(private val query: String) {
     private var charIndex = 0
     private val currentChar
-        get() = str[charIndex]
+        get() = query[charIndex]
 
     companion object {
-        fun convert(str: String): Value {
-            val queryParser = QueryConverter(str)
+        fun convert(values: List<String>): List<Value> {
+            return values.map { convert(it) }
+        }
+
+        fun convert(query: String): Value {
+            val queryParser = QueryConverter(query)
             return queryParser.convertToValue()
         }
     }
 
-    fun convertToValue(): Value {
-        return when (str.first()) {
-            '[' -> convertToListValue()
-            '{' -> convertToMapValue()
-            else -> SingleValue(str)
+    private fun convertToValue(): Value {
+        charIndex = 0
+        return when {
+            query.contains("~") -> convertToRangeValue()
+            query.first() == '[' -> convertToListValue()
+            query.first() == '{' -> convertToMapValue()
+            else -> SingleValue(query)
         }
+    }
+
+    private fun convertToRangeValue(): RangeValue {
+        return RangeValue(query.split("~").first().filterValue(), query.split("~")[1].filterValue())
     }
 
     private fun convertToListValue(): ListValue {
@@ -25,7 +35,7 @@ class QueryConverter(private val str: String) {
         var tmpString = ""
 
         charIndex += 1
-        while (str[charIndex] != ']') {
+        while (query[charIndex] != ']') {
             when (currentChar) {
                 '[' -> values.add(convertToListValue())
                 '{' -> values.add(convertToMapValue())
@@ -49,7 +59,7 @@ class QueryConverter(private val str: String) {
         var tmpString = ""
 
         charIndex += 1
-        while (str[charIndex] != '}') {
+        while (query[charIndex] != '}') {
             when (currentChar) {
                 '[' -> mapValue[tmpMapItemKey] = convertToListValue()
                 '{' -> mapValue[tmpMapItemKey] = convertToMapValue()
@@ -69,5 +79,9 @@ class QueryConverter(private val str: String) {
 
         if (tmpString.isNotEmpty()) mapValue[tmpMapItemKey] = SingleValue(tmpString)
         return MapValue(mapValue)
+    }
+
+    private fun String.filterValue(): String? {
+        return if (isBlank()) null else this
     }
 }

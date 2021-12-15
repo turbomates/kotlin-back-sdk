@@ -35,35 +35,10 @@ fun Parameters.filterValues(): PathValues {
         if (key.contains(parameterName)) {
             val result = Regex("\\[(\\w+)\\]").findAll(key)
             val field: String = result.last().groupValues.last()
-            parameters[field] = value.convert()
+            parameters[field] = QueryConverter.convert(value)
         }
     }
     return PathValues(parameters)
-}
-
-private fun List<String>.convert(): List<Value> = map { it.convert() }
-
-private fun String.convert(): Value {
-    return when {
-        first() == '{' && last() == '}' -> {
-            val mapValue = substring(1, length - 1).split(",").associate { it.split(":").let { (k, v) -> k to v.convert() } }
-            MapValue(mapValue)
-        }
-        first() == '[' && last() == ']' ->
-            ListValue(substring(1, length - 1).split(",").map { it.convert() })
-        contains("~") ->
-            RangeValue(split("~").first().filterValue(), split("~")[1].filterValue())
-        else ->
-            SingleValue(this)
-    }
-}
-
-private fun String.filterValue(): String? {
-    return if (isBlank()) {
-        null
-    } else {
-        this
-    }
 }
 
 private val parameterName: String
