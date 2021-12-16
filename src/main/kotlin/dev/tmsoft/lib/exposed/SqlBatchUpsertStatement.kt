@@ -14,17 +14,29 @@ class SqlBatchUpsertStatement(
 ) : SqlBatchInsertStatement(table, ignore) {
     override fun prepareSQL(transaction: Transaction) = buildString {
         append(super.prepareSQL(transaction))
-        append(transaction.onUpdateSql(batchValues.first().keys, keys))
+        append(prepareOnConflictSQL(transaction))
     }
-}
 
-private fun Transaction.onUpdateSql(values: Iterable<Column<*>>, keys: Array<out Column<*>>) = buildString {
-    if (db.vendor != "postgresql") throw UnsupportedOperationException("SqlBatchUpsertStatement is not implemented for ${db.vendor}")
-    append(" ON CONFLICT (${keys.joinToString(",") { identity(it) }})")
-    values.filter { it !in keys }.takeIf { it.isNotEmpty() }?.let { fields ->
-        append(" DO UPDATE SET ")
-        fields.joinTo(this, ", ") { "${identity(it)} = EXCLUDED.${identity(it)}" }
-    } ?: append(" DO NOTHING")
+    private fun prepareOnConflictSQL(transaction: Transaction): String {
+        return when (transaction.db.vendor) {
+            "postgresql" -> prepareOnConflictPostgreSQL(transaction)
+            "mysql" -> prepareOnConflictMySQL(transaction)
+            else -> throw UnsupportedOperationException("SqlBatchUpsertStatement is not implemented for ${transaction.db.vendor}")
+        }
+    }
+
+    private fun prepareOnConflictPostgreSQL(transaction: Transaction): String = buildString {
+        append(" ON CONFLICT (${keys.joinToString(",") { transaction.identity(it) }})")
+        columns.filter { it !in keys }.takeIf { it.isNotEmpty() }?.let { fields ->
+            append(" DO UPDATE SET ")
+            fields.joinTo(this, ", ") { "${transaction.identity(it)} = EXCLUDED.${transaction.identity(it)}" }
+        } ?: append(" DO NOTHING")
+    }
+
+    private fun prepareOnConflictMySQL(transaction: Transaction): String = buildString {
+        append(" ON DUPLICATE KEY UPDATE ")
+        columns.joinTo(this, ", ") { "${transaction.identity(it)} = VALUES(${transaction.identity(it)})" }
+    }
 }
 
 fun <T : Table, E> T.singleSqlBatchUpsert(
@@ -40,7 +52,6 @@ fun <T : Table, E> T.singleSqlBatchUpsert(
         statement.addBatch()
     }
     if (statement.arguments().isNotEmpty()) {
-        println(statement.prepareSQL(TransactionManager.current()))
         statement.execute(TransactionManager.current())
     }
 
