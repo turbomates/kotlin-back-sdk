@@ -19,13 +19,13 @@ class SqlBatchUpsertStatement(
 
     private fun prepareOnConflictSQL(transaction: Transaction): String {
         return when (transaction.db.vendor) {
-            "postgresql" -> prepareOnConflictPostgresSQL(transaction)
+            "postgresql" -> prepareOnConflictPostgreSQL(transaction)
             "mysql" -> prepareOnConflictMySQL(transaction)
             else -> throw UnsupportedOperationException("SqlBatchUpsertStatement is not implemented for ${transaction.db.vendor}")
         }
     }
 
-    private fun prepareOnConflictPostgresSQL(transaction: Transaction): String = buildString {
+    private fun prepareOnConflictPostgreSQL(transaction: Transaction): String = buildString {
         append(" ON CONFLICT (${keys.joinToString(",") { transaction.identity(it) }})")
         columns.filter { it !in keys }.takeIf { it.isNotEmpty() }?.let { fields ->
             append(" DO UPDATE SET ")
