@@ -11,9 +11,9 @@ import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.statements.api.PreparedStatementApi
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 
-class SqlBatchInsertStatement(private val table: Table, private val ignore: Boolean) :
+open class SqlBatchInsertStatement(private val table: Table, private val ignore: Boolean) :
     UpdateBuilder<List<Int>>(StatementType.INSERT, listOf(table)) {
-    private val batchValues: MutableList<Map<Column<*>, Any?>> = mutableListOf()
+    protected val batchValues: MutableList<Map<Column<*>, Any?>> = mutableListOf()
     override val isAlwaysBatch = true
     private val prepareSQLArguments: MutableList<Pair<Column<*>, Any?>> = mutableListOf()
     private val allColumnsInDataSet = mutableSetOf<Column<*>>()

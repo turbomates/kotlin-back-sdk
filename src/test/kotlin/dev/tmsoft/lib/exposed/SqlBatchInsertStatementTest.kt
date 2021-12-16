@@ -34,6 +34,6 @@ class SqlBatchInsertStatementTest {
     object Accounts : IntIdTable("test") {
         val name = varchar("account", 255).nullable()
         val balance = integer("balance")
-        val reference = uuid("reference").uniqueIndex("uniq_referenec")
+        val reference = uuid("reference").uniqueIndex("uniq_reference")
     }
 }
