@@ -13,11 +13,13 @@ import org.jetbrains.exposed.sql.transactions.TransactionManager
 
 open class SqlBatchInsertStatement(private val table: Table, private val ignore: Boolean) :
     UpdateBuilder<List<Int>>(StatementType.INSERT, listOf(table)) {
-    protected val batchValues: MutableList<Map<Column<*>, Any?>> = mutableListOf()
+    private val batchValues: MutableList<Map<Column<*>, Any?>> = mutableListOf()
     override val isAlwaysBatch = true
     private val prepareSQLArguments: MutableList<Pair<Column<*>, Any?>> = mutableListOf()
     private val allColumnsInDataSet = mutableSetOf<Column<*>>()
     private val arguments: MutableList<Iterable<Pair<IColumnType, Any?>>> = mutableListOf()
+    protected val columns
+        get() = batchValues.first().keys
     internal fun addBatch() {
         if (batchValues.isEmpty()) {
             allColumnsInDataSet.addAll(values.keys)
