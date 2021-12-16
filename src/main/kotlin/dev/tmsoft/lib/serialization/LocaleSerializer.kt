@@ -14,10 +14,10 @@ object LocaleSerializer : KSerializer<Locale> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Locale", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: Locale) {
-        encoder.encodeString(value.toString().replace("-", "_"))
+        encoder.encodeString(value.toString())
     }
 
     override fun deserialize(decoder: Decoder): Locale {
-        return Locale(decoder.decodeString().replace("_", "-"))
+        return Locale(decoder.decodeString())
     }
 }
