@@ -14,11 +14,11 @@ class SqlBatchUpsertStatement(
 ) : SqlBatchInsertStatement(table, ignore) {
     override fun prepareSQL(transaction: Transaction) = buildString {
         append(super.prepareSQL(transaction))
-        append(transaction.onUpdateSql(batchValues.first().keys, *keys))
+        append(transaction.onUpdateSql(batchValues.first().keys, keys))
     }
 }
 
-private fun Transaction.onUpdateSql(values: Iterable<Column<*>>, vararg keys: Column<*>) = buildString {
+private fun Transaction.onUpdateSql(values: Iterable<Column<*>>, keys: Array<out Column<*>>) = buildString {
     if (db.vendor != "postgresql") throw UnsupportedOperationException("SqlBatchUpsertStatement is not implemented for ${db.vendor}")
     append(" ON CONFLICT (${keys.joinToString(",") { identity(it) }})")
     values.filter { it !in keys }.takeIf { it.isNotEmpty() }?.let { fields ->
