@@ -23,7 +23,7 @@ open class LocalFileManager(private val domain: String) : FileManager {
     }
 
     override fun getWebUri(path: Path): String {
-        return if (path.isNotEmpty()) "$domain/$path".lowercase() else ""
+        return if (path.isNotEmpty()) "$domain/$BASE_UPLOADS_DIR/$path".lowercase() else ""
     }
 
     override suspend fun remove(path: String) {
