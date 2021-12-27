@@ -27,7 +27,7 @@ class PrivateS3Client constructor(private val config: AWS) : FileManager {
         s3.uploadImageToS3(image, bucket, ObjectCannedAcl.Private, fileName)
     }
 
-    override fun getWebUri(path: Path): String {
+    override suspend fun getWebUri(path: Path): String {
         TODO("Not implemented")
         //https://stackoverflow.com/questions/34993366/how-to-get-public-url-after-uploading-image-to-s3
         //https://stackoverflow.com/questions/10663238/how-to-create-download-link-for-an-amazon-s3-buckets-object

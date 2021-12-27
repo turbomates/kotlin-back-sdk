@@ -8,7 +8,11 @@ import dev.tmsoft.lib.upload.Image
 import dev.tmsoft.lib.upload.Path
 import java.util.UUID
 
-data class AWS(val privateKey: String, val secret: String)
+data class AWS(val privateKey: String, val secret: String, val hostname: String?, val protocol: HttpProtocol = HttpProtocol.HTTPS)
+enum class HttpProtocol{
+    HTTP,
+    HTTPS
+}
 
 suspend fun S3Client.ensureBucketExists(bucketName: String) {
     if (!bucketExists(bucketName)) {
