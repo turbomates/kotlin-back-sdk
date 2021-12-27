@@ -35,7 +35,7 @@ fun Collection<*>.elementSerializer(): KSerializer<*> {
     if (serializers.size > 1) {
         error(
             "Serializing collections of different element types is not yet supported. " +
-                    "Selected serializers: ${serializers.map { it.descriptor.serialName }}"
+                "Selected serializers: ${serializers.map { it.descriptor.serialName }}"
         )
     }
 
@@ -61,29 +61,39 @@ fun resolveSerializer(value: Any): KSerializer<*> {
         is List<*> -> ListSerializer(value.elementSerializer())
         is Set<*> -> SetSerializer(value.elementSerializer())
         is Map<*, *> -> MapSerializer(value.keys.elementSerializer(), value.values.elementSerializer())
-        is Map.Entry<*, *> -> MapEntrySerializer(
-            resolveSerializer(value.key ?: error("Map.Entry(null, ...) is not supported")),
-            resolveSerializer(value.value ?: error("Map.Entry(..., null) is not supported)"))
-        )
-        is Array<*> -> {
-            val componentType = value.javaClass.componentType.kotlin.starProjectedType
-            val componentClass =
-                componentType.classifier as? KClass<*> ?: error("Unsupported component type $componentType")
-            @Suppress("UNCHECKED_CAST")
-            ArraySerializer(
-                componentClass as KClass<Any>,
-                serializer(componentType) as KSerializer<Any>
-            )
-        }
+        is Map.Entry<*, *> -> mapEntrySerializer(value)
+        is Array<*> -> arraySerializer(value)
         is LocalDate -> LocalDateSerializer
         is LocalDateTime -> LocalDateTimeSerializer
         is Locale -> LocaleSerializer
         is UUID -> UUIDSerializer
-        is Response.Ok -> ResponseOkSerializer
-        is Response.Listing<*> -> ResponseListingSerializer
-        is Response.Either<*, *> -> ResponseEitherSerializer
-        is Response.Data<*> -> ResponseDataSerializer
+        is Response -> responseSerializer(value)
         is Error -> ResponseErrorSerializer
         else -> value::class.serializer()
     }
 }
+
+private fun mapEntrySerializer(value: Map.Entry<*, *>): KSerializer<out Map.Entry<Any?, Any?>> {
+    return MapEntrySerializer(
+        resolveSerializer(value.key ?: error("Map.Entry(null, ...) is not supported")),
+        resolveSerializer(value.value ?: error("Map.Entry(..., null) is not supported)"))
+    )
+}
+
+private fun arraySerializer(value: Array<*>): KSerializer<Array<Any>> {
+    val componentType = value.javaClass.componentType.kotlin.starProjectedType
+    val componentClass = componentType.classifier as? KClass<*> ?: error("Unsupported component type $componentType")
+    @Suppress("UNCHECKED_CAST")
+    return ArraySerializer(componentClass as KClass<Any>, serializer(componentType) as KSerializer<Any>)
+}
+
+private fun responseSerializer(value: Response): KSerializer<*> {
+    return when (value) {
+        is Response.Ok -> ResponseOkSerializer
+        is Response.Listing<*> -> ResponseListingSerializer
+        is Response.Either<*, *> -> ResponseEitherSerializer
+        is Response.Data<*> -> ResponseDataSerializer
+        else -> value::class.serializer()
+    }
+}
+

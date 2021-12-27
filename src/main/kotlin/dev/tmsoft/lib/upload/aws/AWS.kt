@@ -8,8 +8,14 @@ import dev.tmsoft.lib.upload.Image
 import dev.tmsoft.lib.upload.Path
 import java.util.UUID
 
-data class AWS(val privateKey: String, val secret: String, val hostname: String?, val protocol: HttpProtocol = HttpProtocol.HTTPS)
-enum class HttpProtocol{
+data class AWS(
+    val privateKey: String,
+    val secret: String,
+    val hostname: String?,
+    val protocol: HttpProtocol = HttpProtocol.HTTPS
+)
+
+enum class HttpProtocol {
     HTTP,
     HTTPS
 }
@@ -44,3 +50,14 @@ suspend fun S3Client.uploadImageToS3(image: Image, bucket: String, acl: ObjectCa
     }
     return "$bucket/$name"
 }
+
+// TODO("Not implemented")
+// suspend fun S3Client.getPresignedUrl(bucket: String, fileName: String): Path {
+//
+//     val request =  GetObjectRequest {
+//         key = fileName
+//         this.bucket= bucket
+//     }.presign(config, Duration.ofDays(1).toSeconds())
+//     val resp = getObject(request)
+//     return resp.url
+// }
