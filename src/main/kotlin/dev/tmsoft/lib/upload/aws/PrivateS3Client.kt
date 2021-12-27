@@ -27,11 +27,10 @@ class PrivateS3Client constructor(private val config: AWS) : FileManager {
         s3.uploadImageToS3(image, bucket, ObjectCannedAcl.Private, fileName)
     }
 
-    override fun getWebUri(path: Path): String {
+    override suspend fun getWebUri(path: Path): String {
         TODO("Not implemented")
-        //https://stackoverflow.com/questions/34993366/how-to-get-public-url-after-uploading-image-to-s3
-        //https://stackoverflow.com/questions/10663238/how-to-create-download-link-for-an-amazon-s3-buckets-object
-        //return s3.utilities().getUrl { it.bucket(config.bucket).key(path) }.toExternalForm()
+        // https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html#awsui-expandable-section-2-trigger
+        // return s3.getPresignedUrl()
     }
 
     override suspend fun remove(path: String) {

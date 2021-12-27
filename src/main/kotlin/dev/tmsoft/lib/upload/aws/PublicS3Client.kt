@@ -1,6 +1,8 @@
 package dev.tmsoft.lib.upload.aws
 
 import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
+import aws.sdk.kotlin.runtime.endpoint.Endpoint
+import aws.sdk.kotlin.runtime.endpoint.EndpointResolver
 import aws.sdk.kotlin.services.s3.S3Client
 import aws.sdk.kotlin.services.s3.model.BucketLocationConstraint
 import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
@@ -14,6 +16,7 @@ import kotlinx.coroutines.withContext
 
 class PublicS3Client constructor(private val config: AWS) : FileManager {
     private val s3: S3Client = S3Client {
+        config.hostname?.let { endpointResolver = CustomEndpointResolver(config.hostname, config.protocol.toString()) }
         region = BucketLocationConstraint.UsEast2.value
         credentialsProvider = StaticCredentialsProvider {
             accessKeyId = config.privateKey
@@ -26,9 +29,9 @@ class PublicS3Client constructor(private val config: AWS) : FileManager {
         s3.uploadImageToS3(image, bucket, ObjectCannedAcl.PublicRead, fileName)
     }
 
-    override fun getWebUri(path: Path): String {
-        TODO("Not implemented")
-//        return s3.utilities().getUrl { it.bucket(config.bucket).key(path) }.toExternalForm()
+    override suspend fun getWebUri(path: Path): String {
+        val endpoint = s3.config.endpointResolver.resolve(s3.serviceName, s3.config.region)
+        return if (path.isNotEmpty()) "${endpoint.protocol}://${endpoint.hostname}/$path".lowercase() else ""
     }
 
     override suspend fun remove(path: Path) {
@@ -39,5 +42,11 @@ class PublicS3Client constructor(private val config: AWS) : FileManager {
                 key = path
             }
         )
+    }
+}
+
+internal class CustomEndpointResolver(val hostname: String, val protocol: String) : EndpointResolver {
+    override suspend fun resolve(service: String, region: String): Endpoint {
+        return Endpoint(hostname = hostname, protocol = protocol, isHostnameImmutable = true)
     }
 }
