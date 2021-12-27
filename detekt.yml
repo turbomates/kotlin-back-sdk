@@ -60,6 +60,7 @@ style:
 complexity:
   ComplexMethod:
     active: true
+    ignoreSimpleWhenEntries: true
     threshold: 15
   LongParameterList:
     functionThreshold: 8
