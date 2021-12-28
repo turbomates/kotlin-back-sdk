@@ -46,4 +46,21 @@ class QueryConverterTest {
                     && firstMapResultValue.value.values.first() is ListValue
         }
     }
+
+    @Test
+    fun `map value with datetime range data`() {
+        val queryValues = listOf("{date:2021-12-28T00:00:00.000Z~2021-12-29T00:00:00.000Z,maxVal:~100,minVal:100~}")
+        val (result) = QueryConverter.convert(queryValues)
+        assertTrue { result is MapValue }
+        result as MapValue
+        assertTrue { result.value["date"] is RangeValue }
+        val dateRangeValue = result.value["date"] as RangeValue
+        assertEquals(dateRangeValue.from, "2021-12-28T00:00:00.000Z")
+        assertEquals(dateRangeValue.to, "2021-12-29T00:00:00.000Z")
+
+        assertTrue { result.value["maxVal"] is RangeValue }
+        val maxValRangeValue = result.value["maxVal"] as RangeValue
+        assertEquals(maxValRangeValue.from, null)
+        assertEquals(maxValRangeValue.to, "100")
+    }
 }
