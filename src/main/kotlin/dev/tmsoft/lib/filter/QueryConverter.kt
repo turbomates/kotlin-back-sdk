@@ -19,15 +19,17 @@ class QueryConverter(private val query: String) {
     private fun convertToValue(): Value {
         charIndex = 0
         return when {
-            query.contains("~") -> convertToRangeValue()
             query.first() == '[' -> convertToListValue()
             query.first() == '{' -> convertToMapValue()
-            else -> SingleValue(query)
+            else -> makeValueFromString(query)
         }
     }
 
-    private fun convertToRangeValue(): RangeValue {
-        return RangeValue(query.split("~").first().filterValue(), query.split("~")[1].filterValue())
+    private fun makeValueFromString(value: String): Value {
+        return if (value.contains("~"))
+            RangeValue(value.split("~").first().filterValue(), value.split("~")[1].filterValue())
+        else
+            SingleValue(value)
     }
 
     private fun convertToListValue(): ListValue {
@@ -40,7 +42,7 @@ class QueryConverter(private val query: String) {
                 '[' -> values.add(convertToListValue())
                 '{' -> values.add(convertToMapValue())
                 ',' -> if (tmpString.isNotEmpty()) {
-                    values.add(SingleValue(tmpString))
+                    values.add(makeValueFromString(tmpString))
                     tmpString = ""
                 }
                 else -> tmpString += currentChar
@@ -49,7 +51,7 @@ class QueryConverter(private val query: String) {
             charIndex += 1
         }
 
-        if (tmpString.isNotEmpty()) values.add(SingleValue(tmpString))
+        if (tmpString.isNotEmpty()) values.add(makeValueFromString(tmpString))
         return ListValue(values)
     }
 
@@ -57,6 +59,7 @@ class QueryConverter(private val query: String) {
         val mapValue = mutableMapOf<String, Value>()
         var tmpMapItemKey = ""
         var tmpString = ""
+        var isKeyParsing = true
 
         charIndex += 1
         while (query[charIndex] != '}') {
@@ -64,11 +67,17 @@ class QueryConverter(private val query: String) {
                 '[' -> mapValue[tmpMapItemKey] = convertToListValue()
                 '{' -> mapValue[tmpMapItemKey] = convertToMapValue()
                 ':' -> {
-                    tmpMapItemKey = tmpString
-                    tmpString = ""
+                    if (isKeyParsing) {
+                        isKeyParsing = false
+                        tmpMapItemKey = tmpString
+                        tmpString = ""
+                    } else {
+                        tmpString += currentChar
+                    }
                 }
                 ',' -> if (tmpString.isNotEmpty()) {
-                    mapValue[tmpMapItemKey] = SingleValue(tmpString)
+                    mapValue[tmpMapItemKey] = makeValueFromString(tmpString)
+                    isKeyParsing = true
                     tmpString = ""
                 }
                 else -> tmpString += currentChar
@@ -77,7 +86,7 @@ class QueryConverter(private val query: String) {
             charIndex += 1
         }
 
-        if (tmpString.isNotEmpty()) mapValue[tmpMapItemKey] = SingleValue(tmpString)
+        if (tmpString.isNotEmpty()) mapValue[tmpMapItemKey] = makeValueFromString(tmpString)
         return MapValue(mapValue)
     }
 
