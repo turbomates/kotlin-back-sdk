@@ -8,6 +8,6 @@ internal val Path.bucket: String
 
 interface FileManager {
     suspend fun add(image: Image, bucket: String, fileName: String? = null): Path
-    suspend fun getWebUri(path: Path): String
+    fun getWebUri(path: Path): String
     suspend fun remove(path: String)
 }
