@@ -27,7 +27,7 @@ class PrivateS3Client constructor(private val config: AWS) : FileManager {
         s3.uploadImageToS3(image, bucket, ObjectCannedAcl.Private, fileName)
     }
 
-    override suspend fun getWebUri(path: Path): String {
+    override fun getWebUri(path: Path): String {
         TODO("Not implemented")
         // https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html#awsui-expandable-section-2-trigger
         // return s3.getPresignedUrl()

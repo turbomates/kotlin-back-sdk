@@ -12,6 +12,7 @@ import dev.tmsoft.lib.upload.Image
 import dev.tmsoft.lib.upload.Path
 import dev.tmsoft.lib.upload.bucket
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class PublicS3Client constructor(private val config: AWS) : FileManager {
@@ -29,8 +30,8 @@ class PublicS3Client constructor(private val config: AWS) : FileManager {
         s3.uploadImageToS3(image, bucket, ObjectCannedAcl.PublicRead, fileName)
     }
 
-    override suspend fun getWebUri(path: Path): String {
-        val endpoint = s3.config.endpointResolver.resolve(s3.serviceName, s3.config.region)
+    override fun getWebUri(path: Path): String {
+        val endpoint = runBlocking { s3.config.endpointResolver.resolve(s3.serviceName, s3.config.region) }
         return if (path.isNotEmpty()) "${endpoint.protocol}://${endpoint.hostname}/$path".lowercase() else ""
     }
 
