@@ -63,4 +63,17 @@ class QueryConverterTest {
         assertEquals(maxValRangeValue.from, null)
         assertEquals(maxValRangeValue.to, "100")
     }
+
+    @Test
+    fun `map value with array first element`() {
+        val queryValues = listOf("{testKey:[testRangeFrom~],secondKey:secondValue}")
+        val (result) = QueryConverter.convert(queryValues)
+        assertTrue { result is MapValue }
+        result as MapValue
+        val testList = result.value["testKey"] as ListValue
+        assertTrue { testList.values.first() is RangeValue }
+        val dateRangeValue = testList.values.first() as RangeValue
+        assertEquals(dateRangeValue.from, "testRangeFrom")
+        assertTrue { result.value["secondKey"] is SingleValue }
+    }
 }
