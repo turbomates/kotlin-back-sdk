@@ -77,11 +77,15 @@ class QueryConverter(private val query: String) {
                         tmpString += currentChar
                     }
                 }
-                ',' -> if (tmpString.isNotEmpty()) {
-                    mapValue[tmpMapItemKey] = makeValueFromString(tmpString)
+                ',' -> {
+                    if (tmpString.isNotEmpty()) {
+                        mapValue[tmpMapItemKey] = makeValueFromString(tmpString)
+                        tmpString = ""
+                    }
+
                     isKeyParsing = true
-                    tmpString = ""
                 }
+
                 else -> tmpString += currentChar
             }
 
