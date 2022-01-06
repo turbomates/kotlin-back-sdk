@@ -83,10 +83,10 @@ class VaultAPI(domain: String, private val token: String) {
 
 @Serializable
 data class SecretListKeys(
-    val request_id: String,
-    val lease_id: String,
+    val requestId: String,
+    val leaseId: String,
     val renewable: Boolean,
-    val lease_duration: Int,
+    val leaseDuration: Int,
     val data: Map<String, List<String>>,
     val auth: SecretAuth?,
     val warnings: List<String>?
@@ -94,10 +94,10 @@ data class SecretListKeys(
 
 @Serializable
 data class Secret(
-    val request_id: String,
-    val lease_id: String,
+    val requestId: String,
+    val leaseId: String,
     val renewable: Boolean,
-    val lease_duration: Int,
+    val leaseDuration: Int,
     val data: Map<String, String?>,
     val auth: SecretAuth?,
     val warnings: List<String>?
@@ -105,10 +105,10 @@ data class Secret(
 
 @Serializable
 data class SecretAuth(
-    val client_token: String,
+    val clientToken: String,
     val accessor: String,
     val policies: List<String>,
     val metadata: Map<String, String>,
-    val lease_duration: Int,
+    val leaseDuration: Int,
     val renewable: Boolean
 )
