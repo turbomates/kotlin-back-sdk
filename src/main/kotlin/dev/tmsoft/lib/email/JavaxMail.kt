@@ -56,12 +56,12 @@ class JavaxMail(val config: SMTPConfig) : Mail {
             val content = MimeMultipart()
             message.html?.let {
                 val mimeBodyPart = MimeBodyPart()
-                mimeBodyPart.setContent(it, "text/html")
+                mimeBodyPart.setContent(it, "text/html; charset=UTF-8")
                 content.addBodyPart(mimeBodyPart)
             }
             message.plain?.let {
                 val mimeBodyPart = MimeBodyPart()
-                mimeBodyPart.setText(it)
+                mimeBodyPart.setText(it, Charsets.UTF_8.name())
                 content.addBodyPart(mimeBodyPart)
             }
             message.attaches.forEach {
