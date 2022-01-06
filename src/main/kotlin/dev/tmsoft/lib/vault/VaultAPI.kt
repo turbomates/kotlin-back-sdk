@@ -7,6 +7,7 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
 
@@ -81,11 +82,15 @@ class VaultAPI(domain: String, private val token: String) {
     }
 }
 
+
 @Serializable
-data class SecretListKeys(
+private data class SecretListKeys(
+    @SerialName("request_id")
     val requestId: String,
+    @SerialName("lease_id")
     val leaseId: String,
     val renewable: Boolean,
+    @SerialName("lease_duration")
     val leaseDuration: Int,
     val data: Map<String, List<String>>,
     val auth: SecretAuth?,
@@ -93,10 +98,13 @@ data class SecretListKeys(
 )
 
 @Serializable
-data class Secret(
+private data class Secret(
+    @SerialName("request_id")
     val requestId: String,
+    @SerialName("lease_id")
     val leaseId: String,
     val renewable: Boolean,
+    @SerialName("lease_duration")
     val leaseDuration: Int,
     val data: Map<String, String?>,
     val auth: SecretAuth?,
@@ -104,11 +112,14 @@ data class Secret(
 )
 
 @Serializable
-data class SecretAuth(
+private data class SecretAuth(
+    @SerialName("client_token")
     val clientToken: String,
     val accessor: String,
     val policies: List<String>,
     val metadata: Map<String, String>,
+    @SerialName("lease_duration")
     val leaseDuration: Int,
     val renewable: Boolean
 )
+
