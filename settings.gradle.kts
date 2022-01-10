@@ -82,7 +82,7 @@ dependencyResolutionManagement {
                 "exposed_jdbc"
             ))
 
-            alias("kotlin_serialization").toPluginId("org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin_serialization")
+            alias("kotlin_serialization").toPluginId("org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin")
             alias("test_logger").toPluginId("com.adarshr.test-logger").versionRef("test_logger")
             alias("detekt").toPluginId("io.gitlab.arturbosch.detekt").versionRef("detekt")
         }
