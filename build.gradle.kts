@@ -24,7 +24,7 @@ dependencies {
     api(deps.kotlin.reflect)
     api(deps.valiktor.core)
     api(deps.google.guice)
-    api(deps.postgresqlJDBC)
+    api(deps.postgresql.jdbc)
     api(deps.hikaricp)
     api(deps.kotlin.serialization)
     api(deps.kotlin.serialization.json)
