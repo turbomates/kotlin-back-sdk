@@ -41,7 +41,7 @@ dependencyResolutionManagement {
             alias("exposed_core").to("org.jetbrains.exposed", "exposed-core").versionRef("exposed")
             alias("exposed_jdbc").to("org.jetbrains.exposed", "exposed-jdbc").versionRef("exposed")
             alias("exposed_dao").to("org.jetbrains.exposed", "exposed-dao").versionRef("exposed")
-            alias("postgresqlJDBC").to("org.postgresql", "postgresql").versionRef("postgresqlJDBC")
+            alias("postgresql_jdbc").to("org.postgresql", "postgresql").versionRef("postgresql_jdbc")
             alias("kotlin_test").to("org.jetbrains.kotlin", "kotlin-test-junit5").versionRef("kotlin")
             alias("embedded_postgres").to("com.opentable.components", "otj-pg-embedded").versionRef("embedded_postgres")
             alias("kotlin_serialization_json").to("org.jetbrains.kotlinx", "kotlinx-serialization-json").versionRef("kotlin_serialization_json")
