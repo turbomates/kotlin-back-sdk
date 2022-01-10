@@ -1,12 +1,15 @@
 package dev.tmsoft.lib.upload.aws
 
 import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
-import aws.sdk.kotlin.runtime.endpoint.Endpoint
-import aws.sdk.kotlin.runtime.endpoint.EndpointResolver
+import aws.sdk.kotlin.runtime.endpoint.AwsEndpointResolver
+import aws.sdk.kotlin.runtime.endpoint.AwsEndpoint
 import aws.sdk.kotlin.services.s3.S3Client
 import aws.sdk.kotlin.services.s3.model.BucketLocationConstraint
 import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
 import aws.sdk.kotlin.services.s3.model.ObjectCannedAcl
+import aws.smithy.kotlin.runtime.http.Url
+import aws.smithy.kotlin.runtime.http.operation.Endpoint
+import aws.smithy.kotlin.runtime.http.Protocol
 import dev.tmsoft.lib.upload.FileManager
 import dev.tmsoft.lib.upload.Image
 import dev.tmsoft.lib.upload.Path
@@ -31,8 +34,8 @@ class PublicS3Client constructor(private val config: AWS) : FileManager {
     }
 
     override fun getWebUri(path: Path): String {
-        val endpoint = runBlocking { s3.config.endpointResolver.resolve(s3.serviceName, s3.config.region) }
-        return if (path.isNotEmpty()) "${endpoint.protocol}://${endpoint.hostname}/$path".lowercase() else ""
+        val awsEndpoint = runBlocking { s3.config.endpointResolver.resolve(s3.serviceName, s3.config.region) }
+        return if (path.isNotEmpty()) "${awsEndpoint.endpoint.uri}/$path".lowercase() else ""
     }
 
     override suspend fun remove(path: Path) {
@@ -46,8 +49,10 @@ class PublicS3Client constructor(private val config: AWS) : FileManager {
     }
 }
 
-internal class CustomEndpointResolver(val hostname: String, val protocol: String) : EndpointResolver {
-    override suspend fun resolve(service: String, region: String): Endpoint {
-        return Endpoint(hostname = hostname, protocol = protocol, isHostnameImmutable = true)
+internal class CustomEndpointResolver(private val hostname: String, private val protocol: String) :
+    AwsEndpointResolver {
+    override suspend fun resolve(service: String, region: String): AwsEndpoint {
+        val uri = Url(scheme = Protocol.parse(protocol), host = hostname)
+        return AwsEndpoint(Endpoint(uri = uri, isHostnameImmutable = true))
     }
 }
