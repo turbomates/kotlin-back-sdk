@@ -8,8 +8,8 @@ import com.sksamuel.hoplite.preprocessor.TraversingPrimitivePreprocessor
 import kotlinx.coroutines.runBlocking
 
 class VaultHoplitePreprocessor(private val vaultAPI: VaultAPI) : TraversingPrimitivePreprocessor() {
-    // example jdbc.database=gambling/database
-    private val regex = "(.*?)/(.*?)".toRegex()
+    // example jdbc.database=vault:gambling/database
+    private val regex = "vault:(.*?)/(.*?)".toRegex()
 
     override fun handle(node: PrimitiveNode): Node =
         when (node) {
@@ -29,7 +29,7 @@ class VaultHoplitePreprocessor(private val vaultAPI: VaultAPI) : TraversingPrimi
                         if (data.isEmpty()) {
                             node
                         } else {
-                            data.toNode("vault")
+                            process(data.toNode("vault"))
                         }
                     }
                 }
