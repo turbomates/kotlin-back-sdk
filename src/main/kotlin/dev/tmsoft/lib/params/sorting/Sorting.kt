@@ -4,7 +4,6 @@ import dev.tmsoft.lib.params.Field
 import dev.tmsoft.lib.params.PathValues
 import dev.tmsoft.lib.params.SingleValue
 import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.EnumerationNameColumnType
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.Table
@@ -16,8 +15,7 @@ abstract class Sorting(val table: Table) {
 
     fun add(
         name: String,
-        column: Column<*>? = null,
-        possibleValues: List<String>? = null
+        column: Column<*>? = null
     ): Field {
         val tableColumn = column ?: table.columns.first { it.name == name }
 
@@ -32,7 +30,7 @@ abstract class Sorting(val table: Table) {
                     SortOrder.valueOf(sortOrder)
                 )
             },
-            possibleValues ?: tableColumn.possibleValues()
+            SortOrder.values().map { it.name }
         )
 
         fields.add(field)
@@ -48,13 +46,6 @@ abstract class Sorting(val table: Table) {
             }
         }
         return buildQuery
-    }
-
-    private fun Column<*>.possibleValues(): List<String> {
-        return when (columnType) {
-            is EnumerationNameColumnType<*> -> (columnType as EnumerationNameColumnType<*>).klass.java.enumConstants.map { it.name }
-            else -> SortOrder.values().map { it.name }
-        }
     }
 }
 
