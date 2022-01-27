@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.filter
+package dev.tmsoft.lib.params.filter
 
 import dev.tmsoft.lib.Config.h2DatabaseUrl
 import dev.tmsoft.lib.Config.h2Driver
@@ -7,6 +7,10 @@ import dev.tmsoft.lib.Config.h2User
 import dev.tmsoft.lib.exposed.Currency
 import dev.tmsoft.lib.exposed.Money
 import dev.tmsoft.lib.exposed.money
+import dev.tmsoft.lib.params.ListValue
+import dev.tmsoft.lib.params.PathValues
+import dev.tmsoft.lib.params.RangeValue
+import dev.tmsoft.lib.params.SingleValue
 import java.time.LocalDate
 import kotlin.test.assertTrue
 import org.jetbrains.exposed.dao.id.IntIdTable

@@ -1,5 +1,9 @@
-package dev.tmsoft.lib.filter
+package dev.tmsoft.lib.params.filter
 
+import dev.tmsoft.lib.params.Field
+import dev.tmsoft.lib.params.PathValues
+import dev.tmsoft.lib.params.Value
+import dev.tmsoft.lib.params.exceptions.NotEnoughInformation
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ColumnSet
 import org.jetbrains.exposed.sql.EnumerationNameColumnType
@@ -115,5 +119,3 @@ fun Query.addJoin(body: ColumnSet.() -> ColumnSet): Query {
         }
     }
 }
-
-class PathValues(items: Map<String, List<Value>> = emptyMap()) : Map<String, List<Value>> by items

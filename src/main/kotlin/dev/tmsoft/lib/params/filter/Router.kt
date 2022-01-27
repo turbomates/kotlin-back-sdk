@@ -1,10 +1,13 @@
-package dev.tmsoft.lib.filter
+package dev.tmsoft.lib.params.filter
 
 import dev.tmsoft.lib.openapi.OpenAPI
 import dev.tmsoft.lib.openapi.Property
 import dev.tmsoft.lib.openapi.Type
 import dev.tmsoft.lib.openapi.ktor.buildFullPath
 import dev.tmsoft.lib.openapi.ktor.openApi
+import dev.tmsoft.lib.params.PathValues
+import dev.tmsoft.lib.params.QueryConverter
+import dev.tmsoft.lib.params.Value
 import io.ktor.http.Parameters
 import io.ktor.routing.Route
 
@@ -22,7 +25,7 @@ private fun Filter.openApiType(): Type.Object {
     fields().forEach { field ->
         parameters.add(
             Property(
-                "filter[${field.name}]", Type.String(if (field.values.isNotEmpty()) field.values else null)
+                "filter[${field.name}]", Type.String(field.values.ifEmpty { null })
             )
         )
     }
@@ -32,7 +35,7 @@ private fun Filter.openApiType(): Type.Object {
 fun Parameters.filterValues(): PathValues {
     val parameters = mutableMapOf<String, List<Value>>()
     forEach { key, value ->
-        if (key.contains(parameterName)) {
+        if (key.contains("filter")) {
             val result = Regex("\\[(\\w+)\\]").findAll(key)
             val field: String = result.last().groupValues.last()
             parameters[field] = QueryConverter.convert(value)
@@ -40,6 +43,3 @@ fun Parameters.filterValues(): PathValues {
     }
     return PathValues(parameters)
 }
-
-private val parameterName: String
-    get() = "filter"

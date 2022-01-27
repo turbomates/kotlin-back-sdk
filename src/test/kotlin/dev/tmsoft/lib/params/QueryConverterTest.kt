@@ -1,8 +1,8 @@
-package dev.tmsoft.lib.filter
+package dev.tmsoft.lib.params
 
-import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import org.junit.jupiter.api.Test
 
 class QueryConverterTest {
     @Test

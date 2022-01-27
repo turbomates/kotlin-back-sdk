@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.filter
+package dev.tmsoft.lib.params
 
 class QueryConverter(private val query: String) {
     private var charIndex = 0
@@ -30,8 +30,10 @@ class QueryConverter(private val query: String) {
         return if (splitValue.size == 1)
             SingleValue(value)
         else
-            RangeValue(splitValue[0].filterValue(), splitValue[1].filterValue())
-
+            RangeValue(
+                splitValue[0].ifBlank { null },
+                splitValue[1].ifBlank { null }
+            )
     }
 
     private fun convertToListValue(): ListValue {
@@ -94,9 +96,5 @@ class QueryConverter(private val query: String) {
 
         if (tmpString.isNotEmpty()) mapValue[tmpMapItemKey] = makeValueFromString(tmpString)
         return MapValue(mapValue)
-    }
-
-    private fun String.filterValue(): String? {
-        return if (isBlank()) null else this
     }
 }
