@@ -25,7 +25,7 @@ abstract class Sorting(val table: Table) {
             name,
             { values ->
                 val sortOrder = (values.single() as SingleValue).value
-                    .replace(" ","")
+                    .trim()
                     .uppercase()
                 orderBy(
                     tableColumn,
@@ -53,7 +53,7 @@ abstract class Sorting(val table: Table) {
     private fun Column<*>.possibleValues(): List<String> {
         return when (columnType) {
             is EnumerationNameColumnType<*> -> (columnType as EnumerationNameColumnType<*>).klass.java.enumConstants.map { it.name }
-            else -> emptyList()
+            else -> SortOrder.values().map { it.name }
         }
     }
 }

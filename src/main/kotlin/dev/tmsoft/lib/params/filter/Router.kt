@@ -25,7 +25,7 @@ private fun Filter.openApiType(): Type.Object {
     fields().forEach { field ->
         parameters.add(
             Property(
-                "filter[${field.name}]", Type.String(field.values.ifEmpty { null })
+                "$filterParameterName[${field.name}]", Type.String(field.values.ifEmpty { null })
             )
         )
     }
@@ -35,7 +35,7 @@ private fun Filter.openApiType(): Type.Object {
 fun Parameters.filterValues(): PathValues {
     val parameters = mutableMapOf<String, List<Value>>()
     forEach { key, value ->
-        if (key.contains("filter")) {
+        if (key.contains(filterParameterName)) {
             val result = Regex("\\[(\\w+)\\]").findAll(key)
             val field: String = result.last().groupValues.last()
             parameters[field] = QueryConverter.convert(value)
@@ -43,3 +43,6 @@ fun Parameters.filterValues(): PathValues {
     }
     return PathValues(parameters)
 }
+
+private val filterParameterName: String
+    get() = "filter"

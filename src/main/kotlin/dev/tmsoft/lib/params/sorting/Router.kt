@@ -27,7 +27,7 @@ private fun Sorting.openApiType(): Type.Object {
     fields().forEach { field ->
         parameters.add(
             Property(
-                "sorting[${field.name}]", Type.String(field.values.ifEmpty { null })
+                "$sortingParameterName[${field.name}]", Type.String(field.values.ifEmpty { null })
             )
         )
     }
@@ -37,7 +37,7 @@ private fun Sorting.openApiType(): Type.Object {
 fun Parameters.sortingValues(): PathValues {
     val parameters = mutableMapOf<String, List<Value>>()
     forEach { key, values ->
-        if (key.contains("sorting")) {
+        if (key.contains(sortingParameterName)) {
             val singleValue = QueryConverter.convert(values)
                 .singleOrNull { value -> value is SingleValue } as SingleValue?
                 ?: throw InvalidValue("Unknown values. Should be a single", values)
@@ -47,3 +47,6 @@ fun Parameters.sortingValues(): PathValues {
     }
     return PathValues(parameters)
 }
+
+private val sortingParameterName: String
+    get() = "sorting"
