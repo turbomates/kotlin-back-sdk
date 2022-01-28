@@ -150,7 +150,7 @@ data class Property(
 sealed class Type {
     class String(val values: List<kotlin.String>? = null, val example: JsonElement? = null) : Type()
     class Array(val type: Type, val values: List<kotlin.String>? = null) : Type()
-    data class Object(
+    class Object(
         val name: kotlin.String,
         val properties: List<Property>,
         val example: JsonElement? = null,
