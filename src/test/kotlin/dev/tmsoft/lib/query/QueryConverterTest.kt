@@ -1,6 +1,6 @@
-package dev.tmsoft.lib.params
+package dev.tmsoft.lib.query
 
-import dev.tmsoft.lib.params.filter.QueryConverter
+import dev.tmsoft.lib.query.filter.QueryConverter
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.jupiter.api.Test

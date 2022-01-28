@@ -1,9 +1,9 @@
-package dev.tmsoft.lib.params.filter
+package dev.tmsoft.lib.query.filter
 
-import dev.tmsoft.lib.params.Field
-import dev.tmsoft.lib.params.PathValues
-import dev.tmsoft.lib.params.Value
-import dev.tmsoft.lib.params.exceptions.NotEnoughInformation
+import dev.tmsoft.lib.query.Field
+import dev.tmsoft.lib.query.PathValues
+import dev.tmsoft.lib.query.Value
+import dev.tmsoft.lib.query.exceptions.NotEnoughInformation
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ColumnSet
 import org.jetbrains.exposed.sql.EnumerationNameColumnType

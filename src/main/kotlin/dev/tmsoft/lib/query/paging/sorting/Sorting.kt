@@ -1,8 +1,8 @@
-package dev.tmsoft.lib.params.paging.sorting
+package dev.tmsoft.lib.query.paging.sorting
 
-import dev.tmsoft.lib.params.Field
-import dev.tmsoft.lib.params.PathValues
-import dev.tmsoft.lib.params.SingleValue
+import dev.tmsoft.lib.query.Field
+import dev.tmsoft.lib.query.PathValues
+import dev.tmsoft.lib.query.SingleValue
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SortOrder

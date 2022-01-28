@@ -1,11 +1,11 @@
-package dev.tmsoft.lib.params.sorting
+package dev.tmsoft.lib.query.sorting
 
 import dev.tmsoft.lib.Config
-import dev.tmsoft.lib.params.PathValues
-import dev.tmsoft.lib.params.SingleValue
-import dev.tmsoft.lib.params.paging.PagingParameters
-import dev.tmsoft.lib.params.paging.sorting.Sorting
-import dev.tmsoft.lib.params.paging.toContinuousList
+import dev.tmsoft.lib.query.PathValues
+import dev.tmsoft.lib.query.SingleValue
+import dev.tmsoft.lib.query.paging.PagingParameters
+import dev.tmsoft.lib.query.paging.sorting.Sorting
+import dev.tmsoft.lib.query.paging.toContinuousList
 import java.time.LocalDate
 import kotlin.test.assertTrue
 import org.jetbrains.exposed.dao.id.IntIdTable

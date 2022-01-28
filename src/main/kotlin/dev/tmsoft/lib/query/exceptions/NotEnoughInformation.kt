@@ -1,3 +1,3 @@
-package dev.tmsoft.lib.params.exceptions
+package dev.tmsoft.lib.query.exceptions
 
 class NotEnoughInformation(message: String) : Exception(message)

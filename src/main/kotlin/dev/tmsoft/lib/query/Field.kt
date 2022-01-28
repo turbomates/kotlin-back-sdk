@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.params
+package dev.tmsoft.lib.query
 
 import org.jetbrains.exposed.sql.Query
 

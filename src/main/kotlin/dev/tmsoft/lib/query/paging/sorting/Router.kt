@@ -1,14 +1,14 @@
-package dev.tmsoft.lib.params.paging.sorting
+package dev.tmsoft.lib.query.paging.sorting
 
 import dev.tmsoft.lib.openapi.OpenAPI
 import dev.tmsoft.lib.openapi.Property
 import dev.tmsoft.lib.openapi.Type
 import dev.tmsoft.lib.openapi.ktor.buildFullPath
 import dev.tmsoft.lib.openapi.ktor.openApi
-import dev.tmsoft.lib.params.PathValues
-import dev.tmsoft.lib.params.SingleValue
-import dev.tmsoft.lib.params.Value
-import dev.tmsoft.lib.params.exceptions.InvalidValue
+import dev.tmsoft.lib.query.PathValues
+import dev.tmsoft.lib.query.SingleValue
+import dev.tmsoft.lib.query.Value
+import dev.tmsoft.lib.query.exceptions.InvalidValue
 import io.ktor.http.Parameters
 import io.ktor.routing.Route
 

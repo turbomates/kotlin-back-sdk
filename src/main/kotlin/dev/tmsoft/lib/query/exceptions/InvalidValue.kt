@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.params.exceptions
+package dev.tmsoft.lib.query.exceptions
 
 class InvalidValue(
     message: String, 

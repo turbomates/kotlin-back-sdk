@@ -1,7 +1,7 @@
-package dev.tmsoft.lib.params.paging
+package dev.tmsoft.lib.query.paging
 
-import dev.tmsoft.lib.params.PathValues
-import dev.tmsoft.lib.params.paging.sorting.Sorting
+import dev.tmsoft.lib.query.PathValues
+import dev.tmsoft.lib.query.paging.sorting.Sorting
 import dev.tmsoft.lib.serialization.elementSerializer
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException

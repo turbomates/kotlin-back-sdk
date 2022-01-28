@@ -1,12 +1,12 @@
-package dev.tmsoft.lib.params.filter
+package dev.tmsoft.lib.query.filter
 
 import dev.tmsoft.lib.openapi.OpenAPI
 import dev.tmsoft.lib.openapi.Property
 import dev.tmsoft.lib.openapi.Type
 import dev.tmsoft.lib.openapi.ktor.buildFullPath
 import dev.tmsoft.lib.openapi.ktor.openApi
-import dev.tmsoft.lib.params.PathValues
-import dev.tmsoft.lib.params.Value
+import dev.tmsoft.lib.query.PathValues
+import dev.tmsoft.lib.query.Value
 import io.ktor.http.Parameters
 import io.ktor.routing.Route
 

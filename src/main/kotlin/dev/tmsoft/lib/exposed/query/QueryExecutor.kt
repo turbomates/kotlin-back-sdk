@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.query
+package dev.tmsoft.lib.exposed.query
 
 import com.google.inject.Inject
 import dev.tmsoft.lib.exposed.TransactionManager
