@@ -38,7 +38,7 @@ class OpenAPI(var host: String) {
                         Property("page", Type.Number)
                     ).plus(pathParams?.properties ?: emptyList())
                 )
-            }
+            } ?: pathParams
 
         when (method) {
             Method.GET -> {
