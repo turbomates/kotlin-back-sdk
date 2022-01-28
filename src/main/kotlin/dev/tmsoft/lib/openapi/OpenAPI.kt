@@ -28,32 +28,44 @@ class OpenAPI(var host: String) {
             pathItemObject = PathItemObject()
             root.paths[path] = pathItemObject
         }
+        val updatedPathParams = responses.values
+            .find { value -> value is Type.Object && value.name == "Listing" }
+            ?.let {
+                Type.Object(
+                    "paging",
+                    listOf(
+                        Property("pageSize", Type.Number),
+                        Property("page", Type.Number)
+                    ).plus(pathParams?.properties ?: emptyList())
+                )
+            }
+
         when (method) {
             Method.GET -> {
                 pathItemObject.get = pathItemObject.get?.merge(pathParams, body, responses) ?: OperationObject(
                     responses.mapValues { it.value.toResponseObject() },
-                    parameters = pathParams?.toParameterObject()
+                    parameters = updatedPathParams?.toParameterObject()
                 )
             }
             Method.POST -> {
                 pathItemObject.post = OperationObject(
                     responses.mapValues { it.value.toResponseObject() },
                     requestBody = body?.toRequestBodyObject(),
-                    parameters = pathParams?.toParameterObject()
+                    parameters = updatedPathParams?.toParameterObject()
                 )
             }
             Method.DELETE -> {
                 pathItemObject.delete = OperationObject(
                     responses.mapValues { it.value.toResponseObject() },
                     requestBody = body?.toRequestBodyObject(),
-                    parameters = pathParams?.toParameterObject()
+                    parameters = updatedPathParams?.toParameterObject()
                 )
             }
             Method.PATCH -> {
                 pathItemObject.patch = OperationObject(
                     responses.mapValues { it.value.toResponseObject() },
                     requestBody = body?.toRequestBodyObject(),
-                    parameters = pathParams?.toParameterObject()
+                    parameters = updatedPathParams?.toParameterObject()
                 )
             }
         }
@@ -138,7 +150,7 @@ data class Property(
 sealed class Type {
     class String(val values: List<kotlin.String>? = null, val example: JsonElement? = null) : Type()
     class Array(val type: Type, val values: List<kotlin.String>? = null) : Type()
-    class Object(
+    data class Object(
         val name: kotlin.String,
         val properties: List<Property>,
         val example: JsonElement? = null,

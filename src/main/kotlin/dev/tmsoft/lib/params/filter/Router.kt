@@ -6,7 +6,6 @@ import dev.tmsoft.lib.openapi.Type
 import dev.tmsoft.lib.openapi.ktor.buildFullPath
 import dev.tmsoft.lib.openapi.ktor.openApi
 import dev.tmsoft.lib.params.PathValues
-import dev.tmsoft.lib.params.QueryConverter
 import dev.tmsoft.lib.params.Value
 import io.ktor.http.Parameters
 import io.ktor.routing.Route

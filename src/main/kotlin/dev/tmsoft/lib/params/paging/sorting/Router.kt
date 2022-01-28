@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.params.sorting
+package dev.tmsoft.lib.params.paging.sorting
 
 import dev.tmsoft.lib.openapi.OpenAPI
 import dev.tmsoft.lib.openapi.Property
@@ -6,7 +6,6 @@ import dev.tmsoft.lib.openapi.Type
 import dev.tmsoft.lib.openapi.ktor.buildFullPath
 import dev.tmsoft.lib.openapi.ktor.openApi
 import dev.tmsoft.lib.params.PathValues
-import dev.tmsoft.lib.params.QueryConverter
 import dev.tmsoft.lib.params.SingleValue
 import dev.tmsoft.lib.params.Value
 import dev.tmsoft.lib.params.exceptions.InvalidValue
@@ -38,8 +37,8 @@ fun Parameters.sortingValues(): PathValues {
     val parameters = mutableMapOf<String, List<Value>>()
     forEach { key, values ->
         if (key.contains(sortingParameterName)) {
-            val singleValue = QueryConverter.convert(values)
-                .singleOrNull { value -> value is SingleValue } as SingleValue?
+            val singleValue = values.singleOrNull()
+                ?.let { value -> SingleValue(value) }
                 ?: throw InvalidValue("Unknown values. Should be a single", values)
 
             parameters[singleValue.value] = listOf(singleValue)

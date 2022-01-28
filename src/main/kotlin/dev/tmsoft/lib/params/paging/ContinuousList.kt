@@ -1,5 +1,7 @@
-package dev.tmsoft.lib.query
+package dev.tmsoft.lib.params.paging
 
+import dev.tmsoft.lib.params.PathValues
+import dev.tmsoft.lib.params.paging.sorting.Sorting
 import dev.tmsoft.lib.serialization.elementSerializer
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
@@ -16,17 +18,29 @@ import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.ops.SingleValueInListOp
 
-fun <T> Query.toContinuousList(page: PagingParameters, effector: ResultRow.() -> T): ContinuousList<T> {
-    return toContinuousListBuilder(page) { this.map { effector(it) } }
+fun <T> Query.toContinuousList(
+    page: PagingParameters,
+    effector: ResultRow.() -> T,
+    sorting: Sorting? = null,
+    sortingValues: PathValues? = null
+): ContinuousList<T> {
+    return toContinuousListBuilder(page, sorting, sortingValues) { this.map { effector(it) } }
 }
 
 @JvmName("toContinuousListIterable")
-fun <T> Query.toContinuousList(page: PagingParameters, effector: Iterable<ResultRow>.() -> List<T>): ContinuousList<T> {
-    return toContinuousListBuilder(page) { effector() }
+fun <T> Query.toContinuousList(
+    page: PagingParameters,
+    effector: Iterable<ResultRow>.() -> List<T>,
+    sorting: Sorting? = null,
+    sortingValues: PathValues? = null
+): ContinuousList<T> {
+    return toContinuousListBuilder(page, sorting, sortingValues) { effector() }
 }
 
 fun <T> Query.toContinuousListBuilder(
     page: PagingParameters,
+    sorting: Sorting? = null,
+    sortingValues: PathValues? = null,
     effector: Query.() -> List<T>
 ): ContinuousList<T> {
     if (targets.count() > 1) {
@@ -37,7 +51,12 @@ fun <T> Query.toContinuousListBuilder(
     } else {
         limit(page.pageSize + 1, page.offset)
     }
-    var result = effector()
+
+    var result = effector(
+        if (sorting != null && sortingValues != null) {
+            sorting.apply(this, sortingValues)
+        } else this
+    )
     var hasMore = false
     if (result.count() > page.pageSize) {
         hasMore = result.count() > page.pageSize

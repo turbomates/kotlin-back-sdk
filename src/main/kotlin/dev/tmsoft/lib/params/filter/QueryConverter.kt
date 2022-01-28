@@ -1,4 +1,10 @@
-package dev.tmsoft.lib.params
+package dev.tmsoft.lib.params.filter
+
+import dev.tmsoft.lib.params.ListValue
+import dev.tmsoft.lib.params.MapValue
+import dev.tmsoft.lib.params.RangeValue
+import dev.tmsoft.lib.params.SingleValue
+import dev.tmsoft.lib.params.Value
 
 class QueryConverter(private val query: String) {
     private var charIndex = 0

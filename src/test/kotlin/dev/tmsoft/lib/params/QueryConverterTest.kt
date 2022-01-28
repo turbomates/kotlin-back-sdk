@@ -1,5 +1,6 @@
 package dev.tmsoft.lib.params
 
+import dev.tmsoft.lib.params.filter.QueryConverter
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.jupiter.api.Test

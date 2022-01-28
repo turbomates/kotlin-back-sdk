@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.params.sorting
+package dev.tmsoft.lib.params.paging.sorting
 
 import dev.tmsoft.lib.params.Field
 import dev.tmsoft.lib.params.PathValues
@@ -47,8 +47,4 @@ abstract class Sorting(val table: Table) {
         }
         return buildQuery
     }
-}
-
-fun Query.sortedBy(sorting: Sorting, values: PathValues): Query {
-    return sorting.apply(this, values)
 }

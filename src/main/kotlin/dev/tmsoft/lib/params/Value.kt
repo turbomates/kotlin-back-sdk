@@ -7,8 +7,6 @@ import java.time.LocalDateTime
 import org.jetbrains.exposed.sql.AndOp
 import org.jetbrains.exposed.sql.BooleanColumnType
 import org.jetbrains.exposed.sql.DoubleColumnType
-import org.jetbrains.exposed.sql.EnumerationColumnType
-import org.jetbrains.exposed.sql.EnumerationNameColumnType
 import org.jetbrains.exposed.sql.EqOp
 import org.jetbrains.exposed.sql.ExpressionWithColumnType
 import org.jetbrains.exposed.sql.GreaterEqOp
@@ -49,8 +47,6 @@ class SingleValue(val value: String) : Value() {
     @Suppress("UNCHECKED_CAST")
     private fun ExpressionWithColumnType<*>.expression(value: String): Op<Boolean> {
         return when (columnType) {
-            is EnumerationColumnType<*> -> EqOp(this, typedWrap(value))
-            is EnumerationNameColumnType<*> -> EqOp(this, typedWrap(value))
             is StringColumnType -> LikeOp(
                 (this as ExpressionWithColumnType<String>).lowerCase(),
                 wrap(value.lowercase() + "%")

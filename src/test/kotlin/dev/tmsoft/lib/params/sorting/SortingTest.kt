@@ -3,10 +3,14 @@ package dev.tmsoft.lib.params.sorting
 import dev.tmsoft.lib.Config
 import dev.tmsoft.lib.params.PathValues
 import dev.tmsoft.lib.params.SingleValue
+import dev.tmsoft.lib.params.paging.PagingParameters
+import dev.tmsoft.lib.params.paging.sorting.Sorting
+import dev.tmsoft.lib.params.paging.toContinuousList
 import java.time.LocalDate
 import kotlin.test.assertTrue
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.date
@@ -18,17 +22,27 @@ import org.junit.jupiter.api.Test
 class SortingTest {
     @Test
     fun `test sorting`() {
-        val database = Database.connect(Config.h2DatabaseUrl, driver = Config.h2Driver, user = Config.h2User, password = Config.h2Password)
+        val database = Database.connect(
+            Config.h2DatabaseUrl,
+            Config.h2Driver,
+            Config.h2User,
+            Config.h2Password
+        )
 
         transaction(database) {
             SchemaUtils.create(UserTable)
-            UserTable.insert {
-                it[name] = "test"
-                it[number] = 1
-                it[modifyAt] = LocalDate.now()
+            for (i in 1..5) {
+                UserTable.insert {
+                    it[name] = "test"
+                    it[number] = i
+                    it[modifyAt] = LocalDate.now()
+                }
             }
-            val query = UserTable.selectAll()
-                .sortedBy(
+
+            val users = UserTable.selectAll()
+                .toContinuousList(
+                    PagingParameters(30, 1),
+                    ResultRow::toUser,
                     UserSorting,
                     PathValues(
                         mapOf(
@@ -39,13 +53,15 @@ class SortingTest {
                     )
                 )
             assertTrue(
-                query.prepareSQL(this)
-                    .contains("ORDER BY \"USER\".\"NUMBER\" DESC, \"USER\".\"NAME\" ASC")
+                users.data.first().order == 5 &&
+                    users.data.last().order == 1
             )
 
             Assertions.assertThrows(IllegalArgumentException::class.java) {
                 UserTable.selectAll()
-                    .sortedBy(
+                    .toContinuousList(
+                        PagingParameters(30, 1),
+                        ResultRow::toUser,
                         UserSorting,
                         PathValues(
                             mapOf(
@@ -68,3 +84,12 @@ object UserTable : IntIdTable() {
     val number = integer("number")
     val modifyAt = date("modify_at").default(LocalDate.now())
 }
+data class User(
+    val name: String,
+    val order: Int
+)
+
+fun ResultRow.toUser() = User(
+    this[UserTable.name],
+    this[UserTable.number]
+)
