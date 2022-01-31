@@ -45,8 +45,7 @@ class SortingTest {
                     listOf(
                         SortingParameter("number", SortOrder.DESC),
                         SortingParameter("name", SortOrder.ASC)
-                    ),
-                    listOf(UserTable.name, UserTable.number)
+                    )
                 )
             assertTrue(
                 users.data.first().order == 5 &&
