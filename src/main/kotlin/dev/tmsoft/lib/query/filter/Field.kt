@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.query
+package dev.tmsoft.lib.query.filter
 
 import org.jetbrains.exposed.sql.Query
 

@@ -1,8 +1,5 @@
 package dev.tmsoft.lib.query.filter
 
-import dev.tmsoft.lib.query.Field
-import dev.tmsoft.lib.query.PathValues
-import dev.tmsoft.lib.query.Value
 import dev.tmsoft.lib.query.exceptions.NotEnoughInformation
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ColumnSet

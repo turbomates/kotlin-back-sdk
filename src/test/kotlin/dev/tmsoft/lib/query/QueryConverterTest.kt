@@ -1,6 +1,10 @@
 package dev.tmsoft.lib.query
 
+import dev.tmsoft.lib.query.filter.ListValue
+import dev.tmsoft.lib.query.filter.MapValue
 import dev.tmsoft.lib.query.filter.QueryConverter
+import dev.tmsoft.lib.query.filter.RangeValue
+import dev.tmsoft.lib.query.filter.SingleValue
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.jupiter.api.Test

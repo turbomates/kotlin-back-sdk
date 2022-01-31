@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.query
+package dev.tmsoft.lib.query.filter
 
 import dev.tmsoft.lib.date.localDateFormat
 import dev.tmsoft.lib.date.localDateTimeFormat

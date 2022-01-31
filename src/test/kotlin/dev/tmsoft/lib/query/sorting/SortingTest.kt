@@ -1,10 +1,8 @@
 package dev.tmsoft.lib.query.sorting
 
 import dev.tmsoft.lib.Config
-import dev.tmsoft.lib.query.PathValues
-import dev.tmsoft.lib.query.SingleValue
 import dev.tmsoft.lib.query.paging.PagingParameters
-import dev.tmsoft.lib.query.paging.sorting.Sorting
+import dev.tmsoft.lib.query.paging.SortingParameter
 import dev.tmsoft.lib.query.paging.toContinuousList
 import java.time.LocalDate
 import kotlin.test.assertTrue
@@ -12,6 +10,7 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.date
 import org.jetbrains.exposed.sql.selectAll
@@ -43,29 +42,27 @@ class SortingTest {
                 .toContinuousList(
                     PagingParameters(30, 1),
                     ResultRow::toUser,
-                    UserSorting,
-                    PathValues(
-                        mapOf(
-                            "order" to listOf(SingleValue("desc")),
-                            "name" to listOf(SingleValue("ASC")),
-                            "modifyAt" to listOf(SingleValue("DESC"))
-                        )
-                    )
+                    listOf(
+                        SortingParameter("number", SortOrder.DESC),
+                        SortingParameter("name", SortOrder.ASC)
+                    ),
+                    listOf(UserTable.name, UserTable.number)
                 )
             assertTrue(
                 users.data.first().order == 5 &&
                     users.data.last().order == 1
             )
 
+
             Assertions.assertThrows(IllegalArgumentException::class.java) {
                 UserTable.selectAll()
                     .toContinuousList(
                         PagingParameters(30, 1),
                         ResultRow::toUser,
-                        UserSorting,
-                        PathValues(
-                            mapOf(
-                                "order" to listOf(SingleValue("descqw")),
+                        listOf(
+                            SortingParameter(
+                                "modifyAt",
+                                SortOrder.DESC
                             )
                         )
                     )
@@ -74,16 +71,12 @@ class SortingTest {
     }
 }
 
-object UserSorting : Sorting(UserTable) {
-    val order = add("order", UserTable.number)
-    val name = add("name")
-}
-
 object UserTable : IntIdTable() {
     val name = varchar("name", 255)
     val number = integer("number")
     val modifyAt = date("modify_at").default(LocalDate.now())
 }
+
 data class User(
     val name: String,
     val order: Int

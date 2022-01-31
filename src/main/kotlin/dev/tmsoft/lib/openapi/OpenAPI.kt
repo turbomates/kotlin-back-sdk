@@ -28,44 +28,33 @@ class OpenAPI(var host: String) {
             pathItemObject = PathItemObject()
             root.paths[path] = pathItemObject
         }
-        val updatedPathParams = responses.values
-            .find { value -> value is Type.Object && value.name == "Listing" }
-            ?.let {
-                Type.Object(
-                    "paging",
-                    listOf(
-                        Property("pageSize", Type.Number),
-                        Property("page", Type.Number)
-                    ).plus(pathParams?.properties ?: emptyList())
-                )
-            } ?: pathParams
 
         when (method) {
             Method.GET -> {
                 pathItemObject.get = pathItemObject.get?.merge(pathParams, body, responses) ?: OperationObject(
                     responses.mapValues { it.value.toResponseObject() },
-                    parameters = updatedPathParams?.toParameterObject()
+                    parameters = pathParams?.toParameterObject()
                 )
             }
             Method.POST -> {
                 pathItemObject.post = OperationObject(
                     responses.mapValues { it.value.toResponseObject() },
                     requestBody = body?.toRequestBodyObject(),
-                    parameters = updatedPathParams?.toParameterObject()
+                    parameters = pathParams?.toParameterObject()
                 )
             }
             Method.DELETE -> {
                 pathItemObject.delete = OperationObject(
                     responses.mapValues { it.value.toResponseObject() },
                     requestBody = body?.toRequestBodyObject(),
-                    parameters = updatedPathParams?.toParameterObject()
+                    parameters = pathParams?.toParameterObject()
                 )
             }
             Method.PATCH -> {
                 pathItemObject.patch = OperationObject(
                     responses.mapValues { it.value.toResponseObject() },
                     requestBody = body?.toRequestBodyObject(),
-                    parameters = updatedPathParams?.toParameterObject()
+                    parameters = pathParams?.toParameterObject()
                 )
             }
         }

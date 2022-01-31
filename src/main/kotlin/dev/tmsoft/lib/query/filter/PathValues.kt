@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.query
+package dev.tmsoft.lib.query.filter
 
 class PathValues(
     items: Map<String, List<Value>> = emptyMap()

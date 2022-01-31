@@ -1,7 +1,5 @@
 package dev.tmsoft.lib.query.paging
 
-import dev.tmsoft.lib.query.PathValues
-import dev.tmsoft.lib.query.paging.sorting.Sorting
 import dev.tmsoft.lib.serialization.elementSerializer
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
@@ -21,30 +19,30 @@ import org.jetbrains.exposed.sql.ops.SingleValueInListOp
 fun <T> Query.toContinuousList(
     page: PagingParameters,
     effector: ResultRow.() -> T,
-    sorting: Sorting? = null,
-    sortingValues: PathValues? = null
-): ContinuousList<T> {
-    return toContinuousListBuilder(page, sorting, sortingValues) { this.map { effector(it) } }
+    sortingParameters: List<SortingParameter>? = null,
+    columns: List<Column<*>>? = null
+    ): ContinuousList<T> {
+    return toContinuousListBuilder(page, sortingParameters, columns) { this.map { effector(it) } }
 }
 
 @JvmName("toContinuousListIterable")
 fun <T> Query.toContinuousList(
     page: PagingParameters,
     effector: Iterable<ResultRow>.() -> List<T>,
-    sorting: Sorting? = null,
-    sortingValues: PathValues? = null
-): ContinuousList<T> {
-    return toContinuousListBuilder(page, sorting, sortingValues) { effector() }
+    sortingParameters: List<SortingParameter>? = null,
+    columns: List<Column<*>>? = null
+    ): ContinuousList<T> {
+    return toContinuousListBuilder(page, sortingParameters, columns) { effector() }
 }
 
 fun <T> Query.toContinuousListBuilder(
     page: PagingParameters,
-    sorting: Sorting? = null,
-    sortingValues: PathValues? = null,
+    sortingParameters: List<SortingParameter>? = null,
+    columns: List<Column<*>>? = null,
     effector: Query.() -> List<T>
 ): ContinuousList<T> {
+    val rootTable = targets.first()
     if (targets.count() > 1) {
-        val rootTable = targets.first()
         if (rootTable.primaryKey != null) {
             modifyWhereIn(rootTable.primaryKey!!.columns.first(), page.pageSize + 1, page.offset)
         }
@@ -52,11 +50,18 @@ fun <T> Query.toContinuousListBuilder(
         limit(page.pageSize + 1, page.offset)
     }
 
-    var result = effector(
-        if (sorting != null && sortingValues != null) {
-            sorting.apply(this, sortingValues)
-        } else this
-    )
+    val orders = sortingParameters
+        ?.associate { sortingParameter ->
+            val column = if (columns.isNullOrEmpty()) { rootTable.columns } else { columns }
+                .find { sortingParameter.name == it.name }
+                ?: throw IllegalArgumentException("Unknown sorting parameter: ${sortingParameter.name}")
+
+            column to sortingParameter.sortOrder
+        }
+        ?.toList()
+        ?.toTypedArray()
+
+    var result = effector(orderBy(*orders ?: emptyArray()))
     var hasMore = false
     if (result.count() > page.pageSize) {
         hasMore = result.count() > page.pageSize

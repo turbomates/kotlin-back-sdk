@@ -7,10 +7,6 @@ import dev.tmsoft.lib.Config.h2User
 import dev.tmsoft.lib.exposed.Currency
 import dev.tmsoft.lib.exposed.Money
 import dev.tmsoft.lib.exposed.money
-import dev.tmsoft.lib.query.ListValue
-import dev.tmsoft.lib.query.PathValues
-import dev.tmsoft.lib.query.RangeValue
-import dev.tmsoft.lib.query.SingleValue
 import java.time.LocalDate
 import kotlin.test.assertTrue
 import org.jetbrains.exposed.dao.id.IntIdTable
