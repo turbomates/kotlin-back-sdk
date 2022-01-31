@@ -65,7 +65,7 @@ detekt {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        jvmTarget = "15"
+        jvmTarget = "17"
         freeCompilerArgs = listOf(
             "-Xopt-in=io.ktor.locations.KtorExperimentalLocationsAPI",
             "-Xopt-in=kotlin.ExperimentalStdlibApi",
@@ -79,7 +79,7 @@ tasks.withType<KotlinCompile> {
 }
 
 configure<JavaPluginExtension> {
-    sourceCompatibility = JavaVersion.VERSION_15
+    sourceCompatibility = JavaVersion.VERSION_17
 }
 
 //  ----------------  TEST ----------------  //
