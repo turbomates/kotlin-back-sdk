@@ -19,30 +19,28 @@ import org.jetbrains.exposed.sql.ops.SingleValueInListOp
 fun <T> Query.toContinuousList(
     page: PagingParameters,
     effector: ResultRow.() -> T,
-    sortingParameters: List<SortingParameter>? = null,
-    columns: List<Column<*>>? = null
+    sortingParameters: List<SortingParameter>? = null
     ): ContinuousList<T> {
-    return toContinuousListBuilder(page, sortingParameters, columns) { this.map { effector(it) } }
+    return toContinuousListBuilder(page, sortingParameters) { this.map { effector(it) } }
 }
 
 @JvmName("toContinuousListIterable")
 fun <T> Query.toContinuousList(
     page: PagingParameters,
     effector: Iterable<ResultRow>.() -> List<T>,
-    sortingParameters: List<SortingParameter>? = null,
-    columns: List<Column<*>>? = null
+    sortingParameters: List<SortingParameter>? = null
     ): ContinuousList<T> {
-    return toContinuousListBuilder(page, sortingParameters, columns) { effector() }
+    return toContinuousListBuilder(page, sortingParameters) { effector() }
 }
 
+@Suppress("SpreadOperator")
 fun <T> Query.toContinuousListBuilder(
     page: PagingParameters,
     sortingParameters: List<SortingParameter>? = null,
-    columns: List<Column<*>>? = null,
     effector: Query.() -> List<T>
 ): ContinuousList<T> {
-    val rootTable = targets.first()
     if (targets.count() > 1) {
+        val rootTable = targets.first()
         if (rootTable.primaryKey != null) {
             modifyWhereIn(rootTable.primaryKey!!.columns.first(), page.pageSize + 1, page.offset)
         }
@@ -50,10 +48,10 @@ fun <T> Query.toContinuousListBuilder(
         limit(page.pageSize + 1, page.offset)
     }
 
+    val columns = targets.map { it.columns }.flatten()
     val orders = sortingParameters
         ?.associate { sortingParameter ->
-            val column = if (columns.isNullOrEmpty()) { rootTable.columns } else { columns }
-                .find { sortingParameter.name == it.name }
+            val column = columns.find { sortingParameter.name == it.name }
                 ?: throw IllegalArgumentException("Unknown sorting parameter: ${sortingParameter.name}")
 
             column to sortingParameter.sortOrder
