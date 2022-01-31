@@ -59,9 +59,9 @@ fun <T> Query.toContinuousListBuilder(
             column to sortingParameter.sortOrder
         }
         ?.toList()
-        ?.toTypedArray()
+        ?.toTypedArray() ?: emptyArray()
 
-    var result = effector(orderBy(*orders ?: emptyArray()))
+    var result = effector(orderBy(*orders))
     var hasMore = false
     if (result.count() > page.pageSize) {
         hasMore = result.count() > page.pageSize
