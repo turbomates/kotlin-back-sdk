@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.filter
+package dev.tmsoft.lib.query.filter
 
 import dev.tmsoft.lib.openapi.OpenAPI
 import dev.tmsoft.lib.openapi.Property
@@ -22,7 +22,7 @@ private fun Filter.openApiType(): Type.Object {
     fields().forEach { field ->
         parameters.add(
             Property(
-                "filter[${field.name}]", Type.String(if (field.values.isNotEmpty()) field.values else null)
+                "$filterParameterName[${field.name}]", Type.String(field.values.ifEmpty { null })
             )
         )
     }
@@ -32,7 +32,7 @@ private fun Filter.openApiType(): Type.Object {
 fun Parameters.filterValues(): PathValues {
     val parameters = mutableMapOf<String, List<Value>>()
     forEach { key, value ->
-        if (key.contains(parameterName)) {
+        if (key.contains(filterParameterName)) {
             val result = Regex("\\[(\\w+)\\]").findAll(key)
             val field: String = result.last().groupValues.last()
             parameters[field] = QueryConverter.convert(value)
@@ -41,5 +41,5 @@ fun Parameters.filterValues(): PathValues {
     return PathValues(parameters)
 }
 
-private val parameterName: String
+private val filterParameterName: String
     get() = "filter"

@@ -1,14 +1,27 @@
-package dev.tmsoft.lib.filter
+package dev.tmsoft.lib.query.filter
 
 import dev.tmsoft.lib.date.localDateFormat
 import dev.tmsoft.lib.date.localDateTimeFormat
-import org.jetbrains.exposed.sql.*
 import java.time.LocalDate
 import java.time.LocalDateTime
+import org.jetbrains.exposed.sql.AndOp
+import org.jetbrains.exposed.sql.BooleanColumnType
+import org.jetbrains.exposed.sql.DoubleColumnType
+import org.jetbrains.exposed.sql.EqOp
+import org.jetbrains.exposed.sql.ExpressionWithColumnType
+import org.jetbrains.exposed.sql.GreaterEqOp
+import org.jetbrains.exposed.sql.IntegerColumnType
+import org.jetbrains.exposed.sql.LessEqOp
+import org.jetbrains.exposed.sql.LikeOp
+import org.jetbrains.exposed.sql.LongColumnType
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.OrOp
+import org.jetbrains.exposed.sql.QueryParameter
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.wrap
+import org.jetbrains.exposed.sql.StringColumnType
 import org.jetbrains.exposed.sql.javatime.JavaLocalDateColumnType
 import org.jetbrains.exposed.sql.javatime.JavaLocalDateTimeColumnType
-import java.lang.UnsupportedOperationException
+import org.jetbrains.exposed.sql.lowerCase
 
 abstract class Value {
     abstract fun op(column: ExpressionWithColumnType<*>): Op<Boolean>
@@ -34,8 +47,6 @@ class SingleValue(val value: String) : Value() {
     @Suppress("UNCHECKED_CAST")
     private fun ExpressionWithColumnType<*>.expression(value: String): Op<Boolean> {
         return when (columnType) {
-            is EnumerationColumnType<*> -> EqOp(this, typedWrap(value))
-            is EnumerationNameColumnType<*> -> EqOp(this, typedWrap(value))
             is StringColumnType -> LikeOp(
                 (this as ExpressionWithColumnType<String>).lowerCase(),
                 wrap(value.lowercase() + "%")
@@ -47,7 +58,7 @@ class SingleValue(val value: String) : Value() {
 
 class RangeValue(val from: String? = null, val to: String? = null) : Value() {
     private val containsValue: String
-        get() = from?.let { it.lowercase() + '%' } ?: '%' + to!!.lowercase()
+        get() = from?.let { it.lowercase() + '%' } ?: ('%' + to!!.lowercase())
 
     override fun op(column: ExpressionWithColumnType<*>): Op<Boolean> {
         return column.expression(from, to)

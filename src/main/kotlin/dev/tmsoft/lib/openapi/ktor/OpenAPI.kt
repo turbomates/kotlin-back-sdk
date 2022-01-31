@@ -71,7 +71,6 @@ class OpenAPI(configuration: Configuration) {
         )
     }
 
-
     suspend fun intercept(
         context: PipelineContext<Unit, ApplicationCall>
     ) {
@@ -92,12 +91,12 @@ class OpenAPI(configuration: Configuration) {
      * Installable feature for [OpenAPI].
      */
     companion object Feature :
-        ApplicationFeature<ApplicationCallPipeline, Configuration, dev.tmsoft.lib.openapi.ktor.OpenAPI> {
-        override val key = AttributeKey<dev.tmsoft.lib.openapi.ktor.OpenAPI>("OpenApi")
+        ApplicationFeature<ApplicationCallPipeline, Configuration, OpenAPI> {
+        override val key = AttributeKey<OpenAPI>("OpenApi")
         override fun install(
             pipeline: ApplicationCallPipeline,
             configure: Configuration.() -> Unit
-        ): dev.tmsoft.lib.openapi.ktor.OpenAPI {
+        ): OpenAPI {
             val configuration = Configuration().apply(configure)
             val feature = OpenAPI(configuration)
             configuration.configure(feature.documentationBuilder)

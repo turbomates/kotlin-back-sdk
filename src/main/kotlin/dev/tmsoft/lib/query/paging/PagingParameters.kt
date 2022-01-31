@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.query
+package dev.tmsoft.lib.query.paging
 
 import io.ktor.http.Parameters
 import io.ktor.request.ApplicationRequest

@@ -28,6 +28,7 @@ class OpenAPI(var host: String) {
             pathItemObject = PathItemObject()
             root.paths[path] = pathItemObject
         }
+
         when (method) {
             Method.GET -> {
                 pathItemObject.get = pathItemObject.get?.merge(pathParams, body, responses) ?: OperationObject(

@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.filter.type
+package dev.tmsoft.lib.query.filter.type
 
 import java.time.LocalDate
 import java.time.LocalDateTime

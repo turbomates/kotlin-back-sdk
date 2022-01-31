@@ -2,8 +2,8 @@
 
 package dev.tmsoft.lib.ktor
 
-import dev.tmsoft.lib.query.ContinuousList
-import dev.tmsoft.lib.query.ContinuousListSerializer
+import dev.tmsoft.lib.query.paging.ContinuousList
+import dev.tmsoft.lib.query.paging.ContinuousListSerializer
 import dev.tmsoft.lib.serialization.resolveSerializer
 import dev.tmsoft.lib.validation.Error
 import io.ktor.application.call

@@ -1,9 +1,10 @@
-package dev.tmsoft.lib.query
+package dev.tmsoft.lib.exposed
 
 import dev.tmsoft.lib.Config.h2DatabaseUrl
 import dev.tmsoft.lib.Config.h2Driver
 import dev.tmsoft.lib.Config.h2Password
 import dev.tmsoft.lib.Config.h2User
+import dev.tmsoft.lib.exposed.query.fold
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import org.jetbrains.exposed.dao.id.EntityID

@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.filter
+package dev.tmsoft.lib.query.filter
 
 import dev.tmsoft.lib.Config.h2DatabaseUrl
 import dev.tmsoft.lib.Config.h2Driver

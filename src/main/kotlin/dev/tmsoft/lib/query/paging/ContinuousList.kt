@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.query
+package dev.tmsoft.lib.query.paging
 
 import dev.tmsoft.lib.serialization.elementSerializer
 import kotlinx.serialization.KSerializer
@@ -16,17 +16,27 @@ import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.ops.SingleValueInListOp
 
-fun <T> Query.toContinuousList(page: PagingParameters, effector: ResultRow.() -> T): ContinuousList<T> {
-    return toContinuousListBuilder(page) { this.map { effector(it) } }
+fun <T> Query.toContinuousList(
+    page: PagingParameters,
+    effector: ResultRow.() -> T,
+    sortingParameters: List<SortingParameter>? = null
+    ): ContinuousList<T> {
+    return toContinuousListBuilder(page, sortingParameters) { this.map { effector(it) } }
 }
 
 @JvmName("toContinuousListIterable")
-fun <T> Query.toContinuousList(page: PagingParameters, effector: Iterable<ResultRow>.() -> List<T>): ContinuousList<T> {
-    return toContinuousListBuilder(page) { effector() }
+fun <T> Query.toContinuousList(
+    page: PagingParameters,
+    effector: Iterable<ResultRow>.() -> List<T>,
+    sortingParameters: List<SortingParameter>? = null
+    ): ContinuousList<T> {
+    return toContinuousListBuilder(page, sortingParameters) { effector() }
 }
 
+@Suppress("SpreadOperator")
 fun <T> Query.toContinuousListBuilder(
     page: PagingParameters,
+    sortingParameters: List<SortingParameter>? = null,
     effector: Query.() -> List<T>
 ): ContinuousList<T> {
     if (targets.count() > 1) {
@@ -37,7 +47,19 @@ fun <T> Query.toContinuousListBuilder(
     } else {
         limit(page.pageSize + 1, page.offset)
     }
-    var result = effector()
+
+    val columns = targets.map { it.columns }.flatten()
+    val orders = sortingParameters
+        ?.associate { sortingParameter ->
+            val column = columns.find { sortingParameter.name == it.name }
+                ?: throw IllegalArgumentException("Unknown sorting parameter: ${sortingParameter.name}")
+
+            column to sortingParameter.sortOrder
+        }
+        ?.toList()
+        ?.toTypedArray() ?: emptyArray()
+
+    var result = effector(orderBy(*orders))
     var hasMore = false
     if (result.count() > page.pageSize) {
         hasMore = result.count() > page.pageSize
