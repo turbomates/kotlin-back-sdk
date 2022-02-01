@@ -8,9 +8,14 @@ fun Parameters.sortingParameters(): List<SortingParameter> {
     val parameters = mutableListOf<SortingParameter>()
     forEach { key, values ->
         if (key.contains(sortingParameterName)) {
-            values.singleOrNull()
-                ?.let { value -> parameters.add(SortingParameter(value, SortOrder.valueOf(value))) }
-                ?: throw InvalidValue("Unknown values. Should be a single value", values)
+            val name = Regex("\\[(\\w+)\\]").findAll(key).last().groupValues.last()
+
+            values.singleOrNull()?.let { value ->
+                parameters.add(SortingParameter(
+                    name,
+                    SortOrder.valueOf(value.trim().lowercase())
+                ))
+            } ?: throw InvalidValue("Unknown values. Should be a single value", values)
         }
     }
     return parameters
