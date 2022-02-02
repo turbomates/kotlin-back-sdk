@@ -13,7 +13,7 @@ fun Parameters.sortingParameters(): List<SortingParameter> {
             values.singleOrNull()?.let { value ->
                 parameters.add(SortingParameter(
                     name,
-                    SortOrder.valueOf(value.trim().lowercase())
+                    SortOrder.valueOf(value.trim().uppercase())
                 ))
             } ?: throw InvalidValue("Unknown values. Should be a single value", values)
         }
