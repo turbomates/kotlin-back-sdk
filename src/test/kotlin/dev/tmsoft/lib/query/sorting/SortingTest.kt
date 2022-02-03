@@ -3,7 +3,9 @@ package dev.tmsoft.lib.query.sorting
 import dev.tmsoft.lib.Config
 import dev.tmsoft.lib.query.paging.PagingParameters
 import dev.tmsoft.lib.query.paging.SortingParameter
+import dev.tmsoft.lib.query.paging.sortingParameters
 import dev.tmsoft.lib.query.paging.toContinuousList
+import io.ktor.http.Parameters
 import java.time.LocalDate
 import kotlin.test.assertTrue
 import org.jetbrains.exposed.dao.id.IntIdTable
@@ -65,6 +67,21 @@ class SortingTest {
                             )
                         )
                     )
+            }
+
+            val parameters = object : Parameters {
+                override val caseInsensitiveName: Boolean = false
+                override fun entries(): Set<Map.Entry<String, List<String>>> {
+                    return mapOf("sorting[name]" to listOf("asc")).entries
+                }
+                override fun getAll(name: String): List<String> = emptyList()
+                override fun isEmpty(): Boolean = false
+                override fun names(): Set<String> = emptySet()
+            }.sortingParameters().first()
+
+            assertTrue {
+                parameters.name == "name" &&
+                parameters.sortOrder == SortOrder.ASC
             }
         }
     }
