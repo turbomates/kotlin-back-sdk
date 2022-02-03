@@ -72,8 +72,7 @@ class SortingTest {
             val parameters = object : Parameters {
                 override val caseInsensitiveName: Boolean = false
                 override fun entries(): Set<Map.Entry<String, List<String>>> {
-                    val params = mapOf("sorting[name]" to listOf("asc"))
-                    return params.entries
+                    return mapOf("sorting[name]" to listOf("asc")).entries
                 }
                 override fun getAll(name: String): List<String> = emptyList()
                 override fun isEmpty(): Boolean = false
