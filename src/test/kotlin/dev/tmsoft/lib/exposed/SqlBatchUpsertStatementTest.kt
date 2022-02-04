@@ -42,7 +42,7 @@ class SqlBatchUpsertStatementTest {
     }
 
     @Test
-    fun `batch upsert with account`() {
+    fun `batch upsert with condition`() {
         transaction(testDatabase) {
             SchemaUtils.create(Accounts)
             val firstId = UUID.randomUUID()
