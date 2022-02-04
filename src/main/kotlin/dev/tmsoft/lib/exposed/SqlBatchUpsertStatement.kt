@@ -6,10 +6,13 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import java.lang.UnsupportedOperationException
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
 
 class SqlBatchUpsertStatement(
     table: Table,
     ignore: Boolean = false,
+    private val where: Op<Boolean>?,
     private vararg val keys: Column<*>
 ) : SqlBatchInsertStatement(table, ignore) {
     override fun prepareSQL(transaction: Transaction) = buildString {
@@ -30,6 +33,11 @@ class SqlBatchUpsertStatement(
         columns.filter { it !in keys }.takeIf { it.isNotEmpty() }?.let { fields ->
             append(" DO UPDATE SET ")
             fields.joinTo(this, ", ") { "${transaction.identity(it)} = EXCLUDED.${transaction.identity(it)}" }
+            where?.let {
+                append(" WHERE ")
+                append(it)
+            }
+            this
         } ?: append(" DO NOTHING")
     }
 
@@ -42,11 +50,12 @@ class SqlBatchUpsertStatement(
 fun <T : Table, E> T.singleSqlBatchUpsert(
     data: Iterable<E>,
     vararg keys: Column<*>,
+    where: (SqlExpressionBuilder.() -> Op<Boolean>)? = null,
     body: SqlBatchUpsertStatement.(E) -> Unit
 ): List<ResultRow> {
     if (data.count() == 0) return emptyList()
 
-    val statement = SqlBatchUpsertStatement(this, keys = keys)
+    val statement = SqlBatchUpsertStatement(this, where = where?.let { SqlExpressionBuilder.it() }, keys = keys)
     data.forEach {
         statement.body(it)
         statement.addBatch()
