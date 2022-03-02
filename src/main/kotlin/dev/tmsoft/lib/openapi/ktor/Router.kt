@@ -130,6 +130,11 @@ inline fun <reified TResponse : Any, reified TBody : Any, reified TQuery : Any, 
 inline fun <reified TResponse : Any> Route.get(
     noinline body: suspend PipelineContext<Unit, ApplicationCall>.() -> TResponse
 ): Route {
+    openApi.addToPath(
+        buildFullPath(),
+        HttpMethod.Delete,
+        typeOf<TResponse>()
+    )
     return method(HttpMethod.Get) {
         handle {
             call.respond(body())
@@ -217,7 +222,7 @@ inline fun <reified TResponse : Any> Route.delete(
         }
     }
     openApi.addToPath(
-        buildFullPath(),
+        route.buildFullPath(),
         HttpMethod.Delete,
         typeOf<TResponse>()
     )
@@ -234,7 +239,7 @@ inline fun <reified TResponse : Any, reified TParams : Any> Route.delete(
         }
     }
     openApi.addToPath(
-        buildFullPath(),
+        route.buildFullPath(),
         HttpMethod.Delete,
         typeOf<TResponse>(),
         null,
@@ -253,7 +258,7 @@ inline fun <reified TResponse : Any, reified TBody : Any> Route.deleteWithBody(
         }
     }
     openApi.addToPath(
-        buildFullPath(),
+        route.buildFullPath(),
         HttpMethod.Delete,
         typeOf<TResponse>(),
         typeOf<TBody>()
@@ -271,7 +276,7 @@ inline fun <reified TResponse : Any, reified TQuery : Any, reified TPath : Any> 
         }
     }
     openApi.addToPath(
-        buildFullPath(),
+        route.buildFullPath(),
         HttpMethod.Delete,
         typeOf<TResponse>(),
         typeOf<TQuery>(),
@@ -296,7 +301,7 @@ inline fun <reified TResponse : Any, reified TQuery : Any, reified TPath : Any, 
         }
     }
     openApi.addToPath(
-        buildFullPath(),
+        route.buildFullPath(),
         HttpMethod.Delete,
         typeOf<TResponse>(),
         typeOf<TBody>(),
