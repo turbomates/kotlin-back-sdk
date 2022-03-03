@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.3.42"
+version = "0.3.43"
 
 repositories {
     mavenCentral()
