@@ -19,7 +19,7 @@ inline fun <reified TResponse : Any> Route.post(
 ): Route {
     openApi.addToPath(
         buildFullPath(),
-        HttpMethod.Delete,
+        HttpMethod.Post,
         typeOf<TResponse>()
     )
     return method(HttpMethod.Post) {
@@ -132,7 +132,7 @@ inline fun <reified TResponse : Any> Route.get(
 ): Route {
     openApi.addToPath(
         buildFullPath(),
-        HttpMethod.Delete,
+        HttpMethod.Get,
         typeOf<TResponse>()
     )
     return method(HttpMethod.Get) {
