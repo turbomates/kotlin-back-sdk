@@ -1,3 +1,4 @@
+@file:Suppress("NestedBlockDepth", "SpreadOperator")
 package dev.tmsoft.lib.query.paging
 
 import dev.tmsoft.lib.serialization.elementSerializer
