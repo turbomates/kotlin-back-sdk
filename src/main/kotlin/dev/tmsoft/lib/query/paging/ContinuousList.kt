@@ -39,6 +39,8 @@ fun <T> Query.toContinuousListBuilder(
     sortingParameters: List<SortingParameter>? = null,
     effector: Query.() -> List<T>
 ): ContinuousList<T> {
+    sortedWith(sortingParameters)
+
     if (targets.count() > 1) {
         val rootTable = targets.first()
         if (rootTable.primaryKey != null) {
@@ -48,24 +50,29 @@ fun <T> Query.toContinuousListBuilder(
         limit(page.pageSize + 1, page.offset)
     }
 
-    val columns = targets.map { it.columns }.flatten()
-    val orders = sortingParameters
-        ?.associate { sortingParameter ->
-            val column = columns.find { sortingParameter.name == it.name }
-                ?: throw IllegalArgumentException("Unknown sorting parameter: ${sortingParameter.name}")
-
-            column to sortingParameter.sortOrder
-        }
-        ?.toList()
-        ?.toTypedArray() ?: emptyArray()
-
-    var result = effector(orderBy(*orders))
+    var result = effector()
     var hasMore = false
     if (result.count() > page.pageSize) {
         hasMore = result.count() > page.pageSize
         result = result.dropLast(1)
     }
     return ContinuousList(result, page.pageSize, page.currentPage, hasMore)
+}
+
+private fun Query.sortedWith(sortingParameters: List<SortingParameter>? = null): Query {
+    return apply {
+        if (sortingParameters != null) {
+            val columns = targets.map { it.columns }.flatten()
+            sortingParameters
+                .associate { sortingParameter ->
+                    val column = columns.find { sortingParameter.name == it.name }
+                        ?: throw IllegalArgumentException("Unknown sorting parameter: ${sortingParameter.name}")
+                    column to sortingParameter.sortOrder
+                }
+                .toList().toTypedArray()
+                .run { if(isNotEmpty()) orderBy(*this) }
+        }
+    }
 }
 
 private fun <T> Query.modifyWhereIn(column: Column<T>, limit: Int, offset: Long): Query {
