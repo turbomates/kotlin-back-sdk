@@ -34,5 +34,5 @@ class EventsDatabaseAccess(private val transaction: TransactionManager) {
 internal object Events : UUIDTable("domain_events") {
     val event = jsonb("event", EventWrapper.serializer())
     val publishedAt = datetime("published_at").nullable()
-    val createdAt = datetime("created_at")
+    val createdAt = datetime("created_at").clientDefault { LocalDateTime.now() }
 }

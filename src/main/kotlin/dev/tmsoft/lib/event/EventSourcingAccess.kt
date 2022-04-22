@@ -1,5 +1,6 @@
 package dev.tmsoft.lib.event
 
+import dev.tmsoft.lib.event.Events.clientDefault
 import dev.tmsoft.lib.exposed.TransactionManager
 import dev.tmsoft.lib.exposed.type.jsonb
 import java.time.LocalDateTime
@@ -22,5 +23,5 @@ class EventSourcingAccess(private val transaction: TransactionManager) {
 object EventSourcingTable : UUIDTable("event_sourcing") {
     val aggregateRoot = varchar("aggregate_root_id", 255)
     internal val event = jsonb("data", EventWrapper.serializer())
-    val createdAt = datetime("created_at")
+    val createdAt = datetime("created_at").clientDefault { LocalDateTime.now() }
 }
