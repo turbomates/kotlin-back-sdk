@@ -42,6 +42,7 @@ internal fun List<Event>.save() {
     Events.batchInsert(this) { event ->
         this[Events.id] = event.eventId
         this[Events.event] = EventWrapper(event)
+        this[Events.createdAt] = event.eventCreatedAt
     }
 }
 
@@ -51,5 +52,6 @@ internal fun List<Pair<Event, Any>>.save() {
         this[EventSourcingTable.id] = UUID.randomUUID()
         this[EventSourcingTable.event] = EventWrapper(pair.first)
         this[EventSourcingTable.aggregateRoot] = pair.second.toString()
+        this[EventSourcingTable.createdAt] = pair.first.eventCreatedAt
     }
 }
