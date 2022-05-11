@@ -1,7 +1,10 @@
 @file:Suppress("NestedBlockDepth", "SpreadOperator")
+
 package dev.tmsoft.lib.query.paging
 
 import dev.tmsoft.lib.serialization.elementSerializer
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.ListSerializer
@@ -17,29 +20,42 @@ import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.ops.SingleValueInListOp
 
-fun <T> Query.toContinuousList(
+suspend fun <T> Query.toContinuousList(
     page: PagingParameters,
     effector: ResultRow.() -> T,
-    sortingParameters: List<SortingParameter>? = null
-    ): ContinuousList<T> {
-    return toContinuousListBuilder(page, sortingParameters) { this.map { effector(it) } }
+    sortingParameters: List<SortingParameter>? = null,
+    includeCount: Boolean = false
+): ContinuousList<T> {
+    return toContinuousListBuilder(page, sortingParameters, includeCount) { this.map { effector(it) } }
 }
 
 @JvmName("toContinuousListIterable")
-fun <T> Query.toContinuousList(
+suspend fun <T> Query.toContinuousList(
     page: PagingParameters,
     effector: Iterable<ResultRow>.() -> List<T>,
-    sortingParameters: List<SortingParameter>? = null
-    ): ContinuousList<T> {
-    return toContinuousListBuilder(page, sortingParameters) { effector() }
+    sortingParameters: List<SortingParameter>? = null,
+    includeCount: Boolean = false
+): ContinuousList<T> {
+    return toContinuousListBuilder(page, sortingParameters, includeCount) { effector() }
 }
 
 @Suppress("SpreadOperator")
-fun <T> Query.toContinuousListBuilder(
+suspend fun <T> Query.toContinuousListBuilder(
     page: PagingParameters,
     sortingParameters: List<SortingParameter>? = null,
+    includeCount: Boolean = false,
     effector: Query.() -> List<T>
-): ContinuousList<T> {
+): ContinuousList<T> = coroutineScope {
+    val countQuery = copy()
+
+    val count = async {
+        if (includeCount) {
+            countQuery.count()
+        } else {
+            null
+        }
+    }
+
     sortedWith(sortingParameters)
 
     if (targets.count() > 1) {
@@ -57,7 +73,7 @@ fun <T> Query.toContinuousListBuilder(
         hasMore = result.count() > page.pageSize
         result = result.dropLast(1)
     }
-    return ContinuousList(result, page.pageSize, page.currentPage, hasMore)
+    ContinuousList(result, page.pageSize, page.currentPage, hasMore, count.await())
 }
 
 private fun Query.sortedWith(sortingParameters: List<SortingParameter>? = null): Query {
@@ -71,7 +87,7 @@ private fun Query.sortedWith(sortingParameters: List<SortingParameter>? = null):
                     column to sortingParameter.sortOrder
                 }
                 .toList().toTypedArray()
-                .run { if(isNotEmpty()) orderBy(*this) }
+                .run { if (isNotEmpty()) orderBy(*this) }
         }
     }
 }
@@ -90,7 +106,8 @@ class ContinuousList<T>(
     val data: List<T>,
     val pageSize: Int,
     val currentPage: Int,
-    val hasMore: Boolean = false
+    val hasMore: Boolean = false,
+    val count: Long? = null
 )
 
 object ContinuousListSerializer : KSerializer<ContinuousList<*>> {
@@ -103,15 +120,16 @@ object ContinuousListSerializer : KSerializer<ContinuousList<*>> {
             ListSerializer(value.data.elementSerializer()) as KSerializer<Any>,
             value.data
         )
-
-        val tree = JsonObject(
-            mapOf(
-                "pageSize" to JsonPrimitive(value.pageSize),
-                "page" to JsonPrimitive(value.currentPage),
-                "hasMore" to JsonPrimitive(value.hasMore),
-                "data" to output.json.parseToJsonElement(encoded)
-            )
+        val map = mutableMapOf(
+            "pageSize" to JsonPrimitive(value.pageSize),
+            "page" to JsonPrimitive(value.currentPage),
+            "hasMore" to JsonPrimitive(value.hasMore),
+            "data" to output.json.parseToJsonElement(encoded)
         )
+
+        if (value.count != null) map["count"] = JsonPrimitive(value.count)
+
+        val tree = JsonObject(map)
         output.encodeJsonElement(tree)
     }
 
