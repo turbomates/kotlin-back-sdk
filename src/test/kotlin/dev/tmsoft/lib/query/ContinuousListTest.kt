@@ -1,4 +1,4 @@
-package dev.tmsoft.lib.query.sorting
+package dev.tmsoft.lib.query
 
 import dev.tmsoft.lib.Config
 import dev.tmsoft.lib.query.paging.PagingParameters
@@ -6,8 +6,7 @@ import dev.tmsoft.lib.query.paging.SortingParameter
 import dev.tmsoft.lib.query.paging.sortingParameters
 import dev.tmsoft.lib.query.paging.toContinuousList
 import io.ktor.http.Parameters
-import java.time.LocalDate
-import kotlin.test.assertTrue
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
@@ -19,8 +18,11 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-class SortingTest {
+class ContinuousListTest {
     @Test
     fun `test sorting`() {
         val database = Database.connect(
@@ -31,6 +33,7 @@ class SortingTest {
         )
 
         transaction(database) {
+
             SchemaUtils.create(UserTable)
             for (i in 1..5) {
                 UserTable.insert {
@@ -40,15 +43,18 @@ class SortingTest {
                 }
             }
 
-            val users = UserTable.selectAll()
-                .toContinuousList(
-                    PagingParameters(30, 1),
-                    ResultRow::toUser,
-                    listOf(
-                        SortingParameter("number", SortOrder.DESC),
-                        SortingParameter("name", SortOrder.ASC)
+            val users = runBlocking {
+                UserTable.selectAll()
+                    .toContinuousList(
+                        PagingParameters(30, 1),
+                        ResultRow::toUser,
+                        listOf(
+                            SortingParameter("number", SortOrder.DESC),
+                            SortingParameter("name", SortOrder.ASC)
+                        )
                     )
-                )
+
+            }
             assertTrue(
                 users.data.first().order == 5 &&
                     users.data.last().order == 1
@@ -56,17 +62,20 @@ class SortingTest {
 
 
             Assertions.assertThrows(IllegalArgumentException::class.java) {
-                UserTable.selectAll()
-                    .toContinuousList(
-                        PagingParameters(30, 1),
-                        ResultRow::toUser,
-                        listOf(
-                            SortingParameter(
-                                "modifyAt",
-                                SortOrder.DESC
+                runBlocking {
+                    UserTable.selectAll()
+                        .toContinuousList(
+                            PagingParameters(30, 1),
+                            ResultRow::toUser,
+                            listOf(
+                                SortingParameter(
+                                    "modifyAt",
+                                    SortOrder.DESC
+                                )
                             )
                         )
-                    )
+
+                }
             }
 
             val parameters = object : Parameters {
@@ -81,8 +90,42 @@ class SortingTest {
 
             assertTrue {
                 parameters.name == "name" &&
-                parameters.sortOrder == SortOrder.ASC
+                    parameters.sortOrder == SortOrder.ASC
             }
+        }
+    }
+
+    @Test
+    fun `test count`() {
+        val database = Database.connect(
+            Config.h2DatabaseUrl,
+            Config.h2Driver,
+            Config.h2User,
+            Config.h2Password
+        )
+
+        transaction(database) {
+            SchemaUtils.create(UserTable)
+            val count = 60
+            for (i in 1..count) {
+                UserTable.insert {
+                    it[name] = "test"
+                    it[number] = i
+                    it[modifyAt] = LocalDate.now()
+                }
+            }
+
+            val users = runBlocking {
+                UserTable.selectAll()
+                    .toContinuousList(
+                        PagingParameters(30, 1),
+                        ResultRow::toUser,
+                        null,
+                        true
+                    )
+
+            }
+            assertEquals(users.count, count.toLong())
         }
     }
 }
