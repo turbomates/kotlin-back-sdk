@@ -48,12 +48,10 @@ suspend fun <T> Query.toContinuousListBuilder(
 ): ContinuousList<T> = coroutineScope {
     val countQuery = copy()
 
-    val count = async {
-        if (includeCount) {
-            countQuery.count()
-        } else {
-            null
-        }
+    val count = if (includeCount) {
+        countQuery.count()
+    } else {
+        null
     }
 
     sortedWith(sortingParameters)
@@ -73,7 +71,7 @@ suspend fun <T> Query.toContinuousListBuilder(
         hasMore = result.count() > page.pageSize
         result = result.dropLast(1)
     }
-    ContinuousList(result, page.pageSize, page.currentPage, hasMore, count.await())
+    ContinuousList(result, page.pageSize, page.currentPage, hasMore, count)
 }
 
 private fun Query.sortedWith(sortingParameters: List<SortingParameter>? = null): Query {
