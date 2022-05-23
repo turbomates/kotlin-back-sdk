@@ -29,3 +29,11 @@ inline fun <reified T : Event> EventSubscribers.subscribe(subscriber: EventSubsc
     }
     key?.let { subscribe(it, subscriber) }
 }
+
+inline fun <reified TEvent : Event, reified TKey : Event.Key<TEvent>> TKey.subscriber(crossinline action: suspend (TEvent) -> Unit): EventsSubscriber.EventSubscriberItem<TEvent> =
+    EventsSubscriber.EventSubscriberItem(
+        this,
+        object : EventSubscriber<TEvent> {
+            override suspend fun invoke(event: TEvent) = action(event)
+        }
+    )
