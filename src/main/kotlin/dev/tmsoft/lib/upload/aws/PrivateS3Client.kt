@@ -5,10 +5,12 @@ import aws.sdk.kotlin.services.s3.S3Client
 import aws.sdk.kotlin.services.s3.model.BucketLocationConstraint
 import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
 import aws.sdk.kotlin.services.s3.model.ObjectCannedAcl
+import dev.tmsoft.lib.upload.File
 import dev.tmsoft.lib.upload.FileManager
 import dev.tmsoft.lib.upload.Image
 import dev.tmsoft.lib.upload.Path
 import dev.tmsoft.lib.upload.bucket
+import javax.activation.UnsupportedDataTypeException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -21,10 +23,13 @@ class PrivateS3Client constructor(private val config: AWS) : FileManager {
         }
     }
 
-    override suspend fun add(image: Image, bucket: String, fileName: String?): Path = withContext(Dispatchers.IO) {
+    override suspend fun add(file: File, bucket: String, fileName: String?): Path = withContext(Dispatchers.IO) {
         s3.ensureBucketExists(bucket)
         s3.close()
-        s3.uploadImageToS3(image, bucket, ObjectCannedAcl.Private, fileName)
+        when (file) {
+           is Image -> s3.uploadImageToS3(file, bucket, ObjectCannedAcl.Private, fileName)
+           else -> throw UnsupportedDataTypeException("Unsupported Date Type for S3")
+        }
     }
 
     override fun getWebUri(path: Path): String {

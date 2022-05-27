@@ -4,10 +4,11 @@ import java.io.File
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import dev.tmsoft.lib.upload.File as UploadFile
 
 open class LocalFileManager(private val domain: String) : FileManager {
     override suspend fun add(
-        image: Image,
+        uploadFile: UploadFile,
         bucket: String,
         fileName: String?
     ): Path = withContext(Dispatchers.IO) {
@@ -15,9 +16,9 @@ open class LocalFileManager(private val domain: String) : FileManager {
         val dir = File("$BASE_UPLOADS_DIR/$bucket")
         if (!dir.exists()) dir.mkdirs()
 
-        val fullFileName = "$name.${image.extension}".lowercase()
+        val fullFileName = "$name.${uploadFile.extension}".lowercase()
         val path = "$bucket/$fullFileName".lowercase()
-        File("$BASE_UPLOADS_DIR/$path").writeBytes(image.content.readAllBytes())
+        File("$BASE_UPLOADS_DIR/$path").writeBytes(uploadFile.content.readAllBytes())
 
         path
     }
