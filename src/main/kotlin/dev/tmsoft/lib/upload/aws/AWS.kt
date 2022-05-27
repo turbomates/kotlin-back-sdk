@@ -4,9 +4,11 @@ import aws.sdk.kotlin.services.s3.S3Client
 import aws.sdk.kotlin.services.s3.model.BucketLocationConstraint
 import aws.sdk.kotlin.services.s3.model.ObjectCannedAcl
 import aws.smithy.kotlin.runtime.content.ByteStream
-import dev.tmsoft.lib.upload.Image
+import dev.tmsoft.lib.upload.File
+import dev.tmsoft.lib.upload.MimeType
 import dev.tmsoft.lib.upload.Path
 import java.util.UUID
+import javax.activation.UnsupportedDataTypeException
 
 data class AWS(
     val privateKey: String,
@@ -39,14 +41,17 @@ suspend fun S3Client.bucketExists(s3bucket: String) =
         false
     }
 
-suspend fun S3Client.uploadImageToS3(image: Image, bucket: String, acl: ObjectCannedAcl, fileName: String?): Path {
+suspend fun S3Client.uploadImageToS3(file: File, bucket: String, acl: ObjectCannedAcl, fileName: String?): Path {
     val name = fileName ?: UUID.randomUUID().toString()
-    putObject {
-        this.bucket = bucket
-        key = name
-        body = ByteStream.fromBytes(image.content.readAllBytes())
-        contentType = "image/jpeg"
-        this.acl = acl
+    when (file.mimeType) {
+        MimeType.IMAGE -> putObject {
+            this.bucket = bucket
+            key = name
+            body = ByteStream.fromBytes(file.content.readAllBytes())
+            contentType = "image/jpeg"
+            this.acl = acl
+        }
+        else -> throw UnsupportedDataTypeException("Unsupported Date Type for S3")
     }
     return "$bucket/$name"
 }

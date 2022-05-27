@@ -12,7 +12,7 @@ import aws.smithy.kotlin.runtime.http.Url
 import aws.smithy.kotlin.runtime.http.operation.Endpoint
 import dev.tmsoft.lib.upload.File
 import dev.tmsoft.lib.upload.FileManager
-import dev.tmsoft.lib.upload.Image
+import dev.tmsoft.lib.upload.MimeType
 import dev.tmsoft.lib.upload.Path
 import dev.tmsoft.lib.upload.bucket
 import javax.activation.UnsupportedDataTypeException
@@ -30,10 +30,10 @@ class PublicS3Client constructor(private val config: AWS) : FileManager {
         }
     }
 
-    override suspend fun add(file: File, bucket: String, fileName: String?): Path = withContext(Dispatchers.IO) {
+    override suspend fun add(uploadFile: File, bucket: String, fileName: String?): Path = withContext(Dispatchers.IO) {
         s3.ensureBucketExists(bucket)
-        when (file) {
-            is Image -> s3.uploadImageToS3(file, bucket, ObjectCannedAcl.PublicRead, fileName)
+        when (uploadFile.mimeType) {
+            MimeType.IMAGE -> s3.uploadImageToS3(uploadFile, bucket, ObjectCannedAcl.PublicRead, fileName)
             else -> throw UnsupportedDataTypeException("Unsupported Date Type for S3")
         }
     }
