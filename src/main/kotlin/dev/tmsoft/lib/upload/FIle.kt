@@ -1,5 +1,6 @@
 package dev.tmsoft.lib.upload
 
+import aws.smithy.kotlin.runtime.content.ByteStream
 import java.io.ByteArrayInputStream
 import java.util.Base64
 import javax.activation.UnsupportedDataTypeException
@@ -19,6 +20,7 @@ class File(
     request: String,
     val mimeType: MimeType
 ) {
+    val contentType: String
     val extension: String
     private val _content: ByteArrayInputStream
     val content: ByteArrayInputStream
@@ -26,10 +28,13 @@ class File(
             _content.reset()
             return _content
         }
+    val byteStream: ByteStream
+        get() = ByteStream.fromBytes(content.readAllBytes())
 
     init {
         _content = parseContent(request)
         extension = parseExtension(request)
+        contentType = "${mimeType.delimiter}$extension"
     }
 
     private fun parseContent(request: String): ByteArrayInputStream {
