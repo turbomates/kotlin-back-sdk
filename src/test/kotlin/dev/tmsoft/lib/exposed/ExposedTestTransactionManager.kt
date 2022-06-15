@@ -1,12 +1,6 @@
 package dev.tmsoft.lib.exposed
 
-import com.opentable.db.postgres.embedded.EmbeddedPostgres
-import com.sksamuel.hoplite.ConfigLoader
-import com.sksamuel.hoplite.Masked
-import com.sksamuel.hoplite.PropertySource
 import dev.tmsoft.lib.buildConfiguration
-import dev.tmsoft.lib.config.hoplite.EnvironmentVariablesPropertySource
-import java.sql.Connection
 import org.jetbrains.exposed.sql.DEFAULT_REPETITION_ATTEMPTS
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.DatabaseConfig
@@ -14,7 +8,7 @@ import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.statements.api.ExposedSavepoint
 import org.jetbrains.exposed.sql.transactions.TransactionInterface
 import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.transaction
+import java.sql.Connection
 
 class ExposedTestTransactionManager(
     private val db: Database,

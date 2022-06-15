@@ -1,18 +1,18 @@
 package dev.tmsoft.lib.socialauth
 
 import dev.tmsoft.lib.ktor.auth.Principal
-import io.ktor.auth.Authentication
-import io.ktor.auth.OAuthAccessTokenResponse
-import io.ktor.auth.OAuthServerSettings
-import io.ktor.auth.oauth
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.server.auth.AuthenticationConfig
+import io.ktor.server.auth.OAuthAccessTokenResponse
+import io.ktor.server.auth.OAuthServerSettings
+import io.ktor.server.auth.oauth
 
 const val TWITTER_REQUEST_URL = "https://api.twitter.com/oauth/request_token"
 const val TWITTER_AUTHORIZE_URL = "https://api.twitter.com/oauth/authorize"
 const val TWITTER_TOKEN_URL = "https://api.twitter.com/oauth/access_token"
 
-fun Authentication.Configuration.twitter(
+fun AuthenticationConfig.twitter(
     name: String,
     configure: Configuration.() -> Unit
 ) {

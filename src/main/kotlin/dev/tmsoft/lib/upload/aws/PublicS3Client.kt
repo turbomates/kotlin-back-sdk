@@ -9,7 +9,7 @@ import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
 import aws.sdk.kotlin.services.s3.model.ObjectCannedAcl
 import aws.smithy.kotlin.runtime.http.Protocol
 import aws.smithy.kotlin.runtime.http.Url
-import aws.smithy.kotlin.runtime.http.operation.Endpoint
+import aws.smithy.kotlin.runtime.http.endpoints.Endpoint
 import dev.tmsoft.lib.upload.File
 import dev.tmsoft.lib.upload.FileManager
 import dev.tmsoft.lib.upload.Path

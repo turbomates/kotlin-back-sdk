@@ -1,18 +1,18 @@
 package dev.tmsoft.lib.socialauth
 
 import dev.tmsoft.lib.ktor.auth.Principal
-import io.ktor.auth.Authentication
-import io.ktor.auth.OAuthAccessTokenResponse
-import io.ktor.auth.OAuthServerSettings
-import io.ktor.auth.oauth
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.http.HttpMethod
+import io.ktor.server.auth.AuthenticationConfig
+import io.ktor.server.auth.OAuthAccessTokenResponse
+import io.ktor.server.auth.OAuthServerSettings
+import io.ktor.server.auth.oauth
 
 const val GOOGLE_AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/auth"
 const val GOOGLE_TOKEN_URL = "https://www.googleapis.com/oauth2/v3/token"
 
-fun Authentication.Configuration.google(
+fun AuthenticationConfig.google(
     name: String,
     configure: Configuration.() -> Unit
 ) {

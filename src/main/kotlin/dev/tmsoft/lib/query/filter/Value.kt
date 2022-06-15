@@ -1,7 +1,7 @@
 package dev.tmsoft.lib.query.filter
 
-import dev.tmsoft.lib.date.localDateFormat
-import dev.tmsoft.lib.date.localDateTimeFormat
+import dev.tmsoft.lib.date.dateFormat
+import dev.tmsoft.lib.date.dateTimeFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import org.jetbrains.exposed.sql.AndOp
@@ -31,8 +31,8 @@ abstract class Value {
             is IntegerColumnType -> value.toInt()
             is DoubleColumnType -> value.toDouble()
             is BooleanColumnType -> value.toBoolean()
-            is JavaLocalDateColumnType -> LocalDate.parse(value, localDateFormat)
-            is JavaLocalDateTimeColumnType -> LocalDateTime.parse(value, localDateTimeFormat)
+            is JavaLocalDateColumnType -> LocalDate.parse(value, dateFormat)
+            is JavaLocalDateTimeColumnType -> LocalDateTime.parse(value, dateTimeFormat)
             else -> value
         }
         return QueryParameter(typedValue, columnType)

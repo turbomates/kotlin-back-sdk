@@ -2,7 +2,7 @@ package dev.tmsoft.lib.ktor
 
 import com.google.inject.Inject
 import com.google.inject.Injector
-import io.ktor.application.ApplicationCall
+import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 import kotlin.reflect.KClass
 

@@ -1,9 +1,9 @@
 package dev.tmsoft.lib.ktor
 
 import com.google.inject.Inject
-import io.ktor.application.Application
-import io.ktor.application.ApplicationCall
-import io.ktor.routing.Route
+import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.routing.Route
 import io.ktor.util.pipeline.PipelineContext
 
 open class Router @Inject constructor(

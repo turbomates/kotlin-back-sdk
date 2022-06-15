@@ -3,7 +3,6 @@
 package dev.tmsoft.lib.query.paging
 
 import dev.tmsoft.lib.serialization.elementSerializer
-import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException

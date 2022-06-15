@@ -2,32 +2,32 @@ package dev.tmsoft.lib.socialauth
 
 import dev.tmsoft.lib.ktor.auth.Principal
 import dev.tmsoft.lib.ktor.auth.Session
-import io.ktor.application.ApplicationCallPipeline
-import io.ktor.application.call
-import io.ktor.application.feature
-import io.ktor.auth.Authentication
-import io.ktor.auth.AuthenticationFailedCause
-import io.ktor.auth.AuthenticationProvider
-import io.ktor.auth.AuthenticationRouteSelector
-import io.ktor.auth.OAuthAccessTokenResponse
-import io.ktor.auth.authentication
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.json.serializer.KotlinxSerializer
+import io.ktor.client.plugins.json.JsonPlugin
+import io.ktor.client.plugins.kotlinx.serializer.KotlinxSerializer
 import io.ktor.http.ContentType
-import io.ktor.response.respondRedirect
-import io.ktor.routing.Route
-import io.ktor.routing.application
-import io.ktor.routing.get
-import io.ktor.sessions.get
-import io.ktor.sessions.sessions
-import io.ktor.sessions.set
+import io.ktor.server.routing.Route
+import io.ktor.server.application.ApplicationCallPipeline
+import io.ktor.server.application.call
+import io.ktor.server.application.install
+import io.ktor.server.application.plugin
+import io.ktor.server.auth.Authentication
+import io.ktor.server.auth.AuthenticationFailedCause
+import io.ktor.server.auth.AuthenticationProvider
+import io.ktor.server.auth.AuthenticationRouteSelector
+import io.ktor.server.auth.OAuthAccessTokenResponse
+import io.ktor.server.auth.authentication
+import io.ktor.server.response.respondRedirect
+import io.ktor.server.routing.application
+import io.ktor.server.sessions.get
+import io.ktor.server.sessions.sessions
+import io.ktor.server.sessions.set
 import io.ktor.util.pipeline.PipelinePhase
 import kotlinx.serialization.json.Json
 
 class Configuration internal constructor(name: String?) :
-    AuthenticationProvider.Configuration(name) {
+    AuthenticationProvider.Config(name) {
     lateinit var redirectUrl: String
     lateinit var clientId: String
     lateinit var clientSecret: String
@@ -53,12 +53,12 @@ fun Route.authenticateBySocial(
 ): Route {
     val configurationNames = listOf(configuration)
     val authenticatedRoute = createChild(AuthenticationRouteSelector(configurationNames))
-
-    application.feature(Authentication).interceptPipeline(authenticatedRoute, configurationNames)
-    transformSocial(authenticatedRoute, transformer, successUri)
-    authenticatedRoute {
-        get {}
-    }
+    // TODO: @shustrik
+    // application.plugin(Authentication).interceptPipeline(authenticatedRoute, configurationNames)
+    // transformSocial(authenticatedRoute, transformer, successUri)
+    // authenticatedRoute {
+    //     get {}
+    // }
 
     return authenticatedRoute
 }
@@ -69,7 +69,8 @@ fun transformSocial(
     successUri: String
 ) {
     val phase = PipelinePhase("SocialAuth")
-    pipeline.insertPhaseAfter(Authentication.ChallengePhase, phase)
+    // TODO: @shustrik
+    // pipeline.insertPhaseAfter(Authentication.ChallengePhase, phase)
     pipeline.intercept(phase) {
         val oauthPrincipal = call.authentication.principal<OAuthAccessTokenResponse>()
         if (oauthPrincipal != null) {
@@ -91,7 +92,7 @@ interface SocialPrincipalTransformer {
 }
 
 internal val socialClient = HttpClient(CIO) {
-    install(JsonFeature) {
+    install(JsonPlugin) {
         accept(ContentType.Application.Json)
         serializer = KotlinxSerializer(
             Json {

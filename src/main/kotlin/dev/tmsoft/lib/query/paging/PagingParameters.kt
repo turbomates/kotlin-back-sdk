@@ -1,7 +1,7 @@
 package dev.tmsoft.lib.query.paging
 
 import io.ktor.http.Parameters
-import io.ktor.request.ApplicationRequest
+import io.ktor.server.request.ApplicationRequest
 
 fun ApplicationRequest.pagingParameters(maxPageSize: Int = 100): PagingParameters {
     return queryParameters.paging(maxPageSize)
