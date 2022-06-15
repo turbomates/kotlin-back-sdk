@@ -20,7 +20,7 @@ import kotlinx.coroutines.withContext
 
 class PublicS3Client constructor(private val config: AWS) : FileManager {
     private val s3: S3Client = S3Client {
-        config.hostname?.let { endpointResolver = CustomEndpointResolver(config.hostname, config.protocol.toString()) }
+        if (config.hostname != null) { endpointResolver = CustomEndpointResolver(config.hostname, config.protocol.toString()) }
         region = BucketLocationConstraint.UsEast2.value
         credentialsProvider = StaticCredentialsProvider {
             accessKeyId = config.privateKey

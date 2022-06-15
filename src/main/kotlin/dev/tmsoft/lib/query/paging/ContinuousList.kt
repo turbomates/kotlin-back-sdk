@@ -99,7 +99,7 @@ private fun <T> Query.modifyWhereIn(column: Column<T>, limit: Int, offset: Long)
     return adjustWhere { SingleValueInListOp(column, ids) }
 }
 
-class ContinuousList<T>(
+data class ContinuousList<T>(
     val data: List<T>,
     val pageSize: Int,
     val currentPage: Int,

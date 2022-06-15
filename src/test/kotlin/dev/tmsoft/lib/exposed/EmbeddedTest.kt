@@ -6,7 +6,6 @@ import dev.tmsoft.lib.exposed.dao.EmbeddableColumn
 import dev.tmsoft.lib.exposed.dao.Embedded
 import dev.tmsoft.lib.exposed.dao.EmbeddedTable
 import dev.tmsoft.lib.exposed.dao.PrimitiveColumn
-import kotlin.test.assertSame
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -18,6 +17,7 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
+import kotlin.test.assertSame
 
 object Accounts : IntIdTable() {
     val name = varchar("account", 255).nullable()
@@ -73,11 +73,11 @@ class Money constructor(amount: Int, currency: Currency) : Embedded() {
 }
 
 class Account(id: EntityID<Int>) : Entity<Int>(id) {
-    companion object : EntityClass<Int, Account>(Accounts)
-
     var name by Accounts.name
     var balance by Accounts.balance
     var lastBalance by Accounts.latBalance
+
+    companion object : EntityClass<Int, Account>(Accounts)
 }
 
 class EmbeddedTest {

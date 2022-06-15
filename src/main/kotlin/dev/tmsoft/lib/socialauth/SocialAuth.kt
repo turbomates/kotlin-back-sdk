@@ -10,16 +10,12 @@ import io.ktor.http.ContentType
 import io.ktor.server.routing.Route
 import io.ktor.server.application.ApplicationCallPipeline
 import io.ktor.server.application.call
-import io.ktor.server.application.install
-import io.ktor.server.application.plugin
-import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.AuthenticationFailedCause
 import io.ktor.server.auth.AuthenticationProvider
 import io.ktor.server.auth.AuthenticationRouteSelector
 import io.ktor.server.auth.OAuthAccessTokenResponse
 import io.ktor.server.auth.authentication
 import io.ktor.server.response.respondRedirect
-import io.ktor.server.routing.application
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set

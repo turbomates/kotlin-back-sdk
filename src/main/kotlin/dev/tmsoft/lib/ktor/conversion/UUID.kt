@@ -6,7 +6,7 @@ import java.util.UUID
 fun DataConversion.Configuration.uuid() {
     convert<UUID> {
         decode { values ->
-            values.singleOrNull().let { UUID.fromString(it) }
+            UUID.fromString(values.single())
         }
         encode { value ->
             listOf(value.toString())

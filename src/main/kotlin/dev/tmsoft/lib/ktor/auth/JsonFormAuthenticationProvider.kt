@@ -50,10 +50,7 @@ class JsonFormAuthenticationProvider<T : Principal> internal constructor(config:
             context.principal(transformer(principal, call))
             return
         }
-        val cause = when (credentials) {
-            null -> AuthenticationFailedCause.NoCredentials
-            else -> AuthenticationFailedCause.InvalidCredentials
-        }
+        val cause = if (credentials != null) AuthenticationFailedCause.InvalidCredentials else AuthenticationFailedCause.NoCredentials
         @Suppress("NAME_SHADOWING")
         context.challenge(FORM_AUTHENTICATION_CHALLENGE_KEY, cause) { challenge, call ->
             call.respond(

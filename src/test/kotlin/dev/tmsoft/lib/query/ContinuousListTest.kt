@@ -33,7 +33,6 @@ class ContinuousListTest {
         )
 
         transaction(database) {
-
             SchemaUtils.create(UserTable)
             for (i in 1..5) {
                 UserTable.insert {

@@ -3,11 +3,11 @@ package dev.tmsoft.lib.event
 class EventStore {
     private val events: MutableList<Pair<Event, Any?>> = mutableListOf()
     fun addEvent(event: Event) {
-        events.add(Pair(event, null))
+        events.add(event to null)
     }
 
     fun addEvent(event: Event, id: Any) {
-        events.add(Pair(event, id))
+        events.add(event to id)
     }
 
     fun raiseEvents(): Sequence<Pair<Event, Any?>> = sequence {

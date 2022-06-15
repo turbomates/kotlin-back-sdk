@@ -1,7 +1,6 @@
 package dev.tmsoft.lib.exposed
 
 import dev.tmsoft.lib.exposed.timescale.sql.function.timeBucket
-import kotlin.test.assertEquals
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.alias
@@ -12,11 +11,12 @@ import org.jetbrains.exposed.sql.sum
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
+import kotlin.test.assertEquals
 
 class TimeBucketTest {
     @Test
     fun `query group by time bucket`() {
-        transaction(testDatabase)  {
+        transaction(testDatabase) {
             SchemaUtils.create(Accounts)
 
             exec("CREATE EXTENSION IF NOT EXISTS timescaledb;")

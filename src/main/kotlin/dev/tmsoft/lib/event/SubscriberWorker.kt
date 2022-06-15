@@ -1,14 +1,13 @@
 package dev.tmsoft.lib.event
 
-import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 class SubscriberWorker(private val dao: EventsDatabaseAccess, private val publishers: List<Publisher>) :
     CoroutineScope by CoroutineScope(Dispatchers.IO) {

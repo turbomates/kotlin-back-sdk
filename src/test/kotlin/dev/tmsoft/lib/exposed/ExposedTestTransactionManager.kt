@@ -16,6 +16,7 @@ class ExposedTestTransactionManager(
     @Volatile override var defaultRepetitionAttempts: Int
 ) : TransactionManager {
     var transaction: Transaction? = null
+
     override fun bindTransactionToThread(transaction: Transaction?) {
         "Should be an empty"
     }
@@ -42,26 +43,35 @@ class ExposedTestTransactionManager(
         val manager: ExposedTestTransactionManager,
         override val outerTransaction: Transaction?
     ) : TransactionInterface {
-
+        private val savepointName: String
+            get() {
+                var nestedLevel = 0
+                var currentTransaction = outerTransaction
+                while (currentTransaction != null) {
+                    nestedLevel++
+                    currentTransaction = currentTransaction.outerTransaction
+                }
+                return "Exposed_savepoint_$nestedLevel"
+            }
         override val connection = outerTransaction?.connection ?: db.connector().apply {
             autoCommit = false
             transactionIsolation = this@TestTransaction.transactionIsolation
         }
 
-        private val useSavePoints = outerTransaction != null && db.useNestedTransactions
-        private var savepoint: ExposedSavepoint? = if (useSavePoints) {
+        private val shouldUseSavePoints = outerTransaction != null && db.useNestedTransactions
+        private var savepoint: ExposedSavepoint? = if (shouldUseSavePoints) {
             connection.setSavepoint(savepointName)
         } else null
 
         override fun commit() {
-            if (!useSavePoints) {
+            if (!shouldUseSavePoints) {
                 connection.commit()
             }
         }
 
         override fun rollback() {
             if (!connection.isClosed) {
-                if (useSavePoints && savepoint != null) {
+                if (shouldUseSavePoints) {
                     connection.rollback(savepoint!!)
                     savepoint = connection.setSavepoint(savepointName)
                 } else {
@@ -72,7 +82,7 @@ class ExposedTestTransactionManager(
 
         override fun close() {
             try {
-                if (!useSavePoints) {
+                if (!shouldUseSavePoints) {
                     connection.close()
                 } else {
                     savepoint?.let {
@@ -84,17 +94,6 @@ class ExposedTestTransactionManager(
                 manager.transaction = outerTransaction
             }
         }
-
-        private val savepointName: String
-            get() {
-                var nestedLevel = 0
-                var currentTransaction = outerTransaction
-                while (currentTransaction != null) {
-                    nestedLevel++
-                    currentTransaction = currentTransaction.outerTransaction
-                }
-                return "Exposed_savepoint_$nestedLevel"
-            }
     }
 }
 

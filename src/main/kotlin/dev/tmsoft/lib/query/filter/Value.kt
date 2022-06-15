@@ -2,8 +2,6 @@ package dev.tmsoft.lib.query.filter
 
 import dev.tmsoft.lib.date.dateFormat
 import dev.tmsoft.lib.date.dateTimeFormat
-import java.time.LocalDate
-import java.time.LocalDateTime
 import org.jetbrains.exposed.sql.AndOp
 import org.jetbrains.exposed.sql.BooleanColumnType
 import org.jetbrains.exposed.sql.DoubleColumnType
@@ -22,6 +20,8 @@ import org.jetbrains.exposed.sql.StringColumnType
 import org.jetbrains.exposed.sql.javatime.JavaLocalDateColumnType
 import org.jetbrains.exposed.sql.javatime.JavaLocalDateTimeColumnType
 import org.jetbrains.exposed.sql.lowerCase
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 abstract class Value {
     abstract fun op(column: ExpressionWithColumnType<*>): Op<Boolean>
@@ -46,13 +46,12 @@ class SingleValue(val value: String) : Value() {
 
     @Suppress("UNCHECKED_CAST")
     private fun ExpressionWithColumnType<*>.expression(value: String): Op<Boolean> {
-        return when (columnType) {
-            is StringColumnType -> LikeOp(
+        return if (columnType is StringColumnType) {
+            LikeOp(
                 (this as ExpressionWithColumnType<String>).lowerCase(),
                 wrap(value.lowercase() + "%")
             )
-            else -> EqOp(this, typedWrap(value))
-        }
+        } else EqOp(this, typedWrap(value))
     }
 }
 
@@ -66,24 +65,23 @@ class RangeValue(val from: String? = null, val to: String? = null) : Value() {
 
     @Suppress("UNCHECKED_CAST")
     private fun ExpressionWithColumnType<*>.expression(from: String?, to: String?): Op<Boolean> {
-        return when (columnType) {
-            is StringColumnType -> LikeOp(
+        return if (columnType is StringColumnType) {
+            LikeOp(
                 (this as ExpressionWithColumnType<String>).lowerCase(),
                 wrap(containsValue)
             )
-            else -> {
-                val fromExpr = from?.let { GreaterEqOp(this, typedWrap(it)) }
-                val toExpr = to?.let { LessEqOp(this, typedWrap(it)) }
-                return if (fromExpr != null && toExpr != null) {
-                    AndOp(
-                        listOf(
-                            fromExpr,
-                            toExpr
-                        )
+        } else {
+            val fromExpr = from?.let { GreaterEqOp(this, typedWrap(it)) }
+            val toExpr = to?.let { LessEqOp(this, typedWrap(it)) }
+            return if (fromExpr != null && toExpr != null) {
+                AndOp(
+                    listOf(
+                        fromExpr,
+                        toExpr
                     )
-                } else {
-                    fromExpr ?: toExpr!!
-                }
+                )
+            } else {
+                fromExpr ?: toExpr!!
             }
         }
     }

@@ -186,6 +186,8 @@ style:
     active: true
   DataClassShouldBeImmutable:
     active: true
+    excludes:
+      - '**/test/**'
   EqualsOnSignatureLine:
     active: true
   ExplicitCollectionElementAccessMethod:

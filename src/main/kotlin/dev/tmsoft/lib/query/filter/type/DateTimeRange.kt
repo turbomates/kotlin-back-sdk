@@ -1,13 +1,13 @@
 package dev.tmsoft.lib.query.filter.type
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 import org.jetbrains.exposed.sql.ExpressionWithColumnType
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.QueryParameter
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.javatime.JavaLocalDateColumnType
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 data class DateTimeRange(val from: LocalDateTime? = null, val to: LocalDateTime? = null)
 
@@ -23,8 +23,7 @@ fun Query.andDateRange(range: DateTimeRange, expression: ExpressionWithColumnTyp
 }
 
 fun LocalDateTime.queryValue(expression: ExpressionWithColumnType<*>): QueryParameter<*> {
-    return when (expression.columnType) {
-        is JavaLocalDateColumnType -> QueryParameter<LocalDate>(toLocalDate(), expression.columnType)
-        else -> QueryParameter(this, expression.columnType)
-    }
+    return if (expression.columnType is JavaLocalDateColumnType) {
+        QueryParameter<LocalDate>(toLocalDate(), expression.columnType)
+    } else QueryParameter(this, expression.columnType)
 }

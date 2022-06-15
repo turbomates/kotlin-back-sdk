@@ -19,10 +19,10 @@ import io.ktor.util.pipeline.PipelinePhase
 import org.slf4j.LoggerFactory
 
 class Authorization(private val config: Configuration) {
-    constructor() : this(Configuration())
-
     private val logger = LoggerFactory.getLogger(Authorization::class.java)
     private val rules = RouteAuthorizationRules()
+
+    constructor() : this(Configuration())
 
     class Configuration {
         internal var validate: suspend ApplicationCall.(Set<String>) -> Boolean = { false }
@@ -64,6 +64,13 @@ class Authorization(private val config: Configuration) {
         }
     }
 
+    /**
+     * Configure already installed feature
+     */
+    fun configure(block: Configuration.() -> Unit) {
+        block(config)
+    }
+
     companion object Plugin : BaseApplicationPlugin<Application, Configuration, Authorization> {
         val AuthorizationCheckPhase: PipelinePhase = PipelinePhase("CheckAuthorize")
         override val key: AttributeKey<Authorization> = AttributeKey("Authorization")
@@ -73,13 +80,6 @@ class Authorization(private val config: Configuration) {
                 configure(configure)
             }
         }
-    }
-
-    /**
-     * Configure already installed feature
-     */
-    fun configure(block: Configuration.() -> Unit) {
-        block(config)
     }
 }
 
@@ -125,7 +125,7 @@ private fun Route.buildPath(activities: Set<String>): Map<String, List<String>> 
         currentActivities.addAll((selector as AuthorizationRouteSelector).activities.map { it })
     }
     return if (children.isEmpty()) {
-        val method = (selector as? HttpMethodRouteSelector)?. run { method.value }
+        val method = (selector as? HttpMethodRouteSelector)?.run { method.value }
         if (activities.isEmpty()) {
             emptyMap()
         } else {

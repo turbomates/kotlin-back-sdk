@@ -2,7 +2,6 @@ package dev.tmsoft.lib.exposed
 
 import dev.tmsoft.lib.exposed.type.JsonBContains
 import dev.tmsoft.lib.exposed.type.jsonb
-import kotlin.test.assertEquals
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import org.jetbrains.exposed.dao.id.IntIdTable
@@ -12,11 +11,12 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 class JsonBTest {
     @Test
     fun column() {
-        transaction(testDatabase)  {
+        transaction(testDatabase) {
             SchemaUtils.create(JsonBTable)
             transaction {
                 JsonBTable.insert {
@@ -24,7 +24,7 @@ class JsonBTest {
                     it[content] = listOf(Content("content", 1))
                 }
             }
-            val content = JsonBTable.selectAll().first().let { it[JsonBTable.content].first().name }
+            val content = JsonBTable.selectAll().first()[JsonBTable.content].first().name
             assertEquals("content", content)
             SchemaUtils.drop(JsonBTable)
         }
@@ -32,7 +32,7 @@ class JsonBTest {
 
     @Test
     fun select() {
-        transaction(testDatabase)  {
+        transaction(testDatabase) {
             SchemaUtils.create(JsonBTable)
             transaction {
                 JsonBTable.insert {
@@ -46,8 +46,7 @@ class JsonBTest {
                         JsonBTable.content,
                         JsonBTable.content.wrap(listOf(Content("content", 1)))
                     )
-                }.single()
-                    .let { it[JsonBTable.content].first().name }
+                }.single()[JsonBTable.content].first().name
             assertEquals("content", content)
             SchemaUtils.drop(JsonBTable)
         }

@@ -1,4 +1,4 @@
-//package dev.tmsoft.lib.event
+package dev.tmsoft.lib.event
 //
 //import dev.tmsoft.lib.event.EventSourcingAccess
 //import dev.tmsoft.lib.event.EventsDatabaseAccess

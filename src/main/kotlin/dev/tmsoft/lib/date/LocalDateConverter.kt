@@ -15,7 +15,7 @@ fun DataConversion.Configuration.localDate() {
                     OffsetDateTime.parse(it, dateTimeFormat).toLocalDate()
                 }
             }
-            values.singleOrNull().let { LocalDate.parse(it) }
+            LocalDate.parse(values.singleOrNull())
         }
         encode { value ->
             listOf(value.format(dateFormat))

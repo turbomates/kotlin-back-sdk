@@ -8,7 +8,6 @@ import javax.mail.internet.MimeMultipart
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-
 class MailTest {
     @Test
     fun `send mail test`() {

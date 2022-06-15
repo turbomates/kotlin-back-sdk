@@ -15,7 +15,7 @@ class EventsDatabaseAccess(private val transaction: TransactionManager) {
     suspend fun load(delay: Long): List<Pair<UUID, Event>> {
         return transaction {
             Events.select {
-                (Events.publishedAt.isNull()) and (Events.createdAt.minus(LocalDateTime.now()).second() less -delay)
+                Events.publishedAt.isNull() and (Events.createdAt.minus(LocalDateTime.now()).second() less -delay)
             }.map {
                 it[Events.id].value to it[Events.event].event
             }

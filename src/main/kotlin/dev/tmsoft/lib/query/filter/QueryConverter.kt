@@ -5,17 +5,6 @@ class QueryConverter(private val query: String) {
     private val currentChar
         get() = query[charIndex]
 
-    companion object {
-        fun convert(values: List<String>): List<Value> {
-            return values.map { convert(it) }
-        }
-
-        fun convert(query: String): Value {
-            val queryParser = QueryConverter(query)
-            return queryParser.convertToValue()
-        }
-    }
-
     private fun convertToValue(): Value {
         charIndex = 0
         return when {
@@ -69,14 +58,12 @@ class QueryConverter(private val query: String) {
             when (currentChar) {
                 '[' -> mapValue[tmpMapItemKey] = convertToListValue()
                 '{' -> mapValue[tmpMapItemKey] = convertToMapValue()
-                ':' -> {
-                    if (isKeyParsing) {
-                        isKeyParsing = false
-                        tmpMapItemKey = tmpString
-                        tmpString = ""
-                    } else {
-                        tmpString += currentChar
-                    }
+                ':' -> if (isKeyParsing) {
+                    isKeyParsing = false
+                    tmpMapItemKey = tmpString
+                    tmpString = ""
+                } else {
+                    tmpString += currentChar
                 }
                 ',' -> {
                     if (tmpString.isNotEmpty()) {
@@ -86,7 +73,6 @@ class QueryConverter(private val query: String) {
 
                     isKeyParsing = true
                 }
-
                 else -> tmpString += currentChar
             }
 
@@ -95,5 +81,16 @@ class QueryConverter(private val query: String) {
 
         if (tmpString.isNotEmpty()) mapValue[tmpMapItemKey] = makeValueFromString(tmpString)
         return MapValue(mapValue)
+    }
+
+    companion object {
+        fun convert(values: List<String>): List<Value> {
+            return values.map { convert(it) }
+        }
+
+        fun convert(query: String): Value {
+            val queryParser = QueryConverter(query)
+            return queryParser.convertToValue()
+        }
     }
 }
