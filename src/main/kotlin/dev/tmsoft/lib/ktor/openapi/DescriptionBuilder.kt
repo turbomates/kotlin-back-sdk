@@ -1,5 +1,5 @@
 // TODO: @shustrik
-// package dev.tmsoft.lib.ktor.openapi
+package dev.tmsoft.lib.ktor.openapi
 //
 // import com.turbomates.openapi.OpenApiKType
 // import com.turbomates.openapi.Property

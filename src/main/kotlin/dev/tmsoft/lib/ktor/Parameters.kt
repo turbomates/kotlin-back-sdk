@@ -4,10 +4,8 @@ import io.ktor.http.Parameters
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
-typealias BadParameterException = IllegalArgumentException
-
 fun Parameters.getLong(name: String): Long {
-    val rawValue = this[name] ?: throw BadParameterException("Parameter `$name` is not present")
+    val rawValue = this[name] ?: throw BadParameterException(name)
     return rawValue.toLong()
 }
 
@@ -17,7 +15,7 @@ fun Parameters.getLongOrNull(name: String): Long? {
 }
 
 fun Parameters.getInt(name: String): Int {
-    val rawValue = this[name] ?: throw BadParameterException("Parameter `$name` is not present")
+    val rawValue = this[name] ?: throw BadParameterException(name)
     return rawValue.toInt()
 }
 
@@ -27,7 +25,7 @@ fun Parameters.getIntOrNull(name: String): Int? {
 }
 
 fun Parameters.getString(name: String): String {
-    return this[name] ?: throw BadParameterException("Parameter `$name` is not present")
+    return this[name] ?: throw BadParameterException(name)
 }
 
 fun Parameters.getStringOrNull(name: String): String? {
@@ -97,3 +95,5 @@ fun Parameters.getBooleanOrNull(name: String): Boolean? {
         else -> null
     }
 }
+
+class BadParameterException(name: String): IllegalArgumentException("Parameter `$name` is not present")

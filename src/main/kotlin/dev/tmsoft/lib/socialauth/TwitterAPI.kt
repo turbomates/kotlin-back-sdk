@@ -15,7 +15,6 @@ import java.util.UUID
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.time.Duration.Companion.microseconds
-import kotlin.time.ExperimentalTime
 
 private const val USER_URL = "https://api.twitter.com/1.1/account/verify_credentials.json"
 
@@ -47,8 +46,9 @@ class TwitterAPI(private val clientKey: String, private val clientSecret: String
 
         val signingKey = encode(clientSecret) + "&" + encode(tokenSecret)
 
-        val keySpec = SecretKeySpec(signingKey.toByteArray(), "HmacSHA1")
-        val mac = Mac.getInstance("HmacSHA1")
+        val algorithm = "HmacSHA1"
+        val keySpec = SecretKeySpec(signingKey.toByteArray(), algorithm)
+        val mac = Mac.getInstance(algorithm)
         mac.init(keySpec)
 
         val signature = Base64

@@ -45,7 +45,7 @@ complexity:
     active: true
     excludes:
       - '**/test/**'
-    threshold: 2
+    threshold: 3
     ignoreStringsRegex: '\b(Not yet implemented|default)\b'
   ReplaceSafeCallChainWithRun:
     active: true

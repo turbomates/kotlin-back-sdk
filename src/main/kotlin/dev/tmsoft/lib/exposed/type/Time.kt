@@ -20,7 +20,7 @@ class PostgreSQLTime : ColumnType() {
         return when (value) {
             is String -> return value
             is LocalTime -> value.format(DateTimeFormatter.ISO_TIME)
-            else -> error("Unexpected value: $value of ${value::class.qualifiedName}")
+            else -> error("Unexpected value: $value of ${value::class.qualifiedName ?: "time"}")
         }
     }
 

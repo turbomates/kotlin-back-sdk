@@ -125,7 +125,7 @@ private fun Route.buildPath(activities: Set<String>): Map<String, List<String>> 
         currentActivities.addAll((selector as AuthorizationRouteSelector).activities.map { it })
     }
     return if (children.isEmpty()) {
-        val method = (selector as? HttpMethodRouteSelector)?.method?.value
+        val method = (selector as? HttpMethodRouteSelector)?. run { method.value }
         if (activities.isEmpty()) {
             emptyMap()
         } else {

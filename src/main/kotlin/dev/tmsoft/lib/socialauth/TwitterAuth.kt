@@ -12,11 +12,7 @@ const val TWITTER_REQUEST_URL = "https://api.twitter.com/oauth/request_token"
 const val TWITTER_AUTHORIZE_URL = "https://api.twitter.com/oauth/authorize"
 const val TWITTER_TOKEN_URL = "https://api.twitter.com/oauth/access_token"
 
-fun AuthenticationConfig.twitter(
-    name: String,
-    configure: Configuration.() -> Unit
-) {
-
+fun AuthenticationConfig.twitter(name: String, configure: Configuration.() -> Unit) {
     val configuration = Configuration(name).apply(configure)
     this.oauth(name) {
         client = HttpClient(CIO)
@@ -35,7 +31,11 @@ fun AuthenticationConfig.twitter(
     }
 }
 
-class TwitterTransformer<T : Principal>(private val clientKey: String, private val clientSecret: String, private val provider: SocialProvider<T>) : SocialPrincipalTransformer {
+class TwitterTransformer<T : Principal>(
+    private val clientKey: String,
+    private val clientSecret: String,
+    private val provider: SocialProvider<T>
+) : SocialPrincipalTransformer {
     override suspend fun transform(principal: OAuthAccessTokenResponse): Principal? =
         when (principal) {
             is OAuthAccessTokenResponse.OAuth1a -> {

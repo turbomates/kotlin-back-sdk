@@ -1,10 +1,10 @@
 package dev.tmsoft.lib.exposed.type
 
-import java.util.Locale
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ColumnType
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.statements.api.PreparedStatementApi
+import java.util.Locale
 
 /**
  * A column to store a locale.
@@ -20,7 +20,7 @@ class PostgreSQLLocale : ColumnType() {
         return when (value) {
             is String -> value
             is Locale -> value.toString()
-            else -> error("Unexpected value: $value of ${value::class.qualifiedName}")
+            else -> error("Unexpected value: $value of ${value::class.qualifiedName ?: "locale"}")
         }
     }
 
@@ -31,6 +31,6 @@ class PostgreSQLLocale : ColumnType() {
     }
 
     override fun setParameter(stmt: PreparedStatementApi, index: Int, value: Any?) {
-        stmt[index] = value.toString()
+        stmt[index] = value?.run { toString() } ?: ""
     }
 }

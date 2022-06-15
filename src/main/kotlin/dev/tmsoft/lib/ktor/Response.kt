@@ -11,7 +11,6 @@ import io.ktor.server.application.call
 import io.ktor.server.response.ApplicationSendPipeline
 import io.ktor.server.response.respondFile
 import io.ktor.server.routing.Route
-import kotlin.collections.set
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
@@ -24,6 +23,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlin.collections.set
 
 @Serializable
 sealed class Response {
@@ -80,7 +80,7 @@ object ResponseEitherSerializer : KSerializer<Response.Either<out Response, out 
 
     @Suppress("UNCHECKED_CAST")
     override fun serialize(encoder: Encoder, value: Response.Either<out Response, out Response>) {
-        val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
+        val output = encoder as? JsonEncoder ?: throw SerializationException(JSON_EXCEPTION_MESSAGE)
         val anon = { response: Response ->
             output.json.encodeToJsonElement(
                 resolveSerializer(response) as KSerializer<Response>,
@@ -102,14 +102,15 @@ object ResponseErrorSerializer : KSerializer<Error> {
 
     @Suppress("UNCHECKED_CAST")
     override fun serialize(encoder: Encoder, value: Error) {
-        val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
+        val output = encoder as? JsonEncoder ?: throw SerializationException(JSON_EXCEPTION_MESSAGE)
         val error: MutableMap<String, JsonElement> = mutableMapOf("message" to JsonPrimitive(value.message))
         if (value.property != null && value.property.isNotBlank()) error["property"] = JsonPrimitive(value.property)
-        if (value.value != null)
+        if (value.value != null) {
             error["value"] = output.json.encodeToJsonElement(
                 resolveSerializer(value.value) as KSerializer<Any>,
                 value.value
             )
+        }
 
         val tree = JsonObject(error)
         output.encodeJsonElement(tree)
@@ -124,7 +125,7 @@ object ResponseOkSerializer : KSerializer<Response.Ok> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ResponseOkSerializerDescriptor")
 
     override fun serialize(encoder: Encoder, value: Response.Ok) {
-        val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
+        val output = encoder as? JsonEncoder ?: throw SerializationException(JSON_EXCEPTION_MESSAGE)
         output.encodeJsonElement(JsonObject(mapOf("data" to JsonPrimitive("ok"))))
     }
 
@@ -139,7 +140,7 @@ object ResponseDataSerializer : KSerializer<Response.Data<Any>> {
     @Suppress("UNCHECKED_CAST")
     override fun serialize(encoder: Encoder, value: Response.Data<Any>) {
         // toDo bug with inline classed and encodeToJsonElement
-        val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
+        val output = encoder as? JsonEncoder ?: throw SerializationException(JSON_EXCEPTION_MESSAGE)
         val encoded = output.json.encodeToJsonElement(
             resolveSerializer(value.data) as KSerializer<Any>,
             value.data
@@ -163,7 +164,7 @@ object ResponseListingSerializer : KSerializer<Response.Listing<Any>> {
 
     override fun serialize(encoder: Encoder, value: Response.Listing<Any>) {
         // toDo bug with inline classed and encodeToJsonElement
-        val output = encoder as? JsonEncoder ?: throw SerializationException("This class can be saved only by Json")
+        val output = encoder as? JsonEncoder ?: throw SerializationException(JSON_EXCEPTION_MESSAGE)
         output.encodeJsonElement(output.json.encodeToJsonElement(ContinuousListSerializer, value.list))
     }
 
@@ -171,3 +172,5 @@ object ResponseListingSerializer : KSerializer<Response.Listing<Any>> {
         throw NotImplementedError()
     }
 }
+
+private const val JSON_EXCEPTION_MESSAGE = "This class can be saved only by Json"

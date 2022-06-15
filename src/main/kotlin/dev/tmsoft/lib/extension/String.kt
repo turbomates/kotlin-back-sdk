@@ -48,8 +48,9 @@ fun String.toSlug() = lowercase()
     .replace("-+".toRegex(), "-")
 
 fun String.hmacHash(key: String): String {
-    val mac = Mac.getInstance("HmacSHA256")
-    mac.init(SecretKeySpec(key.toByteArray(), "HmacSHA256"))
+    val algorithm = "HmacSHA256"
+    val mac = Mac.getInstance(algorithm)
+    mac.init(SecretKeySpec(key.toByteArray(), algorithm))
     val hash = mac.doFinal(this.toByteArray())
 
     return hex(hash)

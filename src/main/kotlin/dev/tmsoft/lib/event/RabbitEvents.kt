@@ -75,7 +75,7 @@ class RabbitEvents(
         private val logger by lazy { LoggerFactory.getLogger(javaClass) }
 
         @Suppress("UNCHECKED_CAST")
-        override fun handle(consumerTag: String, message: Delivery) = runBlocking {
+        override fun handle(consumerTag: String, message: Delivery): Unit = runBlocking {
             try {
                 val eventJsonString = String(message.body)
                 logger.info("Event $eventJsonString accepted ")
@@ -86,7 +86,7 @@ class RabbitEvents(
                 channel.basicAck(message.envelope.deliveryTag, false)
             } catch (logging: Throwable) {
                 channel.basicNack(message.envelope.deliveryTag, false, true)
-                logger.error("Broken event: ${String(message.body)}. Message: ${logging.message}. Stacktrace: ${ logging.printStackTrace()}")
+                logger.error("Broken event: ${String(message.body)}. Message: ${logging.message}. Stacktrace: ${logging.printStackTrace()}")
             }
         }
     }

@@ -27,13 +27,12 @@ class QueryConverter(private val query: String) {
 
     private fun makeValueFromString(value: String): Value {
         val splitValue = value.split("~")
-        return if (splitValue.size == 1)
-            SingleValue(value)
-        else
+        return if (splitValue.size == 1) SingleValue(value) else {
             RangeValue(
                 splitValue[0].ifBlank { null },
                 splitValue[1].ifBlank { null }
             )
+        }
     }
 
     private fun convertToListValue(): ListValue {

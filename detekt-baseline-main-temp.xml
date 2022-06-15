@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>ClassOrdering:Authorization.kt$Authorization$ fun configure(block: Configuration.() -&gt; Unit)</ID>
+    <ID>ClassOrdering:Authorization.kt$Authorization$private val logger = LoggerFactory.getLogger(Authorization::class.java)</ID>
+    <ID>ClassOrdering:Authorization.kt$Authorization$private val rules = RouteAuthorizationRules()</ID>
+    <ID>ClassOrdering:QueryConverter.kt$QueryConverter$private fun convertToListValue(): ListValue</ID>
+    <ID>ClassOrdering:QueryConverter.kt$QueryConverter$private fun convertToMapValue(): MapValue</ID>
+    <ID>ClassOrdering:QueryConverter.kt$QueryConverter$private fun convertToValue(): Value</ID>
+    <ID>ClassOrdering:QueryConverter.kt$QueryConverter$private fun makeValueFromString(value: String): Value</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:AppleAuth.kt$AppleTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val user = api.getUser(principal.accessToken) provider.load(user?.email, SocialToken(SocialAuthType.APPLE, principal)) } else -&gt; null }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:FacebookAuth.kt$FacebookTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val api = FacebookAPI() val user = api.getUser(principal.accessToken) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.FACEBOOK, principal)) } else null } else -&gt; null }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:GoogleAuth.kt$GoogleTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val api = GoogleAPI() val user = api.getUser(principal.accessToken) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.GOOGLE, principal)) } else null } else -&gt; null }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:InferSerializer.kt$when (value) { is Response.Ok -&gt; ResponseOkSerializer is Response.Listing&lt;*&gt; -&gt; ResponseListingSerializer is Response.Either&lt;*, *&gt; -&gt; ResponseEitherSerializer is Response.Data&lt;*&gt; -&gt; ResponseDataSerializer else -&gt; value::class.serializer() }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:Response.kt$when (this) { is Response.Error -&gt; HttpStatusCode.UnprocessableEntity is Response.Errors -&gt; HttpStatusCode.UnprocessableEntity is Response.Either&lt;*, *&gt; -&gt; this.data.fold({ it.status() }, { it.status() }) as HttpStatusCode else -&gt; HttpStatusCode.OK }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:TwitterAuth.kt$TwitterTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth1a -&gt; { val api = TwitterAPI(clientKey, clientSecret) val user = api.getUser(principal.token, principal.tokenSecret) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.TWITTER, principal)) } else null } else -&gt; null }</ID>
+    <ID>ExplicitCollectionElementAccessMethod:AppleAPI.kt$AppleAPI$UrlJwkProvider(VALIDATION_TOKEN).get(token.keyId)</ID>
+    <ID>ForbiddenVoid:SagaController.kt$SagaController$Void</ID>
+    <ID>OptionalUnit:TimeBucket.kt$TimeBucket$Unit</ID>
+    <ID>OptionalWhenBraces:JsonB.kt$PostgreSQLJson$else -&gt; { nonNullValueToString(value) }</ID>
+    <ID>OptionalWhenBraces:Parameters.kt$Int::class -&gt; { for (value in values) { value.toIntOrNull()?.let { castedValues.add(it as T) } } }</ID>
+    <ID>OptionalWhenBraces:Parameters.kt$Long::class -&gt; { for (value in values) { value.toLongOrNull()?.let { castedValues.add(it as T) } } }</ID>
+    <ID>OptionalWhenBraces:Parameters.kt$String::class -&gt; { for (value in values) { castedValues.add(value as T) } }</ID>
+    <ID>OptionalWhenBraces:Parameters.kt$else -&gt; { throw IllegalArgumentException("Unsupported parameter type: ${T::class.java.name}") }</ID>
+    <ID>OptionalWhenBraces:QueryConverter.kt$QueryConverter$':' -&gt; { if (isKeyParsing) { isKeyParsing = false tmpMapItemKey = tmpString tmpString = "" } else { tmpString += currentChar } }</ID>
+    <ID>OptionalWhenBraces:Saga.kt$SagaSerializer$0 -&gt; { klassName = decodeStringElement(descriptor, index) }</ID>
+    <ID>OptionalWhenBraces:Saga.kt$SagaSerializer$CompositeDecoder.DECODE_DONE -&gt; { break@mainLoop }</ID>
+    <ID>PreferToOverPairSyntax:EventListenerInterceptor.kt$PublishEventsInterceptor$Pair(event.eventId, event)</ID>
+    <ID>PreferToOverPairSyntax:EventStore.kt$EventStore$Pair(event, id)</ID>
+    <ID>PreferToOverPairSyntax:EventStore.kt$EventStore$Pair(event, null)</ID>
+    <ID>SpacingBetweenPackageAndImports:JavaxMail.kt$ </ID>
+    <ID>UnnecessaryLet:LocalDateConverter.kt$let { LocalDate.parse(it) }</ID>
+    <ID>UnnecessaryLet:Parameters.kt$let { URLDecoder.decode(it, StandardCharsets.UTF_8.toString()) }</ID>
+    <ID>UnnecessaryLet:PublicS3Client.kt$PublicS3Client$let { endpointResolver = CustomEndpointResolver(config.hostname, config.protocol.toString()) }</ID>
+    <ID>UnnecessaryLet:UUID.kt$let { UUID.fromString(it) }</ID>
+    <ID>UnnecessaryParentheses:EventsDatabaseAccess.kt$EventsDatabaseAccess$(Events.publishedAt.isNull())</ID>
+    <ID>UnnecessaryParentheses:SagaStorage.kt$SagaStorage$(SagaTable.id eq id.id)</ID>
+    <ID>UnnecessaryParentheses:SqlBatchInsertStatement.kt$SqlBatchInsertStatement$(it.defaultValueFun != null)</ID>
+    <ID>UnnecessaryParentheses:Value.kt$RangeValue$('%' + to!!.lowercase())</ID>
+    <ID>UnusedImports:EventSourcingAccess.kt$import dev.tmsoft.lib.event.Events.clientDefault</ID>
+    <ID>UnusedImports:SocialAuth.kt$import io.ktor.server.application.install</ID>
+    <ID>UnusedImports:SocialAuth.kt$import io.ktor.server.application.plugin</ID>
+    <ID>UnusedImports:SocialAuth.kt$import io.ktor.server.auth.Authentication</ID>
+    <ID>UnusedImports:SocialAuth.kt$import io.ktor.server.routing.application</ID>
+    <ID>UnusedImports:SubscriberWorker.kt$import kotlinx.coroutines.flow.collect</ID>
+    <ID>UseDataClass:ContinuousList.kt$ContinuousList&lt;T&gt;</ID>
+    <ID>UseDataClass:IdentityEvent.kt$IdentityEvent</ID>
+    <ID>UseDataClass:Message.kt$Message</ID>
+    <ID>UseIfInsteadOfWhen:AppleAuth.kt$AppleTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val user = api.getUser(principal.accessToken) provider.load(user?.email, SocialToken(SocialAuthType.APPLE, principal)) } else -&gt; null }</ID>
+    <ID>UseIfInsteadOfWhen:DateTimeRange.kt$when (expression.columnType) { is JavaLocalDateColumnType -&gt; QueryParameter&lt;LocalDate&gt;(toLocalDate(), expression.columnType) else -&gt; QueryParameter(this, expression.columnType) }</ID>
+    <ID>UseIfInsteadOfWhen:EmbeddedColumn.kt$EmbeddableColumn$when (raw) { null -&gt; null else -&gt; c.columnType.valueFromDB(raw) }</ID>
+    <ID>UseIfInsteadOfWhen:FacebookAuth.kt$FacebookTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val api = FacebookAPI() val user = api.getUser(principal.accessToken) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.FACEBOOK, principal)) } else null } else -&gt; null }</ID>
+    <ID>UseIfInsteadOfWhen:Filter.kt$Filter$when (columnType) { is EnumerationNameColumnType&lt;*&gt; -&gt; (columnType as EnumerationNameColumnType&lt;*&gt;).klass.java.enumConstants.map { it.name } else -&gt; emptyList() }</ID>
+    <ID>UseIfInsteadOfWhen:GoogleAuth.kt$GoogleTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val api = GoogleAPI() val user = api.getUser(principal.accessToken) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.GOOGLE, principal)) } else null } else -&gt; null }</ID>
+    <ID>UseIfInsteadOfWhen:JsonB.kt$PostgreSQLJson$when (value) { null -&gt; { if (!nullable) error("NULL in non-nullable column") "NULL" } else -&gt; { nonNullValueToString(value) } }</ID>
+    <ID>UseIfInsteadOfWhen:JsonFormAuthenticationProvider.kt$JsonFormAuthenticationProvider$when (credentials) { null -&gt; AuthenticationFailedCause.NoCredentials else -&gt; AuthenticationFailedCause.InvalidCredentials }</ID>
+    <ID>UseIfInsteadOfWhen:TwitterAuth.kt$TwitterTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth1a -&gt; { val api = TwitterAPI(clientKey, clientSecret) val user = api.getUser(principal.token, principal.tokenSecret) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.TWITTER, principal)) } else null } else -&gt; null }</ID>
+    <ID>UseIfInsteadOfWhen:Validation.kt$when { message.message.isBlank() -&gt; constraint.constraint.name else -&gt; message.message }</ID>
+    <ID>UseIfInsteadOfWhen:Value.kt$RangeValue$when (columnType) { is StringColumnType -&gt; LikeOp( (this as ExpressionWithColumnType&lt;String&gt;).lowerCase(), wrap(containsValue) ) else -&gt; { val fromExpr = from?.let { GreaterEqOp(this, typedWrap(it)) } val toExpr = to?.let { LessEqOp(this, typedWrap(it)) } return if (fromExpr != null &amp;&amp; toExpr != null) { AndOp( listOf( fromExpr, toExpr ) ) } else { fromExpr ?: toExpr!! } } }</ID>
+    <ID>UseIfInsteadOfWhen:Value.kt$SingleValue$when (columnType) { is StringColumnType -&gt; LikeOp( (this as ExpressionWithColumnType&lt;String&gt;).lowerCase(), wrap(value.lowercase() + "%") ) else -&gt; EqOp(this, typedWrap(value)) }</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -12,11 +12,7 @@ import io.ktor.server.auth.oauth
 const val GOOGLE_AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/auth"
 const val GOOGLE_TOKEN_URL = "https://www.googleapis.com/oauth2/v3/token"
 
-fun AuthenticationConfig.google(
-    name: String,
-    configure: Configuration.() -> Unit
-) {
-
+fun AuthenticationConfig.google(name: String, configure: Configuration.() -> Unit) {
     val configuration = Configuration(name).apply(configure)
     this.oauth(name) {
         client = HttpClient(CIO)

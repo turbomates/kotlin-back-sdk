@@ -1,5 +1,5 @@
 // TODO: @shustrik
-// package dev.tmsoft.lib.query.filter
+package dev.tmsoft.lib.query.filter
 //
 // import com.turbomates.openapi.Property
 // import com.turbomates.openapi.Type
