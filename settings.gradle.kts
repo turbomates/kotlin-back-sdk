@@ -35,7 +35,6 @@ dependencyResolutionManagement {
             alias("ktor_server_auth_jwt").to("io.ktor", "ktor-server-auth-jwt").versionRef("ktor")
             alias("ktor_server_locations").to("io.ktor", "ktor-server-locations").versionRef("ktor")
             alias("ktor_server_core").to("io.ktor", "ktor-server-core").versionRef("ktor")
-//            alias("ktor_serialization").to("io.ktor", "ktor-serialization").versionRef("ktor")
             alias("ktor_server_sessions").to("io.ktor", "ktor-server-sessions").versionRef("ktor")
             alias("ktor_server_test_host").to("io.ktor", "ktor-server-test-host").versionRef("ktor")
             alias("ktor_client_cio").to("io.ktor", "ktor-client-cio").versionRef("ktor")
@@ -86,7 +85,6 @@ dependencyResolutionManagement {
                     "ktor_server_auth_jwt",
                     "ktor_server_locations",
                     "ktor_server_core",
-//                "ktor_serialization",
                     "ktor_server_sessions"
                 )
             )

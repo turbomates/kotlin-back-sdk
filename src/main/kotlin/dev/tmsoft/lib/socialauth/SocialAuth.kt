@@ -9,6 +9,7 @@ import io.ktor.client.plugins.kotlinx.serializer.KotlinxSerializer
 import io.ktor.http.ContentType
 import io.ktor.server.routing.Route
 import io.ktor.server.application.ApplicationCallPipeline
+import io.ktor.server.application.ApplicationCallPipeline.ApplicationPhase.Plugins
 import io.ktor.server.application.call
 import io.ktor.server.auth.AuthenticationFailedCause
 import io.ktor.server.auth.AuthenticationProvider
@@ -16,6 +17,7 @@ import io.ktor.server.auth.AuthenticationRouteSelector
 import io.ktor.server.auth.OAuthAccessTokenResponse
 import io.ktor.server.auth.authentication
 import io.ktor.server.response.respondRedirect
+import io.ktor.server.routing.get
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
@@ -49,12 +51,11 @@ fun Route.authenticateBySocial(
 ): Route {
     val configurationNames = listOf(configuration)
     val authenticatedRoute = createChild(AuthenticationRouteSelector(configurationNames))
-    // TODO: @shustrik
     // application.plugin(Authentication).interceptPipeline(authenticatedRoute, configurationNames)
-    // transformSocial(authenticatedRoute, transformer, successUri)
-    // authenticatedRoute {
-    //     get {}
-    // }
+    transformSocial(authenticatedRoute, transformer, successUri)
+    authenticatedRoute {
+        get {}
+    }
 
     return authenticatedRoute
 }
@@ -65,8 +66,7 @@ fun transformSocial(
     successUri: String
 ) {
     val phase = PipelinePhase("SocialAuth")
-    // TODO: @shustrik
-    // pipeline.insertPhaseAfter(Authentication.ChallengePhase, phase)
+    pipeline.insertPhaseAfter(Plugins, phase)
     pipeline.intercept(phase) {
         val oauthPrincipal = call.authentication.principal<OAuthAccessTokenResponse>()
         if (oauthPrincipal != null) {
