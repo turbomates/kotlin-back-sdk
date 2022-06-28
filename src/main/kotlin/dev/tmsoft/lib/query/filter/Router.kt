@@ -22,9 +22,7 @@ private fun Filter.openApiType(): Type.Object {
     val parameters = mutableListOf<Property>()
     fields().forEach { field ->
         parameters.add(
-            Property(
-                "$filterParameterName[${field.name}]", Type.String(field.values.ifEmpty { null })
-            )
+            Property("$filterParameterName[${field.name}]", Type.String(field.values.ifEmpty { null }))
         )
     }
     return Type.Object("filters", parameters, nullable = true)

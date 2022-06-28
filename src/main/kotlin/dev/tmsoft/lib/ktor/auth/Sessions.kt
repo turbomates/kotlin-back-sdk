@@ -3,7 +3,6 @@
 package dev.tmsoft.lib.ktor.auth
 
 import dev.tmsoft.lib.serialization.UUIDSerializer
-import java.util.UUID
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers

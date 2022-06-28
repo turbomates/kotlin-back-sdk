@@ -7,60 +7,34 @@ import com.turbomates.openapi.Type
 import com.turbomates.openapi.openApiKType
 import dev.tmsoft.lib.ktor.Response
 import io.ktor.http.HttpStatusCode
-import kotlin.reflect.full.memberProperties
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlin.reflect.full.memberProperties
 
 val responseMap: OpenApiKType.() -> Map<Int, Type> = {
     when (this) {
-        Response.Ok::class.openApiKType() -> mapOf(
+        Response.Ok::class.openApiKType(),
+        Response.Listing::class.openApiKType(),
+        Response.Data::class.openApiKType() -> mapOf(
             HttpStatusCode.OK.value to typeBuilder(this)
         )
-
         Response.Either::class.openApiKType() -> {
             val data = Response.Either::class.memberProperties.first()
             val result = mutableMapOf<Int, Type>()
             data.returnType.arguments.forEach { argument ->
-                var projectionType = this.getArgumentProjectionType(argument.type!!)
-                when (projectionType) {
-                    Response.Ok::class.openApiKType() -> {
-                        result[HttpStatusCode.OK.value] = typeBuilder(this)
-                    }
-
-                    Response.Error::class.openApiKType() -> mapOf(
+                when (val projectionType = this.getArgumentProjectionType(argument.type!!)) {
+                    Response.Ok::class.openApiKType() -> result[HttpStatusCode.OK.value] = typeBuilder(this)
+                    Response.Error::class.openApiKType(), Response.Errors::class.openApiKType() -> mapOf(
                         result[HttpStatusCode.UnprocessableEntity.value] to typeBuilder(this)
                     )
-
-                    Response.Errors::class.openApiKType() -> mapOf(
-                        result[HttpStatusCode.UnprocessableEntity.value] to typeBuilder(this)
-                    )
-
-                    else -> {
-                        result[HttpStatusCode.OK.value] =
-                            projectionType.objectType(argument.type!!.simpleName)
-
-                    }
+                    else -> result[HttpStatusCode.OK.value] = projectionType.objectType(argument.type!!.simpleName)
                 }
             }
             result
         }
-
-        Response.Listing::class.openApiKType() -> mapOf(
-            HttpStatusCode.OK.value to typeBuilder(this)
-        )
-
-        Response.Error::class.openApiKType() -> mapOf(
+        Response.Error::class.openApiKType(), Response.Errors::class.openApiKType() -> mapOf(
             HttpStatusCode.UnprocessableEntity.value to typeBuilder(this)
         )
-
-        Response.Errors::class.openApiKType() -> mapOf(
-            HttpStatusCode.UnprocessableEntity.value to typeBuilder(this)
-        )
-
-        Response.Data::class.openApiKType() -> mapOf(
-            HttpStatusCode.OK.value to typeBuilder(this)
-        )
-
         else -> mapOf(
             HttpStatusCode.OK.value to typeBuilder(this)
         )
