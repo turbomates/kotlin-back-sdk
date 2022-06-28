@@ -22,9 +22,7 @@ data class Session(
 
 @Serializable
 @Polymorphic
-abstract class Principal : io.ktor.server.auth.Principal {
-    abstract val id: UUID
-}
+abstract class Principal : io.ktor.server.auth.Principal
 
 class SessionSerializer(module: SerializersModule) : KtorSessionSerializer<Session> {
     val serializer: Json = Json { serializersModule = module }
