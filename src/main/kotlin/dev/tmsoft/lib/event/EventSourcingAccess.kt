@@ -1,13 +1,12 @@
 package dev.tmsoft.lib.event
 
-import dev.tmsoft.lib.event.Events.clientDefault
 import dev.tmsoft.lib.exposed.TransactionManager
 import dev.tmsoft.lib.exposed.type.jsonb
-import java.time.LocalDateTime
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.select
+import java.time.LocalDateTime
 
 class EventSourcingAccess(private val transaction: TransactionManager) {
     suspend fun get(aggregateRoot: Any): List<Event> {

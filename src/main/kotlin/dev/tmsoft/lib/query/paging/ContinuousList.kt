@@ -3,7 +3,6 @@
 package dev.tmsoft.lib.query.paging
 
 import dev.tmsoft.lib.serialization.elementSerializer
-import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
@@ -100,7 +99,7 @@ private fun <T> Query.modifyWhereIn(column: Column<T>, limit: Int, offset: Long)
     return adjustWhere { SingleValueInListOp(column, ids) }
 }
 
-class ContinuousList<T>(
+data class ContinuousList<T>(
     val data: List<T>,
     val pageSize: Int,
     val currentPage: Int,

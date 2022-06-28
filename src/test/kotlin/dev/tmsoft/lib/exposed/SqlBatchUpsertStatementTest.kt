@@ -1,11 +1,14 @@
 package dev.tmsoft.lib.exposed
 
-import java.util.UUID
-import kotlin.test.assertEquals
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
+import java.util.UUID
+import kotlin.test.assertEquals
 
 class SqlBatchUpsertStatementTest {
     @Test
@@ -23,10 +26,7 @@ class SqlBatchUpsertStatementTest {
             }
 
             val upsertData = testData.mapIndexed { index, account ->
-                if (index < 150)
-                    Account("upserted", index, account.reference)
-                else
-                    Account("inserted", index, UUID.randomUUID())
+                if (index < 150) Account("upserted", index, account.reference) else Account("inserted", index, UUID.randomUUID())
             }
 
             Accounts.singleSqlBatchUpsert(upsertData, Accounts.reference) { statement ->
@@ -36,7 +36,7 @@ class SqlBatchUpsertStatementTest {
             }
 
             assertEquals(450, Accounts.selectAll().count())
-            assertEquals("upserted", Accounts.selectAll().orderBy(Accounts.id, SortOrder.ASC).limit(1).single().let { it[Accounts.name] })
+            assertEquals("upserted", Accounts.selectAll().orderBy(Accounts.id, SortOrder.ASC).limit(1).single()[Accounts.name])
             SchemaUtils.drop(Accounts)
         }
     }

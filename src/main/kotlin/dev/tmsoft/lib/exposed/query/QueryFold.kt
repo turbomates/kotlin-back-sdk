@@ -54,7 +54,7 @@ private fun ResultRow.callIfExist(column: Expression<*>, callback: ResultRow.() 
 }
 
 private fun Query.checkCorrectMappingTable(table: IdTable<*>) {
-    val joinedTablesNames = (set as? Join)?.targetTables()?.map { it.tableName }
+    val joinedTablesNames = (set as? Join)?.run { targetTables().map { it.tableName } }
     val mainTableName = (set as? Table)?.tableName
     if (mainTableName != table.tableName && joinedTablesNames != null && !joinedTablesNames.contains(table.tableName)) {
         throw IllegalArgumentException("The corresponding table is not present in the resulting query")

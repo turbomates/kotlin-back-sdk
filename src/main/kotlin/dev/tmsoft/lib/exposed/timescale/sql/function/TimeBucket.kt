@@ -9,14 +9,14 @@ import java.time.LocalDate
 
 fun Column<*>.timeBucket(interval: String): TimeBucket = TimeBucket(this, interval)
 
-class TimeBucket(
-    val expr: Expression<*>, val interval: String
-) : Function<LocalDate>(JavaLocalDateColumnType()) {
-    override fun toQueryBuilder(queryBuilder: QueryBuilder): Unit = queryBuilder {
-        +"time_bucket('"
-        +interval
-        +"',"
-        +expr
-        +")"
+class TimeBucket(private val expr: Expression<*>, private val interval: String) : Function<LocalDate>(JavaLocalDateColumnType()) {
+    override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+        queryBuilder {
+            +"time_bucket('"
+            +interval
+            +"',"
+            +expr
+            +")"
+        }
     }
 }

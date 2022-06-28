@@ -34,6 +34,6 @@ inline fun <reified TEvent : Event, reified TKey : Event.Key<TEvent>> TKey.subsc
     EventsSubscriber.EventSubscriberItem(
         this,
         object : EventSubscriber<TEvent> {
-            override suspend fun invoke(event: TEvent) = action(event)
+            override suspend fun invoke(event: TEvent): Unit = action(event)
         }
     )

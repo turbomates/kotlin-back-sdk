@@ -1,6 +1,6 @@
 package dev.tmsoft.lib.ktor
 
-import io.ktor.application.ApplicationCall
+import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 import kotlin.reflect.KClass
 

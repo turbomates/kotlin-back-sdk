@@ -23,10 +23,7 @@ fun <E : ConstraintViolation> Set<E>.toErrorsList(): List<Error> {
     return map { constraint ->
         val message = constraint.toMessage()
 
-        val errorMessage = when {
-            message.message.isBlank() -> constraint.constraint.name
-            else -> message.message
-        }
+        val errorMessage = message.message.ifBlank { constraint.constraint.name }
 
         Error(
             errorMessage,

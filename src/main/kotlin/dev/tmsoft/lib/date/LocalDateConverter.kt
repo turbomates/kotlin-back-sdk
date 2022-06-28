@@ -1,29 +1,24 @@
 package dev.tmsoft.lib.date
 
-import io.ktor.features.DataConversion
-import io.ktor.util.DataConversionException
+import io.ktor.util.converters.DataConversion
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
 
 fun DataConversion.Configuration.localDate() {
     convert<LocalDate> {
-        decode { values, _ ->
+        decode { values ->
             values.singleOrNull()?.let {
                 try {
-                    LocalDate.parse(it, localDateFormat)
+                    LocalDate.parse(it, dateFormat)
                 } catch (ex: DateTimeParseException) {
-                    LocalDateTime.parse(it, localDateTimeFormat).toLocalDate()
+                    OffsetDateTime.parse(it, dateTimeFormat).toLocalDate()
                 }
             }
-            values.singleOrNull()?.let { LocalDate.parse(it) }
+            LocalDate.parse(values.singleOrNull())
         }
         encode { value ->
-            when (value) {
-                null -> listOf()
-                is LocalDate -> listOf(value.format(localDateFormat))
-                else -> throw DataConversionException("Cannot convert $value as LocalDate")
-            }
+            listOf(value.format(dateFormat))
         }
     }
 }

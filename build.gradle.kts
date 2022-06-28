@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import com.adarshr.gradle.testlogger.theme.ThemeType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -11,13 +13,14 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.3.51"
+version = "0.4.0"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    api(deps.bundles.turbomates)
     api(deps.bundles.ktor.server)
     api(deps.bundles.ktor.client)
     api(deps.bundles.exposed)
@@ -45,23 +48,20 @@ dependencies {
     }
     testImplementation(deps.embedded.postgres)
     testImplementation(deps.h2.database)
+    detektPlugins(deps.detekt.formatting)
 }
 
 detekt {
     toolVersion = deps.versions.detekt.get()
-    ignoreFailures = false
+    autoCorrect = false
     parallel = true
-    allRules = false
     config = files("detekt.yml")
-    buildUponDefaultConfig = true
-    reports {
-        xml.enabled = true
-        html.enabled = false
-        txt.enabled = false
-        sarif.enabled = false
-    }
 }
-
+tasks.named("check").configure {
+    this.setDependsOn(this.dependsOn.filterNot {
+        it is TaskProvider<*> && it.name == "detekt"
+    })
+}
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {

@@ -80,7 +80,7 @@ open class SqlBatchInsertStatement(private val table: Table, private val ignore:
 
     private fun valuesAndDefaults(values: Map<Column<*>, Any?> = this.values): Map<Column<*>, Any?> {
         val columnsWithNotNullDefault = targets.flatMap { it.columns }.filter {
-            (it.defaultValueFun != null) && it !in values.keys
+            it.defaultValueFun != null && it !in values.keys
         }
         return values + columnsWithNotNullDefault.map { it to (it.defaultValueFun?.invoke() ?: "DEFAULT") }
     }

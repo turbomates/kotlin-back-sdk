@@ -47,10 +47,7 @@ abstract class EmbeddableColumn<T : Embedded>(private val table: Table, private 
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> rawToColumnValue(raw: T?, c: ExposedColumn<*>): T {
-        return when (raw) {
-            null -> null
-            else -> c.columnType.valueFromDB(raw)
-        } as T
+        return (if (raw != null) c.columnType.valueFromDB(raw) else null) as T
     }
 
     fun <TColumn> column(column: PrimitiveColumn<TColumn>): ExposedColumn<TColumn> {

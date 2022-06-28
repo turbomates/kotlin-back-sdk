@@ -18,7 +18,7 @@ class AppleAPI : SocialAPI<AppleUser> {
     override suspend fun getUser(accessToken: String): AppleUser? {
         return try {
             val token = JWT.decode(accessToken)
-            val jwk = UrlJwkProvider(VALIDATION_TOKEN).get(token.keyId)
+            val jwk = UrlJwkProvider(VALIDATION_TOKEN)[token.keyId]
             JWT.require(Algorithm.RSA256(jwk.publicKey as RSAPublicKey,null))
                 .build()
                 .verify(accessToken)

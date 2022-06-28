@@ -9,7 +9,7 @@ class SagaController @Inject constructor(val transaction: TransactionManager) : 
     private val sagaStorage = SagaStorage()
 //    private val sagas: MutableMap<Saga.Key, List<SagaSubscriber<out Saga.Data>>> = mutableMapOf()
 
-    suspend fun <TSaga : Saga.Data> run(saga: Saga<TSaga>, block: suspend () -> Void) {
+    suspend fun <TSaga : Saga.Data> run(saga: Saga<TSaga>, block: suspend () -> Unit) {
         try {
             transaction {
                 block()

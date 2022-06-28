@@ -31,7 +31,7 @@ private class PublishEventsInterceptor(val events: List<Event>) : StatementInter
     override fun afterCommit() {
         runBlocking {
             events.forEach { event ->
-                SubscriberWorker.eventsFlow.emit(Pair(event.eventId, event))
+                SubscriberWorker.eventsFlow.emit(event.eventId to event)
             }
         }
     }

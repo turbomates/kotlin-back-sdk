@@ -62,14 +62,11 @@ class PostgreSQLJson<out T : Any>(
         return json.encodeToString(serializer, value as T)
     }
 
-    override fun valueToString(value: Any?): String = when (value) {
-        null -> {
-            if (!nullable) error("NULL in non-nullable column")
-            "NULL"
-        }
-        else -> {
-            nonNullValueToString(value)
-        }
+    override fun valueToString(value: Any?): String = if (value == null) {
+        if (!nullable) error("NULL in non-nullable column")
+        "NULL"
+    } else {
+        nonNullValueToString(value)
     }
 }
 

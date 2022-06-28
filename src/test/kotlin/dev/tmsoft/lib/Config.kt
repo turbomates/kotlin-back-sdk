@@ -1,9 +1,9 @@
 package dev.tmsoft.lib
 
-import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.Masked
-import com.sksamuel.hoplite.PropertySource
-import dev.tmsoft.lib.config.hoplite.EnvironmentVariablesPropertySource
+import com.sksamuel.hoplite.addResourceSource
+import com.sksamuel.hoplite.sources.EnvironmentVariablesPropertySource
 
 object Config {
     const val h2DatabaseUrl = "jdbc:h2:mem:test"
@@ -15,10 +15,10 @@ object Config {
 data class ConfigJdbc(val jdbc: Jdbc)
 data class Jdbc(val url: String, val user: String, val password: Masked)
 fun buildConfiguration(): Jdbc {
-    return ConfigLoader.Builder()
-        .addSource(PropertySource.resource("/local.properties", optional = true))
-        .addSource(PropertySource.resource("/default.properties", optional = true))
-        .addSource(EnvironmentVariablesPropertySource(true, true))
+    return ConfigLoaderBuilder.default()
+        .addResourceSource("/local.properties", optional = true)
+        .addResourceSource("/default.properties", optional = true)
+        .addSource(EnvironmentVariablesPropertySource(useUnderscoresAsSeparator = true, allowUppercaseNames = true))
         .build()
         .loadConfigOrThrow<ConfigJdbc>().jdbc
 }

@@ -6,10 +6,10 @@ import kotlinx.serialization.json.Json
 import redis.clients.jedis.JedisPool
 
 class RedisPersistentMap(private val pool: JedisPool) {
-    val serializer: Json = Json { }
+    val serializer: Json = Json
 
     fun get(key: String): String? {
-        return pool.resource.use { it.get(key) }
+        return pool.resource.use { it[key] }
     }
 
     inline fun <reified T> get(key: String): T? {
@@ -18,7 +18,7 @@ class RedisPersistentMap(private val pool: JedisPool) {
     }
 
     fun set(key: String, value: String) {
-        pool.resource.use { it.set(key, value) }
+        pool.resource.use { it[key] = value }
     }
 
     inline fun <reified T> set(key: String, value: T) {

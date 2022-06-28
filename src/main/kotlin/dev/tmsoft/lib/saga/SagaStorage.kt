@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.select
 class SagaStorage {
     @Suppress("UNCHECKED_CAST")
     fun <T : Saga.Data> findById(id: SagaId): Saga<T>? {
-        return SagaTable.select { (SagaTable.id eq id.id) and (SagaTable.name eq id.key.name) }.singleOrNull()
+        return SagaTable.select { SagaTable.id eq id.id and (SagaTable.name eq id.key.name) }.singleOrNull()
             ?.let { val data = it[SagaTable.metadata] as T; Saga(SagaId(it[SagaTable.id].value, data.key), data) }
     }
 

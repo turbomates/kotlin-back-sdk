@@ -10,7 +10,6 @@ import javax.mail.internet.MimeBodyPart
 import javax.mail.internet.MimeMessage
 import javax.mail.internet.MimeMultipart
 
-
 class JavaxMail(val config: SMTPConfig) : Mail {
     private val session: Session by lazy {
         val props = Properties()

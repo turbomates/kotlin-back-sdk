@@ -1,28 +1,28 @@
 package dev.tmsoft.lib.ktor.auth
 
-import io.ktor.application.Application
-import io.ktor.application.ApplicationCall
-import io.ktor.application.ApplicationCallPipeline
-import io.ktor.application.ApplicationFeature
-import io.ktor.application.call
-import io.ktor.application.feature
 import io.ktor.http.HttpStatusCode
-import io.ktor.response.respond
-import io.ktor.routing.HttpMethodRouteSelector
-import io.ktor.routing.Route
-import io.ktor.routing.RouteSelector
-import io.ktor.routing.RouteSelectorEvaluation
-import io.ktor.routing.RoutingResolveContext
-import io.ktor.routing.application
+import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.ApplicationCallPipeline
+import io.ktor.server.application.BaseApplicationPlugin
+import io.ktor.server.application.call
+import io.ktor.server.application.plugin
+import io.ktor.server.response.respond
+import io.ktor.server.routing.HttpMethodRouteSelector
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RouteSelector
+import io.ktor.server.routing.RouteSelectorEvaluation
+import io.ktor.server.routing.RoutingResolveContext
+import io.ktor.server.routing.application
 import io.ktor.util.AttributeKey
 import io.ktor.util.pipeline.PipelinePhase
 import org.slf4j.LoggerFactory
 
 class Authorization(private val config: Configuration) {
-    constructor() : this(Configuration())
-
     private val logger = LoggerFactory.getLogger(Authorization::class.java)
     private val rules = RouteAuthorizationRules()
+
+    constructor() : this(Configuration())
 
     class Configuration {
         internal var validate: suspend ApplicationCall.(Set<String>) -> Boolean = { false }
@@ -44,15 +44,13 @@ class Authorization(private val config: Configuration) {
 
     /**
      * Configures [pipeline] to process authentication by one or multiple auth methods
-     * @param pipeline to be configured
-     * @param configurationNames references to auth providers, could contain null to point to default
      */
     fun interceptPipeline(
         pipeline: ApplicationCallPipeline,
         activities: Set<String>,
         block: suspend ApplicationCall.() -> Boolean = { false }
     ) {
-        require(activities.isNotEmpty()) { "At least one role should bet set" }
+        require(activities.isNotEmpty())
         (pipeline as? Route)?.parent?.let {
             rules.addRule(it, activities)
         }
@@ -66,7 +64,14 @@ class Authorization(private val config: Configuration) {
         }
     }
 
-    companion object Feature : ApplicationFeature<Application, Configuration, Authorization> {
+    /**
+     * Configure already installed feature
+     */
+    fun configure(block: Configuration.() -> Unit) {
+        block(config)
+    }
+
+    companion object Plugin : BaseApplicationPlugin<Application, Configuration, Authorization> {
         val AuthorizationCheckPhase: PipelinePhase = PipelinePhase("CheckAuthorize")
         override val key: AttributeKey<Authorization> = AttributeKey("Authorization")
 
@@ -76,13 +81,6 @@ class Authorization(private val config: Configuration) {
             }
         }
     }
-
-    /**
-     * Configure already installed feature
-     */
-    fun configure(block: Configuration.() -> Unit) {
-        block(config)
-    }
 }
 
 fun Route.authorize(
@@ -91,7 +89,7 @@ fun Route.authorize(
     build: Route.() -> Unit
 ): Route {
     val authenticatedRoute = createChild(AuthorizationRouteSelector(activities))
-    application.feature(Authorization).interceptPipeline(authenticatedRoute, activities, block)
+    application.plugin(Authorization).interceptPipeline(authenticatedRoute, activities, block)
     authenticatedRoute.build()
     return authenticatedRoute
 }
@@ -127,7 +125,7 @@ private fun Route.buildPath(activities: Set<String>): Map<String, List<String>> 
         currentActivities.addAll((selector as AuthorizationRouteSelector).activities.map { it })
     }
     return if (children.isEmpty()) {
-        val method = (selector as? HttpMethodRouteSelector)?.method?.value
+        val method = (selector as? HttpMethodRouteSelector)?.run { method.value }
         if (activities.isEmpty()) {
             emptyMap()
         } else {

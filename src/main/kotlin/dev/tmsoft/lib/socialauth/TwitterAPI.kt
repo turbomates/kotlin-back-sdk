@@ -1,9 +1,12 @@
 package dev.tmsoft.lib.socialauth
 
-import io.ktor.client.features.ClientRequestException
+import io.ktor.client.call.body
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.HttpHeaders
+import kotlinx.serialization.Serializable
+import org.slf4j.LoggerFactory
 import java.net.URLEncoder
 import java.util.Base64
 import java.util.SortedMap
@@ -11,19 +14,15 @@ import java.util.TreeMap
 import java.util.UUID
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
-import kotlinx.serialization.Serializable
-import org.slf4j.LoggerFactory
+import kotlin.time.Duration.Companion.microseconds
 
 private const val USER_URL = "https://api.twitter.com/1.1/account/verify_credentials.json"
 
 class TwitterAPI(private val clientKey: String, private val clientSecret: String) {
     private val logger by lazy { LoggerFactory.getLogger(javaClass) }
 
-    @OptIn(ExperimentalTime::class)
     suspend fun getUser(accessToken: String, tokenSecret: String): TwitterUser? {
-        val oauthTimestamp = Duration.microseconds(System.currentTimeMillis()).inWholeSeconds.toString()
+        val oauthTimestamp = System.currentTimeMillis().microseconds.inWholeSeconds.toString()
         val oauthNonce = UUID.randomUUID().toString().lowercase()
 
         val parameters: SortedMap<String, String> = TreeMap()
@@ -47,8 +46,9 @@ class TwitterAPI(private val clientKey: String, private val clientSecret: String
 
         val signingKey = encode(clientSecret) + "&" + encode(tokenSecret)
 
-        val keySpec = SecretKeySpec(signingKey.toByteArray(), "HmacSHA1")
-        val mac = Mac.getInstance("HmacSHA1")
+        val algorithm = "HmacSHA1"
+        val keySpec = SecretKeySpec(signingKey.toByteArray(), algorithm)
+        val mac = Mac.getInstance(algorithm)
         mac.init(keySpec)
 
         val signature = Base64
@@ -61,11 +61,11 @@ class TwitterAPI(private val clientKey: String, private val clientSecret: String
         }.toList().joinToString(", ")
 
         return try {
-            socialClient.get<TwitterUser>("$USER_URL?include_email=true") {
+            socialClient.get("$USER_URL?include_email=true") {
                 headers {
                     append(HttpHeaders.Authorization, "OAuth $authString")
                 }
-            }
+            }.body<TwitterUser>()
         } catch (ignore: ClientRequestException) {
             logger.debug("Twitter auth request error: ${ignore.message} ${ignore.stackTraceToString()}")
             null

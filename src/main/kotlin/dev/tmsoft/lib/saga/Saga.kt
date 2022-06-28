@@ -74,12 +74,8 @@ object SagaSerializer : KSerializer<Saga.Data> {
             var klassName: String? = null
             mainLoop@ while (true) {
                 when (val index = decodeElementIndex(descriptor)) {
-                    CompositeDecoder.DECODE_DONE -> {
-                        break@mainLoop
-                    }
-                    0 -> {
-                        klassName = decodeStringElement(descriptor, index)
-                    }
+                    CompositeDecoder.DECODE_DONE -> break@mainLoop
+                    0 -> klassName = decodeStringElement(descriptor, index)
                     1 -> {
                         klassName = requireNotNull(klassName) { "Cannot read polymorphic value before its type token" }
                         value = decodeSerializableElement(descriptor, index, getDeserializer(klassName))

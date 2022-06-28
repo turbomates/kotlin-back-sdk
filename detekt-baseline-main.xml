@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:TwitterAuth.kt$TwitterTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth1a -&gt; { val api = TwitterAPI(clientKey, clientSecret) val user = api.getUser(principal.token, principal.tokenSecret) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.TWITTER, principal)) } else null } else -&gt; null }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:InferSerializer.kt$when (value) { is Response.Ok -&gt; ResponseOkSerializer is Response.Listing&lt;*&gt; -&gt; ResponseListingSerializer is Response.Either&lt;*, *&gt; -&gt; ResponseEitherSerializer is Response.Data&lt;*&gt; -&gt; ResponseDataSerializer else -&gt; value::class.serializer() }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:AppleAuth.kt$AppleTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val user = api.getUser(principal.accessToken) provider.load(user?.email, SocialToken(SocialAuthType.APPLE, principal)) } else -&gt; null }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:FacebookAuth.kt$FacebookTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val api = FacebookAPI() val user = api.getUser(principal.accessToken) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.FACEBOOK, principal)) } else null } else -&gt; null }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:GoogleAuth.kt$GoogleTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val api = GoogleAPI() val user = api.getUser(principal.accessToken) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.GOOGLE, principal)) } else null } else -&gt; null }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:Response.kt$when (this) { is Response.Error -&gt; HttpStatusCode.UnprocessableEntity is Response.Errors -&gt; HttpStatusCode.UnprocessableEntity is Response.Either&lt;*, *&gt; -&gt; this.data.fold({ it.status() }, { it.status() }) as HttpStatusCode else -&gt; HttpStatusCode.OK }</ID>
+    <ID>StringLiteralDuplication:SocialAuth.kt$"SocialAuth"</ID>
+    <ID>StringLiteralDuplication:SubscriberWorker.kt$SubscriberWorker$"event "</ID>
+    <ID>StringLiteralDuplication:DescriptionBuilder.kt$"error"</ID>
+    <ID>UnnecessaryParentheses:Value.kt$RangeValue$('%' + to!!.lowercase())</ID>
+    <ID>UseIfInsteadOfWhen:AppleAuth.kt$AppleTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val user = api.getUser(principal.accessToken) provider.load(user?.email, SocialToken(SocialAuthType.APPLE, principal)) } else -&gt; null }</ID>
+    <ID>UseIfInsteadOfWhen:GoogleAuth.kt$GoogleTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val api = GoogleAPI() val user = api.getUser(principal.accessToken) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.GOOGLE, principal)) } else null } else -&gt; null }</ID>
+    <ID>UseIfInsteadOfWhen:TwitterAuth.kt$TwitterTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth1a -&gt; { val api = TwitterAPI(clientKey, clientSecret) val user = api.getUser(principal.token, principal.tokenSecret) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.TWITTER, principal)) } else null } else -&gt; null }</ID>
+    <ID>UseIfInsteadOfWhen:FacebookAuth.kt$FacebookTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val api = FacebookAPI() val user = api.getUser(principal.accessToken) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.FACEBOOK, principal)) } else null } else -&gt; null }</ID>
+    <ID>UseDataClass:Message.kt$Message</ID>
+  </ManuallySuppressedIssues>
+  <CurrentIssues>
+  </CurrentIssues>
+</SmellBaseline>

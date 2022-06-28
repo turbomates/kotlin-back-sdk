@@ -93,13 +93,12 @@ abstract class Filter(val table: Table) {
             Field(name, customFunction, possibleValues())
         }
     }
+}
 
-    private fun Column<*>.possibleValues(): List<String> {
-        return when (columnType) {
-            is EnumerationNameColumnType<*> -> (columnType as EnumerationNameColumnType<*>).klass.java.enumConstants.map { it.name }
-            else -> emptyList()
-        }
-    }
+private fun Column<*>.possibleValues(): List<String> {
+    return if (columnType is EnumerationNameColumnType<*>) {
+        (columnType as EnumerationNameColumnType<*>).klass.java.enumConstants.map { it.name }
+    } else emptyList()
 }
 
 fun Query.filter(filter: Filter, values: PathValues): Query {
@@ -116,3 +115,4 @@ fun Query.addJoin(body: ColumnSet.() -> ColumnSet): Query {
         }
     }
 }
+
