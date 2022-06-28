@@ -35,7 +35,7 @@ jobs:
       run: |
         dest=$( mktemp -d )
         curl --request GET \
-          --url https://github.com/detekt/detekt/releases/download/v1.18.1/detekt-cli-1.18.1-all.jar \
+          --url https://github.com/detekt/detekt/releases/download/v1.21.0-RC1/detekt-cli-1.21.0-RC1-all.jar \
           --silent \
           --location \
           --output detekt.jar
@@ -69,7 +69,7 @@ jobs:
         )" > ${{ github.workspace }}/detekt.sarif.json
 
     # Uploads results to GitHub repository using the upload-sarif action
-    - uses: github/codeql-action/upload-sarif@v1
+    - uses: github/codeql-action/upload-sarif@v2
       with:
         # Path to SARIF file relative to the root of the repository
         sarif_file: ${{ github.workspace }}/detekt.sarif.json
