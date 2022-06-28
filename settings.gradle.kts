@@ -26,6 +26,7 @@ dependencyResolutionManagement {
             version("kotlin_serialization_json", "1.3.3")
             version("email", "1.6.2")
             version("greenmail", "1.6.9")
+            version("tmsoft_openapi", "0.4.1")
 
             alias("greenmail").to("com.icegreen", "greenmail-junit5").versionRef("greenmail")
             alias("email").to("com.sun.mail", "javax.mail").versionRef("email")
@@ -61,6 +62,14 @@ dependencyResolutionManagement {
             alias("hikaricp").to("com.zaxxer", "HikariCP").versionRef("hikaricp")
             alias("jedis").to("redis.clients", "jedis").versionRef("jedis")
             alias("s3").to("aws.sdk.kotlin", "s3").versionRef("s3")
+
+            alias("tmsoft_openapi").to("com.turbomates.ktor", "openapi").versionRef("tmsoft_openapi")
+
+            bundle(
+                "turbomates", listOf(
+                    "tmsoft_openapi"
+                )
+            )
 
             bundle(
                 "ktor_client", listOf(
