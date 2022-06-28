@@ -40,7 +40,14 @@ jobs:
           --location \
           --output detekt.jar
         chmod a+x detekt.jar
-
+    - name: Setup Detekt Formatting plugin
+      run: |
+        curl --request GET \
+          --url https://github.com/detekt/detekt/releases/download/v1.21.0-RC1/detekt-formatting-1.21.0-RC1.jar \
+          --silent \
+          --location \
+          --output formatting.jar
+        chmod a+x detekt.jar
     - name: Copy config
       run: |
         curl --request GET \
@@ -53,7 +60,7 @@ jobs:
     - name: Run Detekt
       continue-on-error: true
       run: |
-       java -jar detekt.jar --input ${{ github.workspace }}  --config detekt.yml --report sarif:${{ github.workspace }}/detekt.sarif.json
+       java -jar detekt.jar  --plugins formatting.jar --input ${{ github.workspace }}  --config detekt.yml --report sarif:${{ github.workspace }}/detekt.sarif.json
 
     # Modifies the SARIF output produced by Detekt so that absolute URIs are relative
     # This is so we can easily map results onto their source files
