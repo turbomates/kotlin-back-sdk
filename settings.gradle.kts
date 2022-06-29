@@ -6,7 +6,7 @@ enableFeaturePreview("VERSION_CATALOGS")
 dependencyResolutionManagement {
     versionCatalogs {
         create("deps") {
-            version("ktor", "2.0.2")
+            version("ktor", "2.0.3")
             version("jedis", "4.2.3")
             version("log4j", "2.17.0")
             version("detekt", "1.21.0-RC1")
