@@ -10,6 +10,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.response.ApplicationSendPipeline
 import io.ktor.server.response.respondFile
+import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Route
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -33,6 +34,8 @@ sealed class Response {
     @Serializable(with = ResponseOkSerializer::class)
     object Ok : Response()
 
+    class Redirect(val url: String) : Response()
+
     @Serializable(with = ResponseDataSerializer::class)
     class Data<T : Any>(val data: T) : Response()
 
@@ -50,27 +53,33 @@ sealed class Response {
 
 class RouteResponseInterceptor : Interceptor() {
     override fun intercept(route: Route) {
-        route.sendPipeline.intercept(ApplicationSendPipeline.Before) {
-            if (it is Response.File) {
-                context.response.status(it.status())
-                call.respondFile(it.file)
+        route.sendPipeline.intercept(ApplicationSendPipeline.Before) { subject ->
+            if (subject is Response.File) {
+                context.response.status(subject.status(call.response.status()))
+                call.respondFile(subject.file)
                 finish()
             }
-        }
-        route.sendPipeline.intercept(ApplicationSendPipeline.Transform) {
-            if (it is Response) {
-                context.response.status(it.status())
-                proceedWith(it)
+            if (subject is Response.Redirect) {
+                call.respondRedirect(subject.url)
+                finish()
+            }
+            if (subject is Response) {
+                context.response.status(subject.status(call.response.status()))
+                proceedWith(subject)
             }
         }
     }
 }
 
-fun Response.status(): HttpStatusCode {
+fun Response.status(currentStatus: HttpStatusCode?): HttpStatusCode {
     return when (this) {
-        is Response.Error -> HttpStatusCode.UnprocessableEntity
-        is Response.Errors -> HttpStatusCode.UnprocessableEntity
-        is Response.Either<*, *> -> this.data.fold({ it.status() }, { it.status() }) as HttpStatusCode
+        is Response.Error -> if (currentStatus == HttpStatusCode.OK || currentStatus == null) HttpStatusCode.UnprocessableEntity else currentStatus
+        is Response.Errors -> if (currentStatus == HttpStatusCode.OK || currentStatus == null) HttpStatusCode.UnprocessableEntity else currentStatus
+        is Response.Either<*, *> -> this.data.fold(
+            { it.status(currentStatus) },
+            { it.status(currentStatus) }
+        ) as HttpStatusCode
+        is Response.Data<*> -> currentStatus ?: HttpStatusCode.OK
         else -> HttpStatusCode.OK
     }
 }
