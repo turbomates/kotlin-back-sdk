@@ -16,7 +16,7 @@ dependencyResolutionManagement {
             version("hikaricp", "5.0.1")
             version("exposed", "0.36.2")
             version("test_logger", "3.2.0")
-            version("h2database", "2.1.214")
+            version("h2database", "1.4.200")
             version("google_guice", "5.1.0")
             version("valiktor_core", "0.12.0")
             version("postgresql_jdbc", "42.4.0")
