@@ -17,6 +17,7 @@ version = "0.4.3"
 
 repositories {
     mavenCentral()
+    maven("https://s01.oss.sonatype.org/content/repositories/comturbomates-1027")
 }
 
 dependencies {
@@ -67,13 +68,13 @@ tasks.withType<KotlinCompile> {
     kotlinOptions {
         jvmTarget = "17"
         freeCompilerArgs = listOf(
-            "-Xopt-in=io.ktor.locations.KtorExperimentalLocationsAPI",
-            "-Xopt-in=kotlin.ExperimentalStdlibApi",
-            "-Xopt-in=kotlinx.serialization.InternalSerializationApi",
-            "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi",
-            "-Xopt-in=kotlin.RequiresOptIn",
-            "-Xopt-in=kotlin.time.ExperimentalTime",
-            "-Xlambdas=indy"
+            "-opt-in=io.ktor.locations.KtorExperimentalLocationsAPI",
+            "-opt-in=kotlin.ExperimentalStdlibApi",
+            "-opt-in=kotlinx.serialization.InternalSerializationApi",
+            "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
+            "-opt-in=kotlin.RequiresOptIn",
+            "-opt-in=kotlin.time.ExperimentalTime",
+            "-lambdas=indy"
         )
     }
 }

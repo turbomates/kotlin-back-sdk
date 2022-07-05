@@ -1,71 +1,63 @@
 package dev.tmsoft.lib.ktor.openapi
 
-import com.sksamuel.hoplite.simpleName
-import com.turbomates.openapi.OpenApiKType
 import com.turbomates.openapi.Property
 import com.turbomates.openapi.Type
-import com.turbomates.openapi.openApiKType
 import dev.tmsoft.lib.ktor.Response
 import io.ktor.http.HttpStatusCode
+import kotlin.reflect.KType
+import kotlin.reflect.full.isSubtypeOf
+import kotlin.reflect.jvm.jvmErasure
+import kotlin.reflect.typeOf
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import kotlin.reflect.full.memberProperties
 
-val responseMap: OpenApiKType.() -> Map<Int, Type> = {
-    when (this) {
-        Response.Ok::class.openApiKType(),
-        Response.Listing::class.openApiKType(),
-        Response.Data::class.openApiKType() -> mapOf(
-            HttpStatusCode.OK.value to typeBuilder(this)
-        )
-        Response.Either::class.openApiKType() -> {
-            val data = Response.Either::class.memberProperties.first()
-            val result = mutableMapOf<Int, Type>()
-            data.returnType.arguments.forEach { argument ->
-                when (val projectionType = this.getArgumentProjectionType(argument.type!!)) {
-                    Response.Ok::class.openApiKType() -> result[HttpStatusCode.OK.value] = typeBuilder(this)
-                    Response.Error::class.openApiKType(), Response.Errors::class.openApiKType() -> mapOf(
-                        result[HttpStatusCode.UnprocessableEntity.value] to typeBuilder(this)
-                    )
-                    else -> result[HttpStatusCode.OK.value] = projectionType.objectType(argument.type!!.simpleName)
-                }
+val responseMap: KType.() -> Map<Int, KType> = {
+    when {
+        this.isSubtypeOf(typeOf<Response.Either<Response, Response>>()) -> {
+            val result = mutableMapOf<Int, KType>()
+            jvmErasure.typeParameters.forEachIndexed { index, kTypeParameter ->
+                result += arguments[index].type!!.simpleResponseMap()
             }
             result
         }
-        Response.Error::class.openApiKType(), Response.Errors::class.openApiKType() -> mapOf(
-            HttpStatusCode.UnprocessableEntity.value to typeBuilder(this)
+        else -> this.simpleResponseMap()
+
+    }
+
+}
+private val simpleResponseMap: KType.() -> Map<Int, KType> = {
+    when {
+        this == typeOf<Response.Ok>() -> mapOf(
+            HttpStatusCode.OK.value to this
         )
+        this.isSubtypeOf(typeOf<Response.Listing<*>>()) -> mapOf(
+            HttpStatusCode.OK.value to this
+        )
+        this.isSubtypeOf(typeOf<Response.Data<*>>()) -> mapOf(
+            HttpStatusCode.OK.value to this
+        )
+        this == typeOf<Response.Error>() || this == typeOf<Response.Errors>() -> mapOf(
+            HttpStatusCode.UnprocessableEntity.value to this
+        )
+
+
         else -> mapOf(
-            HttpStatusCode.OK.value to typeBuilder(this)
+            HttpStatusCode.OK.value to this
         )
     }
 }
-val typeBuilder: (OpenApiKType) -> Type.Object = { type ->
-    when (type) {
-        Response.Ok::class.openApiKType() -> Type.Object(
-            "ok",
-            listOf(
-                Property(
-                    "data",
-                    Type.String()
-                )
-            ),
-            example = buildJsonObject { put("data", "ok") },
-            nullable = false
-        )
-
-        Response.Error::class.openApiKType() -> Type.Object(
-            "error",
-            listOf(
-                Property(
-                    "error",
-                    Type.String()
-                )
-            ),
-            example = buildJsonObject { put("error", "Wrong response") },
-            nullable = false
-        )
-
-        else -> type.objectType()
-    }
-}
+val responseDescriptions = mapOf(
+    typeOf<Response.Ok>() to Type.Object(
+        "error", listOf(
+            Property(
+                "error", Type.String()
+            )
+        ), example = buildJsonObject { put("error", "Wrong response") }, nullable = false
+    ), typeOf<Response.Error>() to Type.Object(
+        "error", listOf(
+            Property(
+                "error", Type.String()
+            )
+        ), example = buildJsonObject { put("error", "Wrong response") }, nullable = false
+    )
+)
