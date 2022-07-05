@@ -12,7 +12,7 @@ fun Route.filterDescription(filter: Filter): Route {
         addToPath(
             buildFullPath(),
             com.turbomates.openapi.OpenAPI.Method.GET,
-            pathParams = filter.openApiType()
+            queryParams = filter.openApiType()
         )
     }
     return this
