@@ -13,11 +13,11 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.4.4"
+version = "0.4.5"
 
 repositories {
     mavenCentral()
-    maven("https://s01.oss.sonatype.org/content/repositories/comturbomates-1027")
+    maven("https://s01.oss.sonatype.org/content/repositories/comturbomates-1033")
 }
 
 dependencies {
