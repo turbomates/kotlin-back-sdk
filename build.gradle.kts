@@ -17,7 +17,7 @@ version = "0.4.5"
 
 repositories {
     mavenCentral()
-    maven("https://s01.oss.sonatype.org/content/repositories/comturbomates-1033")
+    maven("https://s01.oss.sonatype.org/content/repositories/comturbomates-1035")
 }
 
 dependencies {
