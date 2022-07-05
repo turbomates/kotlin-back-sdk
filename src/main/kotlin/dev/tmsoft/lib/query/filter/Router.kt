@@ -8,7 +8,7 @@ import io.ktor.http.Parameters
 import io.ktor.server.routing.Route
 
 fun Route.filterDescription(filter: Filter): Route {
-    openApi.extendDocumentation { _, _ ->
+    openApi.extendDocumentation { _ ->
         addToPath(
             buildFullPath(),
             com.turbomates.openapi.OpenAPI.Method.GET,

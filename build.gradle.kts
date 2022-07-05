@@ -73,8 +73,7 @@ tasks.withType<KotlinCompile> {
             "-opt-in=kotlinx.serialization.InternalSerializationApi",
             "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
             "-opt-in=kotlin.RequiresOptIn",
-            "-opt-in=kotlin.time.ExperimentalTime",
-            "-lambdas=indy"
+            "-opt-in=kotlin.time.ExperimentalTime"
         )
     }
 }
