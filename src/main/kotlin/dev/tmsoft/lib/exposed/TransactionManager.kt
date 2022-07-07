@@ -22,11 +22,7 @@ class TransactionManager(private val database: Database) {
     }
 }
 
-suspend fun <T> Transaction.withDataBaseLock(id: Int, body: suspend () -> T) {
-    try {
-        exec("SELECT pg_advisory_lock($id)")
-        body()
-    } finally {
-        exec("SELECT pg_advisory_unlock($id)")
-    }
+suspend fun <T> Transaction.withDataBaseLock(id: Int, body: suspend () -> T): T {
+    exec("SELECT pg_advisory_xact_lock($id)")
+    return body()
 }
