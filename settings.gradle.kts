@@ -26,7 +26,7 @@ dependencyResolutionManagement {
             version("kotlin_serialization_json", "1.3.3")
             version("email", "1.6.2")
             version("greenmail", "1.6.9")
-            version("tmsoft_openapi", "0.5.1")
+            version("tmsoft_openapi", "0.5.2")
 
             alias("greenmail").to("com.icegreen", "greenmail-junit5").versionRef("greenmail")
             alias("email").to("com.sun.mail", "javax.mail").versionRef("email")
