@@ -22,6 +22,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonEncoder
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlin.collections.set
@@ -33,6 +34,9 @@ sealed class Response {
 
     @Serializable(with = ResponseOkSerializer::class)
     object Ok : Response()
+
+    @Serializable(with = ResponseEmptySerializer::class)
+    object Empty : Response()
 
     class Redirect(val url: String) : Response()
 
@@ -73,6 +77,7 @@ class RouteResponseInterceptor : Interceptor() {
 
 fun Response.status(currentStatus: HttpStatusCode?): HttpStatusCode {
     return when (this) {
+        is Response.Empty -> HttpStatusCode.NoContent
         is Response.Error -> if (currentStatus == HttpStatusCode.OK || currentStatus == null) HttpStatusCode.UnprocessableEntity else currentStatus
         is Response.Errors -> if (currentStatus == HttpStatusCode.OK || currentStatus == null) HttpStatusCode.UnprocessableEntity else currentStatus
         is Response.Either<*, *> -> this.data.fold(
@@ -178,6 +183,19 @@ object ResponseListingSerializer : KSerializer<Response.Listing<Any>> {
     }
 
     override fun deserialize(decoder: Decoder): Response.Listing<Any> {
+        throw NotImplementedError()
+    }
+}
+
+object ResponseEmptySerializer : KSerializer<Response.Empty> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ResponseEmptySerializerDescriptor")
+
+    override fun serialize(encoder: Encoder, value: Response.Empty) {
+        val output = encoder as? JsonEncoder ?: throw SerializationException(JSON_EXCEPTION_MESSAGE)
+        output.encodeJsonElement(JsonNull)
+    }
+
+    override fun deserialize(decoder: Decoder): Response.Empty {
         throw NotImplementedError()
     }
 }
