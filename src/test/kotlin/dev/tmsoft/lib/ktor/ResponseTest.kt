@@ -5,6 +5,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.encodeToJsonElement
@@ -91,5 +92,11 @@ class ResponseTest {
                 )
             )
         )
+    }
+
+    @Test
+    fun `test empty response serialize`() {
+        val json = Json { }
+        assertEquals(JsonNull, json.encodeToJsonElement(Response.Empty))
     }
 }
