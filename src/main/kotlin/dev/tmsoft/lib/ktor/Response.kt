@@ -101,7 +101,7 @@ object ResponseEitherSerializer : KSerializer<Response.Either<out Response, out 
                 response
             )
         }
-        val tree: JsonElement = value.data.fold(anon, anon) as JsonObject
+        val tree: JsonElement = value.data.fold(anon, anon) as JsonElement
 
         output.encodeJsonElement(tree)
     }

@@ -31,6 +31,8 @@ class ResponseTest {
                 )
             )
         )
+
+        assertEquals(JsonNull, json.encodeToJsonElement(Response.Either<Response.Ok, Response.Empty>(Either.Right(Response.Empty))))
     }
 
     @Test
