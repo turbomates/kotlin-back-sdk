@@ -4,6 +4,7 @@ import com.adarshr.gradle.testlogger.theme.ThemeType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    `java-library`
     kotlin("jvm").version(deps.versions.kotlin.asProvider().get()) apply true
     alias(deps.plugins.detekt)
     alias(deps.plugins.test.logger)
@@ -152,4 +153,13 @@ publishing {
             from(components["java"])
         }
     }
+}
+
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    jvmTarget = "17"
+}
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.kotlinOptions {
+    jvmTarget = "17"
 }
