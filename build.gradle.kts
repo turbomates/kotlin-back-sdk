@@ -12,7 +12,7 @@ plugins {
     signing
 }
 
-group = "dev.tmsoft.lib"
+group = "com.github.turbomates"
 version = "0.5.0"
 
 repositories {
