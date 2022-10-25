@@ -80,8 +80,10 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+
 configure<JavaPluginExtension> {
     sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 //  ----------------  TEST ----------------  //
@@ -153,13 +155,4 @@ publishing {
             from(components["java"])
         }
     }
-}
-
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    jvmTarget = "17"
-}
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-    jvmTarget = "17"
 }
