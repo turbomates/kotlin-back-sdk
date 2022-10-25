@@ -85,7 +85,7 @@ fun Response.status(currentStatus: HttpStatusCode?): HttpStatusCode {
             { it.status(currentStatus) }
         ) as HttpStatusCode
         is Response.Data<*> -> currentStatus ?: HttpStatusCode.OK
-        else -> HttpStatusCode.OK
+        is Response.Ok, is Response.Redirect, is Response.File, is Response.Listing<*> -> HttpStatusCode.OK
     }
 }
 

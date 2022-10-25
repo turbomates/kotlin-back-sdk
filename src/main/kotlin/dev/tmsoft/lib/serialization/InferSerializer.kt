@@ -1,7 +1,8 @@
 package dev.tmsoft.lib.serialization
 
-import dev.tmsoft.lib.date.LocalDateSerializer
-import dev.tmsoft.lib.date.LocalDateTimeSerializer
+import com.turbomates.time.LocalDateSerializer
+import com.turbomates.time.LocalDateTimeSerializer
+import com.turbomates.time.OffsetDateTimeSerializer
 import dev.tmsoft.lib.ktor.Response
 import dev.tmsoft.lib.ktor.ResponseDataSerializer
 import dev.tmsoft.lib.ktor.ResponseEitherSerializer
@@ -25,6 +26,7 @@ import kotlinx.serialization.builtins.SetSerializer
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.serializer
+import java.time.OffsetDateTime
 
 @InternalSerializationApi
 fun Collection<*>.elementSerializer(): KSerializer<*> {
@@ -64,6 +66,7 @@ fun resolveSerializer(value: Any): KSerializer<*> {
         is Map.Entry<*, *> -> mapEntrySerializer(value)
         is Array<*> -> arraySerializer(value)
         is LocalDate -> LocalDateSerializer
+        is OffsetDateTime -> OffsetDateTimeSerializer
         is LocalDateTime -> LocalDateTimeSerializer
         is Locale -> LocaleSerializer
         is UUID -> UUIDSerializer

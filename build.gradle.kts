@@ -13,10 +13,11 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.4.11"
+version = "0.5.0"
 
 repositories {
     mavenCentral()
+    maven("https://jitpack.io")
 }
 
 dependencies {
@@ -72,7 +73,8 @@ tasks.withType<KotlinCompile> {
             "-opt-in=kotlinx.serialization.InternalSerializationApi",
             "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
             "-opt-in=kotlin.RequiresOptIn",
-            "-opt-in=kotlin.time.ExperimentalTime"
+            "-opt-in=kotlin.time.ExperimentalTime",
+            "-Xskip-prerelease-check"
         )
     }
 }

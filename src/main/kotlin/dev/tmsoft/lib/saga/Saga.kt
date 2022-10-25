@@ -1,7 +1,8 @@
 package dev.tmsoft.lib.saga
 
+import com.turbomates.time.exposed.UTCNow
+import com.turbomates.time.exposed.datetime
 import dev.tmsoft.lib.exposed.type.jsonb
-import java.time.LocalDateTime
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
@@ -18,7 +19,6 @@ import kotlinx.serialization.serializer
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.javatime.datetime
 
 data class Saga<T : Saga.Data>(val id: SagaId, val data: T) {
     val timeout: Int = 0
@@ -43,8 +43,8 @@ object SagaTable : IdTable<String>("sagas") {
     val name = varchar("name", 255)
     val timeout = integer("timeout").nullable()
     val metadata = jsonb("metadata", SagaSerializer)
-    val createdAt = datetime("created_at").default(LocalDateTime.now())
-    val updatedAt = datetime("updated_at").default(LocalDateTime.now())
+    val createdAt = datetime("created_at").defaultExpression(UTCNow())
+    val updatedAt = datetime("updated_at").defaultExpression(UTCNow())
     val status = enumerationByName("status", 25, Saga.Status::class).default(Saga.Status.ACTIVE)
     override val id: Column<EntityID<String>> = varchar("id", 255).entityId()
     override val primaryKey by lazy { super.primaryKey ?: PrimaryKey(id) }

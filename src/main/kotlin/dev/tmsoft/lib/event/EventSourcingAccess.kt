@@ -1,12 +1,12 @@
 package dev.tmsoft.lib.event
 
+import com.turbomates.time.exposed.UTCNow
+import com.turbomates.time.exposed.datetime
 import dev.tmsoft.lib.exposed.TransactionManager
 import dev.tmsoft.lib.exposed.type.jsonb
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.select
-import java.time.LocalDateTime
 
 class EventSourcingAccess(private val transaction: TransactionManager) {
     suspend fun get(aggregateRoot: Any): List<Event> {
@@ -22,5 +22,5 @@ class EventSourcingAccess(private val transaction: TransactionManager) {
 object EventSourcingTable : UUIDTable("event_sourcing") {
     val aggregateRoot = varchar("aggregate_root_id", 255)
     internal val event = jsonb("data", EventWrapper.serializer())
-    val createdAt = datetime("created_at").clientDefault { LocalDateTime.now() }
+    val createdAt = datetime("created_at").defaultExpression(UTCNow())
 }

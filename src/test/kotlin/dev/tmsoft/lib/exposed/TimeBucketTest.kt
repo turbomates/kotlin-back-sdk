@@ -1,16 +1,18 @@
 package dev.tmsoft.lib.exposed
 
+import com.turbomates.time.exposed.UTCNow
+import com.turbomates.time.exposed.datetime
 import dev.tmsoft.lib.exposed.timescale.sql.function.timeBucket
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.sum
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import kotlin.test.assertEquals
 
 class TimeBucketTest {
@@ -26,7 +28,7 @@ class TimeBucketTest {
                 Accounts.insert {
                     it[name] = "test $index"
                     it[balance] = index
-                    it[createdAt] = LocalDateTime.of(2021, 1, index, 12, 0)
+                    it[createdAt] = OffsetDateTime.of(2021, 1, index, 12, 0, 0, 0, ZoneOffset.UTC)
                 }
             }
             val createdAtTimeBucket = Accounts.createdAt.timeBucket("2 days").alias("data")
@@ -43,6 +45,6 @@ class TimeBucketTest {
     object Accounts : Table("test") {
         val name = varchar("name", 255).nullable()
         val balance = integer("balance")
-        val createdAt = datetime("created_at").default(LocalDateTime.now())
+        val createdAt = datetime("created_at").defaultExpression(UTCNow())
     }
 }
