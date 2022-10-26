@@ -27,7 +27,7 @@ dependencyResolutionManagement {
             version("email", "1.6.2")
             version("greenmail", "1.6.9")
             version("tmsoft_openapi", "0.5.2")
-            version("tmsoft_time", "9d499fc9fe")
+            version("tmsoft_time", "0.1.0")
 
             alias("greenmail").to("com.icegreen", "greenmail-junit5").versionRef("greenmail")
             alias("email").to("com.sun.mail", "javax.mail").versionRef("email")
