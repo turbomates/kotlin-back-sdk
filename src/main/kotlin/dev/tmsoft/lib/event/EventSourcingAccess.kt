@@ -1,6 +1,6 @@
 package dev.tmsoft.lib.event
 
-import com.turbomates.time.exposed.UTCNow
+import com.turbomates.time.exposed.CurrentTimestamp
 import com.turbomates.time.exposed.datetime
 import dev.tmsoft.lib.exposed.TransactionManager
 import dev.tmsoft.lib.exposed.type.jsonb
@@ -22,5 +22,5 @@ class EventSourcingAccess(private val transaction: TransactionManager) {
 object EventSourcingTable : UUIDTable("event_sourcing") {
     val aggregateRoot = varchar("aggregate_root_id", 255)
     internal val event = jsonb("data", EventWrapper.serializer())
-    val createdAt = datetime("created_at").defaultExpression(UTCNow())
+    val createdAt = datetime("created_at").defaultExpression(CurrentTimestamp())
 }

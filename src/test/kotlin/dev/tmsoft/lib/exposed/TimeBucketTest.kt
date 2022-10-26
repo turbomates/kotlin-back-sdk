@@ -1,6 +1,6 @@
 package dev.tmsoft.lib.exposed
 
-import com.turbomates.time.exposed.UTCNow
+import com.turbomates.time.exposed.CurrentTimestamp
 import com.turbomates.time.exposed.datetime
 import dev.tmsoft.lib.exposed.timescale.sql.function.timeBucket
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -45,6 +45,6 @@ class TimeBucketTest {
     object Accounts : Table("test") {
         val name = varchar("name", 255).nullable()
         val balance = integer("balance")
-        val createdAt = datetime("created_at").defaultExpression(UTCNow())
+        val createdAt = datetime("created_at").defaultExpression(CurrentTimestamp())
     }
 }

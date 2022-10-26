@@ -1,6 +1,6 @@
 package dev.tmsoft.lib.event
 
-import com.turbomates.time.exposed.UTCNow
+import com.turbomates.time.exposed.CurrentTimestamp
 import com.turbomates.time.exposed.datetime
 import com.turbomates.time.nowUTC
 import dev.tmsoft.lib.exposed.TransactionManager
@@ -35,5 +35,5 @@ class EventsDatabaseAccess(private val transaction: TransactionManager) {
 internal object Events : UUIDTable("domain_events") {
     val event = jsonb("event", EventWrapper.serializer())
     val publishedAt = datetime("published_at").nullable()
-    val createdAt = datetime("created_at").defaultExpression(UTCNow())
+    val createdAt = datetime("created_at").defaultExpression(CurrentTimestamp())
 }

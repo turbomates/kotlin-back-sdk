@@ -1,6 +1,6 @@
 package dev.tmsoft.lib.saga
 
-import com.turbomates.time.exposed.UTCNow
+import com.turbomates.time.exposed.CurrentTimestamp
 import com.turbomates.time.exposed.datetime
 import dev.tmsoft.lib.exposed.type.jsonb
 import kotlinx.serialization.DeserializationStrategy
@@ -43,8 +43,8 @@ object SagaTable : IdTable<String>("sagas") {
     val name = varchar("name", 255)
     val timeout = integer("timeout").nullable()
     val metadata = jsonb("metadata", SagaSerializer)
-    val createdAt = datetime("created_at").defaultExpression(UTCNow())
-    val updatedAt = datetime("updated_at").defaultExpression(UTCNow())
+    val createdAt = datetime("created_at").defaultExpression(CurrentTimestamp())
+    val updatedAt = datetime("updated_at").defaultExpression(CurrentTimestamp())
     val status = enumerationByName("status", 25, Saga.Status::class).default(Saga.Status.ACTIVE)
     override val id: Column<EntityID<String>> = varchar("id", 255).entityId()
     override val primaryKey by lazy { super.primaryKey ?: PrimaryKey(id) }
