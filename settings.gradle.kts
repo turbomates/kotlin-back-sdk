@@ -27,6 +27,7 @@ dependencyResolutionManagement {
             version("email", "1.6.2")
             version("greenmail", "1.6.9")
             version("tmsoft_openapi", "0.5.2")
+            version("tmsoft_time", "0.1.0")
 
             alias("greenmail").to("com.icegreen", "greenmail-junit5").versionRef("greenmail")
             alias("email").to("com.sun.mail", "javax.mail").versionRef("email")
@@ -64,38 +65,40 @@ dependencyResolutionManagement {
             alias("s3").to("aws.sdk.kotlin", "s3").versionRef("s3")
 
             alias("tmsoft_openapi").to("com.turbomates.ktor", "openapi").versionRef("tmsoft_openapi")
+            alias("tmsoft_time").to("com.github.turbomates", "kotlin-time").versionRef("tmsoft_time")
 
             bundle(
                 "turbomates", listOf(
-                    "tmsoft_openapi"
-                )
+                "tmsoft_openapi",
+                "tmsoft_time"
+            )
             )
 
             bundle(
                 "ktor_client", listOf(
-                    "ktor_client_cio",
-                    "ktor_client_serialization"
-                )
+                "ktor_client_cio",
+                "ktor_client_serialization"
+            )
             )
 
             bundle(
                 "ktor_server", listOf(
-                    "ktor_server_auth",
-                    "ktor_server_webjars",
-                    "ktor_server_auth_jwt",
-                    "ktor_server_locations",
-                    "ktor_server_core",
-                    "ktor_server_sessions"
-                )
+                "ktor_server_auth",
+                "ktor_server_webjars",
+                "ktor_server_auth_jwt",
+                "ktor_server_locations",
+                "ktor_server_core",
+                "ktor_server_sessions"
+            )
             )
 
             bundle(
                 "exposed", listOf(
-                    "exposed_dao",
-                    "exposed_time",
-                    "exposed_core",
-                    "exposed_jdbc"
-                )
+                "exposed_dao",
+                "exposed_time",
+                "exposed_core",
+                "exposed_jdbc"
+            )
             )
 
             alias("kotlin_serialization").toPluginId("org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin")

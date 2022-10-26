@@ -4,11 +4,10 @@ import com.auth0.jwk.UrlJwkProvider
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
-import java.security.interfaces.RSAPublicKey
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import com.turbomates.time.nowUTC
 import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
+import java.security.interfaces.RSAPublicKey
 
 private const val VALIDATION_TOKEN = "https://appleid.apple.com/auth/keys"
 
@@ -24,7 +23,7 @@ class AppleAPI : SocialAPI<AppleUser> {
                 .verify(accessToken)
 
             if (token.claims.getValue("iss").asString() != "https://appleid.apple.com" ||
-                token.claims.getValue("exp").asLong() < LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+                token.claims.getValue("exp").asLong() < nowUTC.toEpochSecond()
             ) throw JWTVerificationException("Iss didn't come from Apple or time is expired")
 
             AppleUser(

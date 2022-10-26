@@ -1,12 +1,13 @@
 package dev.tmsoft.lib.event
 
+import com.turbomates.time.exposed.CurrentTimestamp
+import com.turbomates.time.exposed.datetime
+import com.turbomates.time.nowUTC
 import dev.tmsoft.lib.exposed.TransactionManager
 import dev.tmsoft.lib.exposed.type.jsonb
-import java.time.LocalDateTime
 import java.util.UUID
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.javatime.second
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.update
@@ -15,7 +16,7 @@ class EventsDatabaseAccess(private val transaction: TransactionManager) {
     suspend fun load(delay: Long): List<Pair<UUID, Event>> {
         return transaction {
             Events.select {
-                Events.publishedAt.isNull() and (Events.createdAt.minus(LocalDateTime.now()).second() less -delay)
+                Events.publishedAt.isNull() and (Events.createdAt.minus(nowUTC).second() less -delay.toInt())
             }.map {
                 it[Events.id].value to it[Events.event].event
             }
@@ -25,7 +26,7 @@ class EventsDatabaseAccess(private val transaction: TransactionManager) {
     suspend fun publish(id: UUID) {
         transaction {
             Events.update({ Events.id eq id }) {
-                it[publishedAt] = LocalDateTime.now()
+                it[publishedAt] = nowUTC
             }
         }
     }
@@ -34,5 +35,5 @@ class EventsDatabaseAccess(private val transaction: TransactionManager) {
 internal object Events : UUIDTable("domain_events") {
     val event = jsonb("event", EventWrapper.serializer())
     val publishedAt = datetime("published_at").nullable()
-    val createdAt = datetime("created_at").clientDefault { LocalDateTime.now() }
+    val createdAt = datetime("created_at").defaultExpression(CurrentTimestamp())
 }

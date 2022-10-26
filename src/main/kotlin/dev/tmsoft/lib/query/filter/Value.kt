@@ -1,7 +1,8 @@
 package dev.tmsoft.lib.query.filter
 
-import dev.tmsoft.lib.date.dateFormat
-import dev.tmsoft.lib.date.dateTimeFormat
+import com.turbomates.time.dateFormat
+import com.turbomates.time.dateTimeFormat
+import com.turbomates.time.exposed.UTCDateTimeColumn
 import org.jetbrains.exposed.sql.AndOp
 import org.jetbrains.exposed.sql.BooleanColumnType
 import org.jetbrains.exposed.sql.DoubleColumnType
@@ -22,6 +23,7 @@ import org.jetbrains.exposed.sql.javatime.JavaLocalDateTimeColumnType
 import org.jetbrains.exposed.sql.lowerCase
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 abstract class Value {
     abstract fun op(column: ExpressionWithColumnType<*>): Op<Boolean>
@@ -33,6 +35,7 @@ abstract class Value {
             is BooleanColumnType -> value.toBoolean()
             is JavaLocalDateColumnType -> LocalDate.parse(value, dateFormat)
             is JavaLocalDateTimeColumnType -> LocalDateTime.parse(value, dateTimeFormat)
+            is UTCDateTimeColumn -> OffsetDateTime.parse(value, dateTimeFormat)
             else -> value
         }
         return QueryParameter(typedValue, columnType)
