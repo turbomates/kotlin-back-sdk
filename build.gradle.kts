@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.tmsoft.lib"
-version = "0.3.51"
+version = "0.3.52"
 
 repositories {
     mavenCentral()
@@ -36,6 +36,7 @@ dependencies {
     api(deps.log4j.api)
     api(deps.log4j.slf4j)
     api(deps.email)
+    api(deps.sentry)
     runtimeOnly(deps.log4j.core)
 
     testImplementation(deps.kotlin.test)

@@ -1,5 +1,6 @@
 package dev.tmsoft.lib.event
 
+import io.sentry.Sentry
 import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +40,7 @@ class SubscriberWorker(private val dao: EventsDatabaseAccess, private val publis
                     dao.publish(id)
                 }
             } catch (logging: Throwable) {
+                Sentry.captureException(logging)
                 logger.error("Exception from the real time event publishing: $logging")
             }
         }

@@ -24,6 +24,7 @@ dependencyResolutionManagement {
             version("kotlin_serialization_json", "1.3.1")
             version("email", "1.6.2")
             version("greenmail", "1.6.5")
+            version("sentry", "6.8.0")
 
             alias("greenmail").to("com.icegreen", "greenmail-junit5").versionRef("greenmail")
             alias("email").to("com.sun.mail", "javax.mail").versionRef("email")
@@ -59,6 +60,7 @@ dependencyResolutionManagement {
             alias("hikaricp").to("com.zaxxer", "HikariCP").versionRef("hikaricp")
             alias("jedis").to("redis.clients", "jedis").versionRef("jedis")
             alias("s3").to("aws.sdk.kotlin", "s3").versionRef("s3")
+            alias("sentry").to("io.sentry", "sentry").versionRef("sentry")
 
             bundle("ktor_client", listOf(
                 "ktor_client_cio",

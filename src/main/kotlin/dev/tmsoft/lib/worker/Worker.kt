@@ -1,5 +1,6 @@
 package dev.tmsoft.lib.worker
 
+import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,7 @@ abstract class Worker(
             try {
                 process()
             } catch (logging: Throwable) {
+                Sentry.captureException(logging)
                 logger.error("Worker exception: $logging", logging)
             }
 

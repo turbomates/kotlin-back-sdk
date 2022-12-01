@@ -7,6 +7,7 @@ import com.rabbitmq.client.Connection
 import com.rabbitmq.client.DeliverCallback
 import com.rabbitmq.client.Delivery
 import dev.tmsoft.lib.extension.camelToSnakeCase
+import io.sentry.Sentry
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
@@ -85,6 +86,7 @@ class RabbitEvents(
                 callback?.invoke(event)
                 channel.basicAck(message.envelope.deliveryTag, false)
             } catch (logging: Throwable) {
+                Sentry.captureException(logging)
                 channel.basicNack(message.envelope.deliveryTag, false, true)
                 logger.error("Broken event: ${String(message.body)}. Message: ${logging.message}. Stacktrace: ${ logging.printStackTrace()}")
             }
