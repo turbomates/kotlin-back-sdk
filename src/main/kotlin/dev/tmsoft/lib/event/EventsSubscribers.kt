@@ -1,5 +1,6 @@
 package dev.tmsoft.lib.event
 
+import io.sentry.Sentry
 import kotlin.reflect.full.companionObjectInstance
 import org.slf4j.LoggerFactory
 
@@ -34,6 +35,7 @@ class EventsSubscribers : EventSubscribers {
             try {
                 it(event)
             } catch (logging: Throwable) {
+                Sentry.captureException(logging)
                 logger.error(logging.message)
             }
         }

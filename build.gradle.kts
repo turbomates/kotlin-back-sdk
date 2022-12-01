@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "com.github.turbomates"
-version = "0.5.0"
+version = "0.5.1"
 
 repositories {
     mavenCentral()
@@ -41,6 +41,7 @@ dependencies {
     api(deps.log4j.api)
     api(deps.log4j.slf4j)
     api(deps.email)
+    api(deps.sentry)
     runtimeOnly(deps.log4j.core)
 
     testImplementation(deps.kotlin.test)
