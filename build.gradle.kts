@@ -117,18 +117,22 @@ java {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            artifactId = "common-lib"
-            groupId = "dev.tmsoft.kotlin"
+            artifactId = "kotlin-back-sdk"
+            groupId = "com.turbomates"
             from(components["java"])
             pom {
+                packaging = "jar"
                 name.set("Kotlin backend common library")
+                url.set("https://github.com/turbomates/kotlin-back-sdk")
                 description.set("This library contains different resolutions with ktor, exposed, serialization")
+
                 licenses {
                     license {
                         name.set("The Apache License, Version 2.0")
                         url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
                     }
                 }
+
                 developers {
                     developer {
                         id.set("shustrik")
@@ -136,20 +140,21 @@ publishing {
                         email.set("vadim@turbomates.com")
                     }
                 }
+
                 scm {
                     connection.set("scm:https://github.com/turbomates/kotlin-back-sdk.git")
                     developerConnection.set("scm:git@github.com:turbomates/kotlin-back-sdk.git")
+                    url.set("https://github.com/turbomates/kotlin-back-sdk")
                 }
             }
         }
     }
     repositories {
         maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/turbomates/kotlin-back-sdk")
+            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+                username = System.getenv("ORG_GRADLE_PROJECT_SONATYPE_USERNAME")
+                password = System.getenv("ORG_GRADLE_PROJECT_SONATYPE_PASSWORD")
             }
         }
     }
