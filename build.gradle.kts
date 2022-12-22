@@ -117,8 +117,8 @@ java {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            artifactId = "kotlin-back-sdk"
-            groupId = "com.turbomates"
+            artifactId = "common-lib"
+            groupId = "dev.tmsoft.kotlin"
             from(components["java"])
             pom {
                 packaging = "jar"
