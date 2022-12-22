@@ -3,7 +3,32 @@ name: publish-manual
 on: workflow_dispatch
 
 jobs:
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: timescale/timescaledb:latest-pg14
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '17'
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+      - name: Run tests
+        run: ./gradlew test -Dconfig.override.jdbc.url=jdbc:postgresql://localhost:5432/postgres -Dconfig.override.jdbc.user=test -Dconfig.override.jdbc.password=test
   publish:
+    needs: tests
     runs-on: ubuntu-latest
     permissions:
       contents: read
