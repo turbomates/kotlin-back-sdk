@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.Column as ExposedColumn
 import org.jetbrains.exposed.sql.CompositeColumn as ExposedCompositeColumn
 
-abstract class EmbeddableColumn<T : Embedded>(private val table: Table, private val prefix: String = "") :
+abstract class EmbeddableColumn<T : Embedded?>(private val table: Table, private val prefix: String = "") :
     ExposedCompositeColumn<T>() {
     private val columns: MutableMap<ExposedColumn<*>, PrimitiveColumn<*>> = mutableMapOf()
     private val embeddableColumns: MutableMap<EmbeddableColumn<Embedded>, CompositeColumn<*>> = mutableMapOf()
@@ -21,15 +21,19 @@ abstract class EmbeddableColumn<T : Embedded>(private val table: Table, private 
     @Suppress("UNCHECKED_CAST")
     override fun getRealColumnsWithValues(compositeValue: T): Map<ExposedColumn<*>, Any?> {
         val result = mutableMapOf<ExposedColumn<*>, Any?>()
-        columns.forEach {
-            result[it.key] = compositeValue.map[it.value]
-        }
-        embeddableColumns.forEach {
-            if (compositeValue.map.containsKey(it.value)) {
-                result += it.key.getRealColumnsWithValues(compositeValue.map[it.value] as Embedded)
+        return compositeValue?.let {
+            columns.forEach {
+                result[it.key] = compositeValue.map[it.value]
             }
-        }
-        return result
+
+            embeddableColumns.forEach {
+                if (compositeValue.map.containsKey(it.value)) {
+                    result += it.key.getRealColumnsWithValues(compositeValue.map[it.value] as Embedded)
+                }
+            }
+
+            result
+        } ?: result
     }
 
     override fun restoreValueFromParts(parts: Map<ExposedColumn<*>, Any?>): T {
@@ -41,7 +45,7 @@ abstract class EmbeddableColumn<T : Embedded>(private val table: Table, private 
             result[it.value] = it.key.restoreValueFromParts(parts)
         }
         val instance = instance(result)
-        instance.map = result
+        instance?.map = result
         return instance
     }
 
