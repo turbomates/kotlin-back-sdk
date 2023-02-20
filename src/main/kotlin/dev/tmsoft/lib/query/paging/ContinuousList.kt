@@ -2,6 +2,7 @@
 
 package dev.tmsoft.lib.query.paging
 
+import dev.tmsoft.lib.exposed.sql.RowNumberFunction
 import dev.tmsoft.lib.serialization.elementSerializer
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.KSerializer
@@ -17,7 +18,9 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.ops.SingleValueInListOp
+import org.jetbrains.exposed.sql.selectAll
 
 suspend fun <T> Query.toContinuousList(
     page: PagingParameters,
@@ -48,7 +51,16 @@ suspend fun <T> Query.toContinuousListBuilder(
     val countQuery = copy()
 
     val count = if (includeCount) {
-        countQuery.count()
+        val rootTable = targets.first()
+        val countColumn = targets.first().primaryKey?.columns?.first()?.count()
+        if (countColumn != null) {
+            val countColumn = rootTable.primaryKey!!.columns.first().count()
+            rootTable.slice(countColumn).selectAll().first().let {
+                it[countColumn]
+            }
+        } else {
+            countQuery.count()
+        }
     } else {
         null
     }
@@ -88,12 +100,11 @@ private fun Query.sortedWith(sortingParameters: List<SortingParameter>? = null):
         }
     }
 }
-
+//SELECT %s AS dctrn_count FROM (SELECT DISTINCT %s FROM (%s) dctrn_result) dctrn_table
 private fun <T> Query.modifyWhereIn(column: Column<T>, limit: Int, offset: Long): Query {
     val query = copy()
-    query.limit(limit, offset)
     val ids =
-        query.adjustSlice { slice(listOf(column) + orderByExpressions.map { it.first }) }
+        query.adjustSlice { slice(listOf(column) + RowNumberFunction(orderByExpressions)) }
             .withDistinct()
             .map { it[column] }
     return adjustWhere { SingleValueInListOp(column, ids) }
