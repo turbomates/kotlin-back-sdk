@@ -28,7 +28,7 @@ object Accounts : IntIdTable() {
     val bonusBalance = money("bonus_").nullable()
 }
 
-open class MoneyColumn<T : Money?>(table: Table, prefix: String = "") : EmbeddableColumn<T>(table, prefix) {
+class MoneyColumn<T : Money?>(table: Table, prefix: String = "") : EmbeddableColumn<T>(table, prefix) {
     val amount = column(MoneyColumn.amount)
     val currency = column(MoneyColumn.currency)
     private var isNullable: Boolean = false
