@@ -45,11 +45,11 @@ class MoneyColumn<T : Money?>(table: Table, prefix: String = "") : EmbeddableCol
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun nullable(): MoneyColumn<Money?> = apply {
+    fun nullable() = apply {
         amount.nullable()
         currency.nullable()
         isNullable = true
-    } as MoneyColumn<Money?>
+    } as MoneyColumn<T?>
 
     companion object : EmbeddedTable() {
         val amount = column { prefix -> integer(prefix + "amount") }
