@@ -4,7 +4,6 @@ import dev.tmsoft.lib.Config.h2DatabaseUrl
 import dev.tmsoft.lib.Config.h2Driver
 import dev.tmsoft.lib.Config.h2Password
 import dev.tmsoft.lib.Config.h2User
-import dev.tmsoft.lib.exposed.Currency
 import dev.tmsoft.lib.exposed.Money
 import dev.tmsoft.lib.exposed.money
 import java.time.LocalDate
@@ -27,7 +26,7 @@ class FilterTest {
         val database = Database.connect(h2DatabaseUrl, driver = h2Driver, user = h2User, password = h2Password)
         transaction(database) {
             SchemaUtils.create(UserTable)
-            val money = Money(10, Currency("EUR"))
+            val money = Money(10, "EUR")
             UserTable.insert {
                 it[name] = "test"
                 it[number] = 1
@@ -60,7 +59,7 @@ class FilterTest {
         val database = Database.connect(h2DatabaseUrl, driver = h2Driver, user = h2User, password = h2Password)
         transaction(database) {
             SchemaUtils.create(UserTable)
-            val money = Money(10, Currency("EUR"))
+            val money = Money(10, "EUR")
             UserTable.insert {
                 it[name] = "test"
                 it[number] = 1
