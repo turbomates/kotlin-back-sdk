@@ -1,6 +1,7 @@
 package dev.tmsoft.lib.query
 
 import dev.tmsoft.lib.Config
+import dev.tmsoft.lib.exposed.testDatabase
 import dev.tmsoft.lib.query.paging.PagingParameters
 import dev.tmsoft.lib.query.paging.SortingParameter
 import dev.tmsoft.lib.query.paging.sortingParameters
@@ -122,7 +123,7 @@ class ContinuousListTest {
                     .toContinuousList(
                         PagingParameters(30, 1),
                         ResultRow::toUser,
-                        null,
+                        emptyList(),
                         true
                     )
 
@@ -132,15 +133,8 @@ class ContinuousListTest {
     }
 
     @Test
-    fun `uniq count count pagination with join`() {
-        val database = Database.connect(
-            Config.h2DatabaseUrl,
-            Config.h2Driver,
-            Config.h2User,
-            Config.h2Password
-        )
-
-        transaction(database) {
+    fun `postgres uniq count count pagination with join`() {
+        transaction(testDatabase) {
             SchemaUtils.create(UserTable)
             SchemaUtils.create(AddressTable)
             val count = 3
@@ -150,11 +144,11 @@ class ContinuousListTest {
                     it[number] = i
                     it[modifyAt] = LocalDate.now()
                 }
-                for (j in 1..5){
+                for (j in 1..5) {
                     AddressTable.insert {
                         it[address] = "address_$j"
                         it[this.user] = user.value
-                        it[sequence] = i*j
+                        it[sequence] = i * j
                     }
                 }
             }
@@ -176,7 +170,7 @@ class ContinuousListTest {
                     )
 
             }
-            assertEquals(users.count, count.toLong())
+            assertEquals(count.toLong(), users.count)
         }
     }
 }
