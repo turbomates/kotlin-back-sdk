@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration packages="com.iscanner.infrastructure.logger">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout
+                    pattern="%d{ISO8601} [Level:%5level] [Scope:%c{2}]%notEmpty{ [Context:%X{context}]}%notEmpty{ [RequestId:%X{span_id}]}%notEmpty{ [Client:%X{x-client}]}%notEmpty{ [API:%X{api}]}%notEmpty{ [TraceId:%X{trace_id}]}%notEmpty{ [CustomerId:%X{customerId}]}%notEmpty{ [Revision:%X{revision}]}: %msg %notEmpty{stacktrace: %throwable{10}} %n"/>
+        </Console>
+        <Rewrite name="Masked">
+            <MaskSecretsPolicy/>
+            <AppenderRef ref="Console"/>
+        </Rewrite>
+        <Async name="Async">
+            <AppenderRef ref="Masked"/>
+        </Async>
+        <Async name="OtelAgent">
+            <AppenderRef ref="Console"/>
+        </Async>
+    </Appenders>
+    <Loggers>
+        <logger name="io.opentelemetry" additivity="false" level="INFO">
+            <AppenderRef ref="OtelAgent"/>
+        </logger>
+        <Root level="TRACE">
+            <AppenderRef ref="Async"/>
+        </Root>
+        <logger name="okhttp3" level="ERROR"/>
+        <logger name="io.netty.util.internal.PlatformDependent0" level="INFO"/>
+        <logger name="ktor.application" level="DEBUG"/>
+        <logger name="Exposed" level="DEBUG"/>
+        <logger name="com.zaxxer.hikari" level="ERROR"/>
+        <logger name="aws.smithy.kotlin" level="ERROR"/>
+        <logger name="httpTraceMiddleware" level="ERROR"/>
+        <logger name="crt.CrtHttpEngine" level="ERROR"/>
+        <logger name="ResolveAwsEndpoint" level="ERROR"/>
+        <logger name="aws.sdk.kotlin.runtime.http.engine.crt" level="ERROR"/>
+        <logger name="dev.tmsoft.lib.subscription.api.AppleSubscriptionAPI" level="DEBUG"/>
+    </Loggers>
+</configuration>
