@@ -2,6 +2,7 @@
 
 package dev.tmsoft.lib.query.paging
 
+import dev.tmsoft.lib.exposed.sql.RowNumberFunction
 import dev.tmsoft.lib.serialization.elementSerializer
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.KSerializer
@@ -14,15 +15,22 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.Expression
+import org.jetbrains.exposed.sql.ExpressionAlias
+import org.jetbrains.exposed.sql.ExpressionWithColumnType
+import org.jetbrains.exposed.sql.IntegerColumnType
+import org.jetbrains.exposed.sql.Min
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.ops.SingleValueInListOp
+import org.jetbrains.exposed.sql.selectAll
 
 suspend fun <T> Query.toContinuousList(
     page: PagingParameters,
     effector: ResultRow.() -> T,
-    sortingParameters: List<SortingParameter>? = null,
+    sortingParameters: List<SortingParameter> = emptyList(),
     includeCount: Boolean = false
 ): ContinuousList<T> {
     return toContinuousListBuilder(page, sortingParameters, includeCount) { this.map { effector(it) } }
@@ -32,7 +40,7 @@ suspend fun <T> Query.toContinuousList(
 suspend fun <T> Query.toContinuousList(
     page: PagingParameters,
     effector: Iterable<ResultRow>.() -> List<T>,
-    sortingParameters: List<SortingParameter>? = null,
+    sortingParameters: List<SortingParameter> = emptyList(),
     includeCount: Boolean = false
 ): ContinuousList<T> {
     return toContinuousListBuilder(page, sortingParameters, includeCount) { effector() }
@@ -41,35 +49,24 @@ suspend fun <T> Query.toContinuousList(
 @Suppress("SpreadOperator")
 suspend fun <T> Query.toContinuousListBuilder(
     page: PagingParameters,
-    sortingParameters: List<SortingParameter>? = null,
+    sortingParameters: List<SortingParameter> = emptyList(),
     includeCount: Boolean = false,
     effector: Query.() -> List<T>
 ): ContinuousList<T> = coroutineScope {
-<<<<<<< Updated upstream
-    val countQuery = copy()
-
-    val count = if (includeCount) {
-        countQuery.count()
-    } else {
-        null
-    }
-
-    sortedWith(sortingParameters)
-
-=======
     var count: Long? = null
->>>>>>> Stashed changes
     if (targets.count() > 1) {
         val rootTable = targets.first()
         if (rootTable.primaryKey != null) {
-            modifyWhereIn(rootTable.primaryKey!!.columns.first(), page.pageSize + 1, page.offset)
+            val primaryKey = rootTable.primaryKey!!.columns.first()
+            val primaryKeyAlias = primaryKey.alias("uniq_field_id")
+            adjustWhereIn(primaryKey, sortingParameters, page.pageSize + 1, page.offset)
+            if (includeCount) {
+                count = distinctSubQuery(primaryKeyAlias, sortingParameters).count()
+            }
         }
     } else {
-<<<<<<< Updated upstream
-=======
         sortedWith(sortingParameters)
         count = copy().count()
->>>>>>> Stashed changes
         limit(page.pageSize + 1, page.offset)
     }
 
@@ -82,32 +79,25 @@ suspend fun <T> Query.toContinuousListBuilder(
     ContinuousList(result, page.pageSize, page.currentPage, hasMore, count)
 }
 
-private fun Query.sortedWith(sortingParameters: List<SortingParameter>? = null): Query {
+fun <T> Query.adjustWhereIn(
+    primaryKey: ExpressionWithColumnType<T>,
+    sortingParameters: List<SortingParameter>,
+    limit: Int,
+    offset: Long
+) {
+    val primaryKeyAlias = primaryKey.alias("uniq_field_id")
+    val ids = distinctSubQuery(primaryKeyAlias, sortingParameters)
+        .limit(limit, offset)
+        .map { it[primaryKeyAlias.aliasOnlyExpression()] }
+    adjustWhere { SingleValueInListOp(primaryKey, ids) }
+}
+
+private fun Query.sortedWith(sortingParameters: List<SortingParameter>): Query {
     return apply {
-        if (sortingParameters != null) {
-            val columns = targets.map { it.columns }.flatten()
-            sortingParameters
-                .associate { sortingParameter ->
-                    val column = columns.find { sortingParameter.name == it.name }
-                        ?: throw IllegalArgumentException("Unknown sorting parameter: ${sortingParameter.name}")
-                    column to sortingParameter.sortOrder
-                }
-                .toList().toTypedArray()
-                .run { if (isNotEmpty()) orderBy(*this) }
-        }
+        buildSortingParameters(sortingParameters).run { if (isNotEmpty()) orderBy(*this) }
     }
 }
 
-<<<<<<< Updated upstream
-private fun <T> Query.modifyWhereIn(column: Column<T>, limit: Int, offset: Long): Query {
-    val query = copy()
-    query.limit(limit, offset)
-    val ids =
-        query.adjustSlice { slice(listOf(column) + orderByExpressions.map { it.first }) }
-            .withDistinct()
-            .map { it[column] }
-    return adjustWhere { SingleValueInListOp(column, ids) }
-=======
 fun Query.buildSortingParameters(sortingParameters: List<SortingParameter>): Array<Pair<Expression<*>, SortOrder>> {
     val columns = targets.map { it.columns }.flatten()
     return sortingParameters
@@ -139,7 +129,6 @@ private fun <T> Query.distinctSubQuery(
         .selectAll()
         .withDistinct()
         .groupBy(column.aliasOnlyExpression())
->>>>>>> Stashed changes
 }
 
 data class ContinuousList<T>(
