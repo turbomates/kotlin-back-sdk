@@ -22,7 +22,6 @@ class PrivateS3Client constructor(private val config: AWS) : FileManager {
 
     override suspend fun add(uploadFile: File, bucket: String, fileName: String?): Path = withContext(Dispatchers.IO) {
         s3.ensureBucketExists(bucket, config.region)
-        s3.close()
         s3.uploadImageToS3(uploadFile, bucket, ObjectCannedAcl.Private, fileName)
     }
 
