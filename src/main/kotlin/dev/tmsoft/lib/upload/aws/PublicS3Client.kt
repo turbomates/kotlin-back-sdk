@@ -4,7 +4,6 @@ import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import aws.sdk.kotlin.runtime.endpoint.AwsEndpoint
 import aws.sdk.kotlin.runtime.endpoint.AwsEndpointResolver
 import aws.sdk.kotlin.services.s3.S3Client
-import aws.sdk.kotlin.services.s3.model.BucketLocationConstraint
 import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
 import aws.sdk.kotlin.services.s3.model.ObjectCannedAcl
 import aws.smithy.kotlin.runtime.http.Protocol
@@ -21,7 +20,7 @@ import kotlinx.coroutines.withContext
 class PublicS3Client constructor(private val config: AWS) : FileManager {
     private val s3: S3Client = S3Client {
         if (config.hostname != null) { endpointResolver = CustomEndpointResolver(config.hostname, config.protocol.toString()) }
-        region = BucketLocationConstraint.UsEast2.value
+        region = config.region.value
         credentialsProvider = StaticCredentialsProvider {
             accessKeyId = config.privateKey
             secretAccessKey = config.secret
@@ -29,7 +28,7 @@ class PublicS3Client constructor(private val config: AWS) : FileManager {
     }
 
     override suspend fun add(uploadFile: File, bucket: String, fileName: String?): Path = withContext(Dispatchers.IO) {
-        s3.ensureBucketExists(bucket)
+        s3.ensureBucketExists(bucket, config.region)
         s3.uploadImageToS3(uploadFile, bucket, ObjectCannedAcl.PublicRead, fileName)
     }
 

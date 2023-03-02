@@ -2,7 +2,6 @@ package dev.tmsoft.lib.upload.aws
 
 import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import aws.sdk.kotlin.services.s3.S3Client
-import aws.sdk.kotlin.services.s3.model.BucketLocationConstraint
 import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
 import aws.sdk.kotlin.services.s3.model.ObjectCannedAcl
 import dev.tmsoft.lib.upload.File
@@ -14,7 +13,7 @@ import kotlinx.coroutines.withContext
 
 class PrivateS3Client constructor(private val config: AWS) : FileManager {
     private val s3: S3Client = S3Client {
-        region = BucketLocationConstraint.UsEast2.value
+        region = config.region.value
         credentialsProvider = StaticCredentialsProvider {
             accessKeyId = config.privateKey
             secretAccessKey = config.secret
@@ -22,7 +21,7 @@ class PrivateS3Client constructor(private val config: AWS) : FileManager {
     }
 
     override suspend fun add(uploadFile: File, bucket: String, fileName: String?): Path = withContext(Dispatchers.IO) {
-        s3.ensureBucketExists(bucket)
+        s3.ensureBucketExists(bucket, config.region)
         s3.close()
         s3.uploadImageToS3(uploadFile, bucket, ObjectCannedAcl.Private, fileName)
     }

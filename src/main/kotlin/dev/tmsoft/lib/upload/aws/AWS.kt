@@ -11,7 +11,8 @@ data class AWS(
     val privateKey: String,
     val secret: String,
     val hostname: String?,
-    val protocol: HttpProtocol = HttpProtocol.HTTPS
+    val protocol: HttpProtocol = HttpProtocol.HTTPS,
+    val region: BucketLocationConstraint = BucketLocationConstraint.UsEast2
 )
 
 enum class HttpProtocol {
@@ -19,12 +20,12 @@ enum class HttpProtocol {
     HTTPS
 }
 
-suspend fun S3Client.ensureBucketExists(bucketName: String) {
+suspend fun S3Client.ensureBucketExists(bucketName: String, region: BucketLocationConstraint) {
     if (!bucketExists(bucketName)) {
         createBucket {
             bucket = bucketName
             createBucketConfiguration {
-                locationConstraint = BucketLocationConstraint.UsEast2
+                locationConstraint = region
             }
         }
     }
