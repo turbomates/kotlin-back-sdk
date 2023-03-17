@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "com.github.turbomates"
-version = "0.5.5"
+version = "0.5.6"
 
 
 repositories {

@@ -90,6 +90,7 @@ fun <T> Query.adjustWhereIn(
         .limit(limit, offset)
         .map { it[primaryKeyAlias.aliasOnlyExpression()] }
     adjustWhere { SingleValueInListOp(primaryKey, ids) }
+    sortedWith(sortingParameters)
 }
 
 private fun Query.sortedWith(sortingParameters: List<SortingParameter>): Query {

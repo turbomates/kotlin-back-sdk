@@ -158,7 +158,7 @@ class ContinuousListTest {
                     .join(AddressTable, JoinType.LEFT, AddressTable.user, UserTable.id)
                     .selectAll()
                     .toContinuousList(
-                        PagingParameters(2, 1),
+                        PagingParameters(2, 2),
                         ResultRow::toUser,
                         listOf(
                             SortingParameter(
