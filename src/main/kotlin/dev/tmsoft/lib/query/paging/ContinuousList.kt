@@ -120,16 +120,18 @@ private fun <T> Query.distinctSubQuery(
         RowNumberFunction(buildSortingParameters(sortingParameters) + orderByExpressions).alias("row_number")
     val subQuery = query.adjustSlice { slice(listOf(column) + rowNumber) }
         .withDistinct().alias("subquery")
+    val minColumn = Min(rowNumber.aliasOnlyExpression(), IntegerColumnType()).alias("min_column")
     return subQuery
         .slice(
             listOf<Expression<*>>(
                 column.aliasOnlyExpression(),
-                Min(rowNumber.aliasOnlyExpression(), IntegerColumnType())
+                minColumn
             )
         )
         .selectAll()
         .withDistinct()
         .groupBy(column.aliasOnlyExpression())
+        .orderBy(minColumn)
 }
 
 data class ContinuousList<T>(
