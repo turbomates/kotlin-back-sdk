@@ -35,7 +35,10 @@ class PublicS3Client constructor(private val config: AWS) : FileManager {
     }
 
     override fun getWebUri(path: Path): String {
-        return if (path.isNotEmpty()) "${s3.config.endpointUrl}/$path".lowercase() else ""
+        return if (path.isNotEmpty()) {
+            val (bucket, url) = path.split("/", limit = 2)
+            "https://$bucket.s3.amazonaws.com/$url"
+        } else ""
     }
 
     override suspend fun remove(path: Path) {
