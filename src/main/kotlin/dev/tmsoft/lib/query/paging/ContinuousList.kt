@@ -58,11 +58,7 @@ suspend fun <T> Query.toContinuousListBuilder(
         val rootTable = targets.first()
         if (rootTable.primaryKey != null) {
             val primaryKey = rootTable.primaryKey!!.columns.first()
-            val primaryKeyAlias = primaryKey.alias("uniq_field_id")
-            adjustWhereIn(primaryKey, sortingParameters, page.pageSize + 1, page.offset)
-            if (includeCount) {
-                count = distinctSubQuery(primaryKeyAlias, sortingParameters).count()
-            }
+            count = adjustWhereInAndCount(primaryKey, sortingParameters, page.pageSize + 1, page.offset, includeCount)
         }
     } else {
         sortedWith(sortingParameters)
@@ -79,18 +75,20 @@ suspend fun <T> Query.toContinuousListBuilder(
     ContinuousList(result, page.pageSize, page.currentPage, hasMore, count)
 }
 
-fun <T> Query.adjustWhereIn(
+fun <T> Query.adjustWhereInAndCount(
     primaryKey: ExpressionWithColumnType<T>,
     sortingParameters: List<SortingParameter>,
     limit: Int,
-    offset: Long
-) {
+    offset: Long,
+    includeCount: Boolean
+): Long? {
     val primaryKeyAlias = primaryKey.alias("uniq_field_id")
     val ids = distinctSubQuery(primaryKeyAlias, sortingParameters)
-        .limit(limit, offset)
+        .apply { if (!includeCount) limit(limit, offset) }
         .map { it[primaryKeyAlias.aliasOnlyExpression()] }
-    adjustWhere { SingleValueInListOp(primaryKey, ids) }
+    adjustWhere { SingleValueInListOp(primaryKey, ids.subList(0, limit)) }
     sortedWith(sortingParameters)
+    return if (includeCount) ids.size.toLong() else null
 }
 
 private fun Query.sortedWith(sortingParameters: List<SortingParameter>): Query {
