@@ -86,7 +86,8 @@ fun <T> Query.adjustWhereInAndCount(
     val ids = distinctSubQuery(primaryKeyAlias, sortingParameters)
         .apply { if (!includeCount) limit(limit, offset) }
         .map { it[primaryKeyAlias.aliasOnlyExpression()] }
-    adjustWhere { SingleValueInListOp(primaryKey, ids.take(limit)) }
+        .apply { if (includeCount) drop(offset.toInt()).take(limit) }
+    adjustWhere { SingleValueInListOp(primaryKey, ids) }
     sortedWith(sortingParameters)
     return if (includeCount) ids.size.toLong() else null
 }
