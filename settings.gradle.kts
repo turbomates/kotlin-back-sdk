@@ -14,7 +14,7 @@ dependencyResolutionManagement {
             version("kotlin", "1.7.0")
             version("s3", "0.19.0-beta")
             version("hikaricp", "5.0.1")
-            version("exposed", "0.36.2")
+            version("exposed", "0.41.1")
             version("test_logger", "3.2.0")
             version("h2database", "1.4.200")
             version("google_guice", "5.1.0")
