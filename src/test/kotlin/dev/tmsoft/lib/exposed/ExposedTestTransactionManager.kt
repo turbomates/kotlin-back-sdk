@@ -1,19 +1,19 @@
 package dev.tmsoft.lib.exposed
 
 import dev.tmsoft.lib.buildConfiguration
-import org.jetbrains.exposed.sql.DEFAULT_REPETITION_ATTEMPTS
+import java.sql.Connection
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.DatabaseConfig
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.statements.api.ExposedSavepoint
 import org.jetbrains.exposed.sql.transactions.TransactionInterface
 import org.jetbrains.exposed.sql.transactions.TransactionManager
-import java.sql.Connection
 
 class ExposedTestTransactionManager(
     private val db: Database,
-    @Volatile override var defaultIsolationLevel: Int,
-    @Volatile override var defaultRepetitionAttempts: Int
+    @Volatile override var defaultIsolationLevel: Int = db.config.defaultIsolationLevel,
+    @Volatile override var defaultRepetitionAttempts: Int = db.config.defaultRepetitionAttempts,
+    override var defaultReadOnly: Boolean,
 ) : TransactionManager {
     var transaction: Transaction? = null
 
@@ -25,13 +25,14 @@ class ExposedTestTransactionManager(
         return transaction
     }
 
-    override fun newTransaction(isolation: Int, outerTransaction: Transaction?): Transaction {
+    override fun newTransaction(isolation: Int, readOnly: Boolean, outerTransaction: Transaction?): Transaction {
         transaction = Transaction(
             TestTransaction(
                 db = db,
                 transactionIsolation = defaultIsolationLevel,
                 manager = this,
-                outerTransaction = outerTransaction ?: transaction
+                outerTransaction = outerTransaction ?: transaction,
+                readOnly
             )
         )
         return transaction!!
@@ -41,7 +42,8 @@ class ExposedTestTransactionManager(
         override val db: Database,
         override val transactionIsolation: Int,
         val manager: ExposedTestTransactionManager,
-        override val outerTransaction: Transaction?
+        override val outerTransaction: Transaction?,
+        override val readOnly: Boolean
     ) : TransactionInterface {
         private val savepointName: String
             get() {
@@ -109,7 +111,7 @@ internal val testDatabase by lazy {
             ExposedTestTransactionManager(
                 database,
                 Connection.TRANSACTION_READ_COMMITTED,
-                DEFAULT_REPETITION_ATTEMPTS
+                defaultReadOnly = false
             )
         }
     )
