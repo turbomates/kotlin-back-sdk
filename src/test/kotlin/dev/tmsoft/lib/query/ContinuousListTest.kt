@@ -133,11 +133,11 @@ class ContinuousListTest {
     }
 
     @Test
-    fun `postgres uniq count count pagination with join`() {
+    fun `postgres uniq count pagination with join`() {
         transaction(testDatabase) {
             SchemaUtils.create(UserTable)
             SchemaUtils.create(AddressTable)
-            val count = 3
+            val count = 39
             for (i in 1..count) {
                 val user = UserTable.insertAndGetId {
                     it[name] = "test_$i"
