@@ -7,6 +7,7 @@ import dev.tmsoft.lib.exposed.TransactionManager
 import dev.tmsoft.lib.exposed.type.jsonb
 import java.util.UUID
 import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.javatime.second
 import org.jetbrains.exposed.sql.select
@@ -15,11 +16,10 @@ import org.jetbrains.exposed.sql.update
 class EventsDatabaseAccess(private val transaction: TransactionManager) {
     suspend fun load(delay: Long): List<Pair<UUID, Event>> {
         return transaction {
-            Events.select {
-                Events.publishedAt.isNull() and (Events.createdAt.minus(nowUTC).second() less -delay.toInt())
-            }.map {
-                it[Events.id].value to it[Events.event].event
-            }
+            Events
+                .select { Events.publishedAt.isNull() and (Events.createdAt.minus(nowUTC).second() less -delay.toInt()) }
+                .orderBy(Events.createdAt, SortOrder.ASC)
+                .map { it[Events.id].value to it[Events.event].event }
         }
     }
 
