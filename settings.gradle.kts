@@ -6,12 +6,12 @@ enableFeaturePreview("VERSION_CATALOGS")
 dependencyResolutionManagement {
     versionCatalogs {
         create("deps") {
-            version("ktor", "2.0.3")
+            version("ktor", "2.3.0")
             version("jedis", "4.2.3")
             version("log4j", "2.17.0")
             version("detekt", "1.21.0-RC1")
             version("hoplite", "2.1.5")
-            version("kotlin", "1.7.0")
+            version("kotlin", "1.9.0")
             version("s3", "0.19.0-beta")
             version("hikaricp", "5.0.1")
             version("exposed", "0.41.1")

@@ -12,6 +12,7 @@ import dev.tmsoft.lib.ktor.ResponseOkSerializer
 import dev.tmsoft.lib.validation.Error
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.Locale
 import java.util.UUID
 import kotlin.reflect.KClass
@@ -26,7 +27,6 @@ import kotlinx.serialization.builtins.SetSerializer
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.serializer
-import java.time.OffsetDateTime
 
 @InternalSerializationApi
 fun Collection<*>.elementSerializer(): KSerializer<*> {
@@ -57,7 +57,8 @@ fun Collection<*>.elementSerializer(): KSerializer<*> {
 }
 
 @InternalSerializationApi
-fun resolveSerializer(value: Any): KSerializer<*> {
+@Suppress("UNCHECKED_CAST")
+fun resolveSerializer(value: Any): KSerializer<Any> {
     return when (value) {
         is JsonElement -> JsonElement::class.serializer()
         is List<*> -> ListSerializer(value.elementSerializer())
@@ -73,7 +74,7 @@ fun resolveSerializer(value: Any): KSerializer<*> {
         is Response -> responseSerializer(value)
         is Error -> ResponseErrorSerializer
         else -> value::class.serializer()
-    }
+    } as KSerializer<Any>
 }
 
 private fun mapEntrySerializer(value: Map.Entry<*, *>): KSerializer<out Map.Entry<Any?, Any?>> {

@@ -28,7 +28,7 @@ class EventListenerInterceptor : GlobalStatementInterceptor {
 }
 
 private class PublishEventsInterceptor(val events: List<Event>) : StatementInterceptor {
-    override fun afterCommit() {
+    override fun afterCommit(transaction: Transaction) {
         runBlocking {
             events.forEach { event ->
                 SubscriberWorker.eventsFlow.emit(event.eventId to event)

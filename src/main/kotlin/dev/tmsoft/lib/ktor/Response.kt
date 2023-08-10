@@ -12,6 +12,7 @@ import io.ktor.server.response.ApplicationSendPipeline
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Route
+import kotlin.collections.set
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
@@ -25,7 +26,6 @@ import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlin.collections.set
 
 @Serializable
 sealed class Response {
@@ -148,15 +148,15 @@ object ResponseOkSerializer : KSerializer<Response.Ok> {
     }
 }
 
-object ResponseDataSerializer : KSerializer<Response.Data<Any>> {
+object ResponseDataSerializer : KSerializer<Response.Data<*>> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ResponseDataSerializerDescriptor")
 
     @Suppress("UNCHECKED_CAST")
-    override fun serialize(encoder: Encoder, value: Response.Data<Any>) {
+    override fun serialize(encoder: Encoder, value: Response.Data<*>) {
         // toDo bug with inline classed and encodeToJsonElement
         val output = encoder as? JsonEncoder ?: throw SerializationException(JSON_EXCEPTION_MESSAGE)
         val encoded = output.json.encodeToJsonElement(
-            resolveSerializer(value.data) as KSerializer<Any>,
+            resolveSerializer(value.data),
             value.data
         )
         output.encodeJsonElement(
@@ -168,21 +168,21 @@ object ResponseDataSerializer : KSerializer<Response.Data<Any>> {
         )
     }
 
-    override fun deserialize(decoder: Decoder): Response.Data<Any> {
+    override fun deserialize(decoder: Decoder): Response.Data<*> {
         throw NotImplementedError()
     }
 }
 
-object ResponseListingSerializer : KSerializer<Response.Listing<Any>> {
+object ResponseListingSerializer : KSerializer<Response.Listing<*>> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ResponseListingSerializerDescriptor")
 
-    override fun serialize(encoder: Encoder, value: Response.Listing<Any>) {
+    override fun serialize(encoder: Encoder, value: Response.Listing<*>) {
         // toDo bug with inline classed and encodeToJsonElement
         val output = encoder as? JsonEncoder ?: throw SerializationException(JSON_EXCEPTION_MESSAGE)
         output.encodeJsonElement(output.json.encodeToJsonElement(ContinuousListSerializer, value.list))
     }
 
-    override fun deserialize(decoder: Decoder): Response.Listing<Any> {
+    override fun deserialize(decoder: Decoder): Response.Listing<*> {
         throw NotImplementedError()
     }
 }
