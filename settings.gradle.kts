@@ -12,7 +12,7 @@ dependencyResolutionManagement {
             version("detekt", "1.21.0-RC1")
             version("hoplite", "2.1.5")
             version("kotlin", "1.9.0")
-            version("s3", "0.19.0-beta")
+            version("s3", "0.25.0-beta")
             version("hikaricp", "5.0.1")
             version("exposed", "0.41.1")
             version("test_logger", "3.2.0")
