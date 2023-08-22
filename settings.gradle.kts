@@ -8,7 +8,7 @@ dependencyResolutionManagement {
         create("deps") {
             version("ktor", "2.3.0")
             version("jedis", "4.2.3")
-            version("log4j", "2.17.0")
+            version("log4j", "2.20.0")
             version("detekt", "1.21.0-RC1")
             version("hoplite", "2.1.5")
             version("kotlin", "1.9.0")
