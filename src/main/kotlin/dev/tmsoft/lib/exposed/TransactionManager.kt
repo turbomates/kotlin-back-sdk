@@ -1,7 +1,9 @@
 @file:Suppress("ForbiddenImport", "INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+
 package dev.tmsoft.lib.exposed
 
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -20,7 +22,7 @@ class TransactionManager(private val database: Database) {
     }
 
     suspend fun <T> async(statement: suspend Transaction.() -> T): Deferred<T> {
-        return suspendedTransactionAsync(Dispatchers.IO, db = database, statement = statement)
+        return suspendedTransactionAsync(Dispatchers.IO + coroutineContext, db = database, statement = statement)
     }
 
     fun <T> sync(statement: Transaction.() -> T): T {
@@ -56,6 +58,7 @@ class TransactionManager(private val database: Database) {
         }
     }
 }
+
 object CoroutineTransactionContext {
     val key = Key<CoroutineContext>()
 }
