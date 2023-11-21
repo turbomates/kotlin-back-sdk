@@ -6,10 +6,10 @@ import dev.tmsoft.lib.event.EventStore
 import dev.tmsoft.lib.event.EventWrapper
 import dev.tmsoft.lib.event.Events
 import dev.tmsoft.lib.event.SubscriberWorker
+import dev.tmsoft.lib.exposed.singleSQLBatchInsert
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.statements.GlobalStatementInterceptor
 import org.jetbrains.exposed.sql.statements.StatementInterceptor
 import org.jetbrains.exposed.sql.transactions.transactionScope
@@ -39,7 +39,7 @@ private class PublishEventsInterceptor(val events: List<Event>) : StatementInter
 
 val Transaction.events: EventStore by transactionScope { EventStore() }
 internal fun List<Event>.save() {
-    Events.batchInsert(this) { event ->
+    Events.singleSQLBatchInsert(this) { event ->
         this[Events.id] = event.eventId
         this[Events.event] = EventWrapper(event)
         this[Events.createdAt] = event.eventCreatedAt
@@ -48,7 +48,7 @@ internal fun List<Event>.save() {
 
 @JvmName("saveEventAny")
 internal fun List<Pair<Event, Any>>.save() {
-    EventSourcingTable.batchInsert(this) { pair ->
+    EventSourcingTable.singleSQLBatchInsert(this) { pair ->
         this[EventSourcingTable.id] = UUID.randomUUID()
         this[EventSourcingTable.event] = EventWrapper(pair.first)
         this[EventSourcingTable.aggregateRoot] = pair.second.toString()
