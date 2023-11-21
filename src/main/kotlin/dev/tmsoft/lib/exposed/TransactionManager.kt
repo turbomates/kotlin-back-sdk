@@ -4,6 +4,7 @@ package dev.tmsoft.lib.exposed
 
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,13 +17,13 @@ import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransaction
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class TransactionManager(private val database: Database) {
+class TransactionManager(private val database: Database, private val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
     suspend operator fun <T> invoke(statement: suspend Transaction.() -> T): T {
         return suspendedTransaction(database, statement)
     }
 
     suspend fun <T> async(statement: suspend Transaction.() -> T): Deferred<T> {
-        return suspendedTransactionAsync(Dispatchers.IO + coroutineContext, db = database, statement = statement)
+        return suspendedTransactionAsync(coroutineContext + dispatcher, db = database, statement = statement)
     }
 
     fun <T> sync(statement: Transaction.() -> T): T {
@@ -33,7 +34,7 @@ class TransactionManager(private val database: Database) {
         database: Database = this.database,
         statement: suspend Transaction.() -> T
     ): T {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             val current = coroutineContext[TransactionScope]
             if (current?.tx == null) {
                 newSuspendedTransaction(db = database) {
