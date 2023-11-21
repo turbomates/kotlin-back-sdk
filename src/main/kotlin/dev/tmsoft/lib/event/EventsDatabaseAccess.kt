@@ -8,7 +8,9 @@ import dev.tmsoft.lib.exposed.type.jsonb
 import java.util.UUID
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNotNull
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.javatime.second
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.update
@@ -17,7 +19,9 @@ class EventsDatabaseAccess(private val transaction: TransactionManager) {
     suspend fun load(delay: Long): List<Pair<UUID, Event>> {
         return transaction {
             Events
-                .select { Events.publishedAt.isNull() and (Events.createdAt.minus(nowUTC).second() less -delay.toInt()) }
+                .select {
+                    Events.publishedAt.isNull() and (Events.createdAt.minus(nowUTC).second() less -delay.toInt())
+                }
                 .orderBy(Events.createdAt, SortOrder.ASC)
                 .map { it[Events.id].value to it[Events.event].event }
         }
@@ -28,6 +32,12 @@ class EventsDatabaseAccess(private val transaction: TransactionManager) {
             Events.update({ Events.id eq id }) {
                 it[publishedAt] = nowUTC
             }
+        }
+    }
+
+    suspend fun clean() {
+        transaction {
+            Events.deleteWhere { Events.publishedAt.isNotNull() }
         }
     }
 }
