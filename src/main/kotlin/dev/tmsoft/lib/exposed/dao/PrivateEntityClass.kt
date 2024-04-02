@@ -14,6 +14,8 @@ private typealias OtherPrivateEntityClass<ID, T> = PrivateEntityClass<ID, T>
 open class PrivateEntityClass<ID : Comparable<ID>, out T : Entity<ID>>(private val base: EntityClass<ID, T>) {
     open fun new(init: T.() -> Unit) = base.new(null, init)
 
+    open fun new(id: ID?, init: T.() -> Unit) = base.new(id, init)
+
     fun get(id: EntityID<ID>): T = base[id]
 
     operator fun get(id: ID): T = base[id]
