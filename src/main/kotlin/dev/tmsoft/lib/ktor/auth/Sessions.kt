@@ -13,6 +13,7 @@ import kotlinx.serialization.modules.SerializersModule
 import io.ktor.server.sessions.SessionSerializer as KtorSessionSerializer
 
 @Serializable
+@Polymorphic
 data class Session(
     val principal: Principal? = null,
     val attributes: MutableMap<String, String> = mutableMapOf(),
