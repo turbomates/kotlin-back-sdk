@@ -14,7 +14,7 @@ fun <T : Table, E : Any> T.batchUpsert(
     onUpdate: List<Pair<Column<*>, Expression<*>>>? = null,
     onUpdateExclude: List<Column<*>>? = null,
     shouldReturnGeneratedValues: Boolean = true,
-    where: Op<Boolean>?,
+    where: Op<Boolean>? = null,
     body: BatchUpsertStatement.(E) -> Unit
 ): List<ResultRow> {
     return batchUpsert(
@@ -34,7 +34,7 @@ fun <T : Table, E : Any> T.batchUpsert(
     onUpdate: List<Pair<Column<*>, Expression<*>>>? = null,
     onUpdateExclude: List<Column<*>>? = null,
     shouldReturnGeneratedValues: Boolean = true,
-    where: Op<Boolean>?,
+    where: Op<Boolean>? = null,
     body: BatchUpsertStatement.(E) -> Unit
 ): List<ResultRow> {
     return batchUpsert(
