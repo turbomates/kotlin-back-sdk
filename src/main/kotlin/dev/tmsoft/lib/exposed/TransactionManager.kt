@@ -59,7 +59,7 @@ class TransactionManager(
         return transaction(primaryDatabase, statement = statement)
     }
 
-    suspend fun <T> async(statement: Transaction.() -> T): Job {
+    suspend fun <T> async(statement: suspend Transaction.() -> T): Job {
         return withContext(Dispatchers.IO) {
             val currentContext = coroutineContext[TransactionScope]
             if (currentContext != null) {
