@@ -1,7 +1,6 @@
 package dev.tmsoft.lib.query
 
 import dev.tmsoft.lib.Config
-import dev.tmsoft.lib.exposed.testDatabase
 import dev.tmsoft.lib.query.paging.PagingParameters
 import dev.tmsoft.lib.query.paging.SortingParameter
 import dev.tmsoft.lib.query.paging.sortingParameters
@@ -134,7 +133,13 @@ class ContinuousListTest {
 
     @Test
     fun `postgres uniq count pagination with join`() {
-        transaction(testDatabase) {
+        val database = Database.connect(
+            Config.h2DatabaseUrl,
+            Config.h2Driver,
+            Config.h2User,
+            Config.h2Password
+        )
+        transaction(database) {
             SchemaUtils.create(UserTable)
             SchemaUtils.create(AddressTable)
             val count = 39

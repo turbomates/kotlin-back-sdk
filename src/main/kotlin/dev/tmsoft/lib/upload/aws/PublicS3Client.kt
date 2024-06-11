@@ -2,14 +2,14 @@ package dev.tmsoft.lib.upload.aws
 
 import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import aws.sdk.kotlin.services.s3.S3Client
-import aws.sdk.kotlin.services.s3.endpoints.EndpointParameters
-import aws.sdk.kotlin.services.s3.endpoints.EndpointProvider
+import aws.sdk.kotlin.services.s3.endpoints.S3EndpointParameters
+import aws.sdk.kotlin.services.s3.endpoints.S3EndpointProvider
 import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
 import aws.sdk.kotlin.services.s3.model.ObjectCannedAcl
 import aws.smithy.kotlin.runtime.client.endpoints.Endpoint
 import aws.smithy.kotlin.runtime.net.Host
 import aws.smithy.kotlin.runtime.net.Scheme
-import aws.smithy.kotlin.runtime.net.Url
+import aws.smithy.kotlin.runtime.net.url.Url
 import dev.tmsoft.lib.upload.File
 import dev.tmsoft.lib.upload.FileManager
 import dev.tmsoft.lib.upload.Path
@@ -52,9 +52,12 @@ class PublicS3Client constructor(private val config: AWS) : FileManager {
     }
 }
 
-internal class CustomEndpointProvider(private val hostname: String, private val protocol: String) : EndpointProvider {
-    override suspend fun resolveEndpoint(params: EndpointParameters): Endpoint {
-        val uri = Url(scheme = Scheme.parse(protocol), host = Host.parse(hostname))
+internal class CustomEndpointProvider(private val hostname: String, private val protocol: String) : S3EndpointProvider {
+    override suspend fun resolveEndpoint(params: S3EndpointParameters): Endpoint {
+        val uri = Url {
+            scheme = Scheme.parse(protocol)
+            host = Host.parse(hostname)
+        }
         return Endpoint(uri)
     }
 }

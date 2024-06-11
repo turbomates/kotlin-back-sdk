@@ -1,10 +1,10 @@
 package dev.tmsoft.lib.exposed.type
 
+import java.util.Locale
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ColumnType
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.statements.api.PreparedStatementApi
-import java.util.Locale
 
 /**
  * A column to store a locale.
@@ -13,20 +13,16 @@ import java.util.Locale
  */
 fun Table.locale(name: String): Column<Locale> = registerColumn(name, PostgreSQLLocale())
 
-class PostgreSQLLocale : ColumnType() {
+class PostgreSQLLocale : ColumnType<Locale>() {
     override fun sqlType(): String = "LOCALE"
 
-    override fun nonNullValueToString(value: Any): String {
-        return when (value) {
-            is String -> value
-            is Locale -> value.toString()
-            else -> error("Unexpected value: $value of ${value::class.qualifiedName ?: "locale"}")
-        }
+    override fun nonNullValueToString(value: Locale): String {
+        return value.toString()
     }
 
-    override fun valueFromDB(value: Any): Any = when (value) {
+    override fun valueFromDB(value: Any): Locale? = when (value) {
         is Locale -> value
-        is String -> Locale(value)
+        is String -> Locale.of(value)
         else -> valueFromDB(value.toString())
     }
 

@@ -10,7 +10,7 @@ import io.ktor.server.auth.AuthenticationFailedCause
 import io.ktor.server.auth.AuthenticationProvider
 import io.ktor.server.auth.UserPasswordCredential
 import io.ktor.server.plugins.origin
-import io.ktor.server.request.receiveOrNull
+import io.ktor.server.request.receiveNullable
 import io.ktor.server.response.respond
 
 class JsonFormAuthenticationProvider<T : Principal> internal constructor(config: Configuration<T>) :
@@ -34,13 +34,13 @@ class JsonFormAuthenticationProvider<T : Principal> internal constructor(config:
      */
     private val passwordParamName: String = config.passwordParamName
 
-    val provider: PrincipalProvider<T> = config.provider
+    private val provider: PrincipalProvider<T> = config.provider
 
     val transformer: (Principal, ApplicationCall) -> Principal = config.transformer
 
     override suspend fun onAuthenticate(context: AuthenticationContext) {
         val call = context.call
-        val postParameters = call.receiveOrNull<Map<String, String>>()
+        val postParameters = runCatching{ call.receiveNullable<Map<String, String>>() }.getOrNull()
         val login = postParameters?.get(loginParamName)
         val password = postParameters?.get(passwordParamName)
         val credentials = if (login != null && password != null) UserPasswordCredential(login, password) else null

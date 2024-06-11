@@ -1,12 +1,10 @@
 package dev.tmsoft.lib.redis
 
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import redis.clients.jedis.JedisPool
 
-class RedisPersistentHash(private val pool: JedisPool) {
-    val serializer: Json = Json {}
+class RedisPersistentHash(private val pool: JedisPool, val serializer: Json = Json) {
 
     fun get(key: String, field: String): String? {
         return pool.resource.use { it.hget(key, field) }

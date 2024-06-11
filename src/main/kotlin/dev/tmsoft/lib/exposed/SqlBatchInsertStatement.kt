@@ -11,15 +11,18 @@ import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.statements.api.PreparedStatementApi
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 
-open class SqlBatchInsertStatement(private val table: Table, private val ignore: Boolean) :
-    UpdateBuilder<List<Int>>(StatementType.INSERT, listOf(table)) {
+open class SqlBatchInsertStatement(
+    private val table: Table,
+    private val ignore: Boolean
+) : UpdateBuilder<List<Int>>(StatementType.INSERT, listOf(table)) {
     private val batchValues: MutableList<Map<Column<*>, Any?>> = mutableListOf()
     override val isAlwaysBatch = true
     private val prepareSQLArguments: MutableList<Pair<Column<*>, Any?>> = mutableListOf()
     private val allColumnsInDataSet = mutableSetOf<Column<*>>()
-    private val arguments: MutableList<Iterable<Pair<IColumnType, Any?>>> = mutableListOf()
+    private val arguments: MutableList<Iterable<Pair<IColumnType<*>, Any?>>> = mutableListOf()
     protected val columns
         get() = batchValues.first().keys
+
     internal fun addBatch() {
         if (batchValues.isEmpty()) {
             allColumnsInDataSet.addAll(values.keys)
@@ -42,7 +45,11 @@ open class SqlBatchInsertStatement(private val table: Table, private val ignore:
         values.clear()
     }
 
-    override fun prepareSQL(transaction: Transaction): String {
+    override fun arguments(): Iterable<Iterable<Pair<IColumnType<*>, Any?>>> {
+        return arguments
+    }
+
+    override fun prepareSQL(transaction: Transaction, prepared: Boolean): String {
         val builder = QueryBuilder(true)
         val sql = if (prepareSQLArguments.isEmpty()) ""
         else with(builder) {
@@ -58,20 +65,6 @@ open class SqlBatchInsertStatement(private val table: Table, private val ignore:
             sql,
             transaction
         )
-    }
-
-    // private var arguments: List<List<Pair<Column<*>, Any?>>>? = null
-    //     get() = field ?: run {
-    //         val nullableColumns by lazy { allColumnsInDataSet.filter { it.columnType.nullable } }
-    //         batchValues.map { single ->
-    //             val valuesAndDefaults = valuesAndDefaults(single)
-    //             (valuesAndDefaults + (nullableColumns - valuesAndDefaults.keys).associateWith { null }).toList()
-    //                 .sortedBy { it.first }
-    //         }.apply { field = this }
-    //     }
-
-    override fun arguments(): List<Iterable<Pair<IColumnType, Any?>>> {
-        return arguments
     }
 
     override fun PreparedStatementApi.executeInternal(transaction: Transaction): List<Int> {
@@ -98,7 +91,7 @@ fun <T : Table, E> T.singleSQLBatchInsert(
         statement.body(it)
         statement.addBatch()
     }
-    if (statement.arguments().isNotEmpty()) {
+    if (statement.arguments().count() > 0) {
         statement.execute(TransactionManager.current())
     }
     return emptyList()

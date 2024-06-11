@@ -33,8 +33,7 @@ class TimeBucketTest {
             }
             val createdAtTimeBucket = Accounts.createdAt.timeBucket("2 days").alias("data")
 
-            val query = Accounts.slice(createdAtTimeBucket, Accounts.balance.sum())
-                .selectAll()
+            val query = Accounts.select(createdAtTimeBucket, Accounts.balance.sum())
                 .groupBy(createdAtTimeBucket)
 
             assertEquals(3, query.count())

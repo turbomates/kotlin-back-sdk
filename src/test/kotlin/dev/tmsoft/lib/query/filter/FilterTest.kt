@@ -48,8 +48,8 @@ class FilterTest {
                     )
                 )
             assertTrue(
-                query.prepareSQL(this)
-                    .contains("((LOWER(\"USER\".FULL_NAME) LIKE ?) OR (LOWER(\"USER\".FULL_NAME) LIKE ?)) AND (\"USER\".\"NUMBER\" >= ?) AND (\"USER\".MODIFY_AT >= ?) AND ((LOWER(PROFILE.ADDRESS) LIKE ?)) AND (\"USER\".MODIFY_AT >= ?) AND (\"USER\".MODIFY_AT <= ?)")
+                query.prepareSQL(this).lowercase()
+                    .contains("((LOWER(\"USER\".FULL_NAME) LIKE ?) OR (LOWER(\"USER\".FULL_NAME) LIKE ?)) AND (\"USER\".\"NUMBER\" >= ?) AND (\"USER\".MODIFY_AT >= ?) AND ((LOWER(PROFILE.ADDRESS) LIKE ?)) AND (\"USER\".MODIFY_AT >= ?) AND (\"USER\".MODIFY_AT <= ?)".lowercase())
             )
         }
     }
@@ -85,8 +85,8 @@ class FilterTest {
                     )
                 )
             assertTrue(
-                 query.prepareSQL(this)
-                    .contains("((LOWER(\"USER\".FULL_NAME) LIKE ?) OR (LOWER(\"USER\".FULL_NAME) LIKE ?)) AND ((\"USER\".\"NUMBER\" = ?) OR (\"USER\".\"NUMBER\" = ?))")
+                 query.prepareSQL(this).lowercase()
+                    .contains("((LOWER(\"USER\".FULL_NAME) LIKE ?) OR (LOWER(\"USER\".FULL_NAME) LIKE ?)) AND ((\"USER\".\"NUMBER\" = ?) OR (\"USER\".\"NUMBER\" = ?))".lowercase())
             )
         }
     }

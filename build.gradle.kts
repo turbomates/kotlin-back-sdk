@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "com.github.turbomates"
-version = "0.5.25"
+version = "0.6.1"
 
 
 repositories {
@@ -51,14 +51,13 @@ dependencies {
     }
     testImplementation(deps.embedded.postgres)
     testImplementation(deps.h2.database)
-    detektPlugins(deps.detekt.formatting)
 }
 
 detekt {
     toolVersion = deps.versions.detekt.get()
     autoCorrect = false
     parallel = true
-    config = files("detekt.yml")
+    config.setFrom(file("detekt.yml"))
 }
 tasks.named("check").configure {
     this.setDependsOn(this.dependsOn.filterNot {

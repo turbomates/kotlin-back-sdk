@@ -18,14 +18,13 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.exposed.sql.Expression
 import org.jetbrains.exposed.sql.ExpressionAlias
 import org.jetbrains.exposed.sql.ExpressionWithColumnType
-import org.jetbrains.exposed.sql.IntegerColumnType
+import org.jetbrains.exposed.sql.LongColumnType
 import org.jetbrains.exposed.sql.Min
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.ops.SingleValueInListOp
-import org.jetbrains.exposed.sql.selectAll
 
 suspend fun <T> Query.toContinuousList(
     page: PagingParameters,
@@ -119,17 +118,16 @@ private fun <T> Query.distinctSubQuery(
     val query = Query(set, where)
     val rowNumber =
         RowNumberFunction(buildSortingParameters(sortingParameters) + orderByExpressions).alias("row_number")
-    val subQuery = query.adjustSlice { slice(listOf(column) + rowNumber) }
+    val subQuery = query.adjustSelect { select(listOf(column) + rowNumber) }
         .withDistinct().alias("subquery")
-    val minColumn = Min(rowNumber.aliasOnlyExpression(), IntegerColumnType()).alias("min_column")
+    val minColumn = Min(rowNumber.aliasOnlyExpression(), LongColumnType()).alias("min_column")
     return subQuery
-        .slice(
+        .select(
             listOf<Expression<*>>(
                 column.aliasOnlyExpression(),
                 minColumn
             )
         )
-        .selectAll()
         .withDistinct()
         .groupBy(column.aliasOnlyExpression())
         .orderBy(minColumn)

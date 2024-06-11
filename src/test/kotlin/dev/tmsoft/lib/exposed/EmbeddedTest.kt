@@ -20,6 +20,10 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertSame
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
 
 object Accounts : IntIdTable() {
     val name = varchar("account", 255).nullable()
@@ -139,9 +143,9 @@ class EmbeddedTest {
                 lastBalance = last
                 bonusBalance = null
             }
-            var result = Account.wrapRow(Accounts.select { Accounts.balance.amount less 20 }.first())
+            var result = Account.wrapRow(Accounts.selectAll().where { Accounts.balance.amount less 20 }.first())
             assertSame(20, result.lastBalance.amount)
-            result = Account.wrapRow(Accounts.select { Accounts.balance.currency eq "EUR" }.first())
+            result = Account.wrapRow(Accounts.selectAll().where { Accounts.balance.currency eq "EUR" }.first())
             assertSame("EUR", result.lastBalance.currency)
             assertNull(result.bonusBalance)
         }

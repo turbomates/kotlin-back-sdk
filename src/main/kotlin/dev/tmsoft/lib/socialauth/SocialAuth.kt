@@ -4,10 +4,9 @@ import dev.tmsoft.lib.ktor.auth.Principal
 import dev.tmsoft.lib.ktor.auth.Session
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.json.JsonPlugin
-import io.ktor.client.plugins.kotlinx.serializer.KotlinxSerializer
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType
-import io.ktor.server.routing.Route
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCallPipeline
 import io.ktor.server.application.ApplicationCallPipeline.ApplicationPhase.Plugins
 import io.ktor.server.application.call
@@ -17,6 +16,7 @@ import io.ktor.server.auth.AuthenticationRouteSelector
 import io.ktor.server.auth.OAuthAccessTokenResponse
 import io.ktor.server.auth.authentication
 import io.ktor.server.response.respondRedirect
+import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
@@ -88,13 +88,7 @@ interface SocialPrincipalTransformer {
 }
 
 internal val socialClient = HttpClient(CIO) {
-    install(JsonPlugin) {
-        accept(ContentType.Application.Json)
-        serializer = KotlinxSerializer(
-            Json {
-                isLenient = true
-                ignoreUnknownKeys = true
-            }
-        )
+    install(ContentNegotiation) {
+        json(Json, ContentType.Application.Json)
     }
 }
