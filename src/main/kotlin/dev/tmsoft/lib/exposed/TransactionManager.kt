@@ -4,8 +4,8 @@ package dev.tmsoft.lib.exposed
 
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Key
@@ -59,7 +59,7 @@ class TransactionManager(
         return transaction(primaryDatabase, statement = statement)
     }
 
-    suspend fun <T> async(statement: suspend Transaction.() -> T): Job {
+    suspend fun <T> async(statement: suspend Transaction.() -> T): Deferred<T> {
         return withContext(Dispatchers.IO) {
             val currentContext = coroutineContext[TransactionScope]
             if (currentContext != null) {
