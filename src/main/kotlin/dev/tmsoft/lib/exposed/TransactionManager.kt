@@ -5,11 +5,13 @@ package dev.tmsoft.lib.exposed
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Key
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.sql.transactions.experimental.withSuspendTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -55,6 +57,27 @@ class TransactionManager(
     // NOTE: doesn't propagate process CoroutineTransactionContext context, pass it explicitly
     fun <T> sync(statement: Transaction.() -> T): T {
         return transaction(primaryDatabase, statement = statement)
+    }
+
+    suspend fun <T> async(statement: Transaction.() -> T): Job {
+        return withContext(Dispatchers.IO) {
+            val currentContext = coroutineContext[TransactionScope]
+            if (currentContext != null) {
+                suspendedTransactionAsync(currentContext, db = primaryDatabase) {
+                    this.getOrCreate(CoroutineTransactionContext.key) { coroutineContext }
+                    withContext(TransactionScope(this, coroutineContext)) {
+                        statement()
+                    }
+                }
+            } else {
+                suspendedTransactionAsync(db = primaryDatabase) {
+                    this.getOrCreate(CoroutineTransactionContext.key) { coroutineContext }
+                    withContext(TransactionScope(this, coroutineContext)) {
+                        statement()
+                    }
+                }
+            }
+        }
     }
 
     // NOTE: doesn't propagate process CoroutineTransactionContext context, pass it explicitly
