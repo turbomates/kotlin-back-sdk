@@ -16,7 +16,7 @@ dependencyResolutionManagement {
             version("exposed", "0.51.1")
             version("test_logger", "3.2.0")
             version("h2database", "2.2.224")
-            version("google_guice", "5.1.0")
+            version("google_guice", "7.0.0")
             version("valiktor_core", "0.12.0")
             version("postgresql_jdbc", "42.7.3")
             version("swagger_webjar", "4.15.5")
