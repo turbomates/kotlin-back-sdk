@@ -103,7 +103,7 @@ class FilterTest {
                     TestEnumFilter,
                     PathValues(
                         mapOf(
-                            "status_test" to listOf(SingleValue("active")),
+                            "status_test" to listOf(SingleValue("ACTIVE")),
                         )
                     )
                 )
