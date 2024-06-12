@@ -7,15 +7,11 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import org.jetbrains.exposed.sql.AndOp
-import org.jetbrains.exposed.sql.BooleanColumnType
-import org.jetbrains.exposed.sql.DoubleColumnType
 import org.jetbrains.exposed.sql.EqOp
 import org.jetbrains.exposed.sql.ExpressionWithColumnType
 import org.jetbrains.exposed.sql.GreaterEqOp
-import org.jetbrains.exposed.sql.IntegerColumnType
 import org.jetbrains.exposed.sql.LessEqOp
 import org.jetbrains.exposed.sql.LikeEscapeOp
-import org.jetbrains.exposed.sql.LongColumnType
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.OrOp
 import org.jetbrains.exposed.sql.QueryParameter
@@ -27,18 +23,16 @@ import org.jetbrains.exposed.sql.lowerCase
 
 abstract class Value {
     abstract fun op(column: ExpressionWithColumnType<*>): Op<Boolean>
+
     @Suppress("UNCHECKED_CAST")
     protected fun <T> ExpressionWithColumnType<T>.typedWrap(value: String): QueryParameter<T> {
         val typedValue = when (columnType) {
-            is LongColumnType -> value.toLong()
-            is IntegerColumnType -> value.toInt()
-            is DoubleColumnType -> value.toDouble()
-            is BooleanColumnType -> value.toBoolean()
             is JavaLocalDateColumnType -> LocalDate.parse(value, dateFormat)
             is JavaLocalDateTimeColumnType -> LocalDateTime.parse(value, dateTimeFormat)
             is UTCDateTimeColumn -> OffsetDateTime.parse(value, dateTimeFormat)
-            else -> value
+            else -> columnType.valueFromDB(value)!!
         }
+
         return QueryParameter(typedValue as T, columnType)
     }
 }

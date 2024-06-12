@@ -90,6 +90,29 @@ class FilterTest {
             )
         }
     }
+    @Test
+    fun `simple enum query`() {
+        val database = Database.connect(h2DatabaseUrl, driver = h2Driver, user = h2User, password = h2Password)
+        transaction(database) {
+            SchemaUtils.create(TestEnumTable)
+            TestEnumTable.insert {
+                it[status] = TestEnum.ACTIVE
+            }
+            val query = TestEnumTable.selectAll()
+                .filter(
+                    TestEnumFilter,
+                    PathValues(
+                        mapOf(
+                            "status_test" to listOf(SingleValue("active")),
+                        )
+                    )
+                )
+            assertTrue(
+                query.prepareSQL(this).lowercase()
+                    .contains("SELECT TESTENUM.ID, TESTENUM.STATUS FROM TESTENUM WHERE TESTENUM.STATUS = ?".lowercase())
+            )
+        }
+    }
 }
 
 object UserFilter : Filter(UserTable) {
@@ -120,4 +143,13 @@ object ProfileTable : IntIdTable() {
     val user = reference("user", UserTable)
     val address = varchar("address", 255)
     val phone = varchar("phone", 255)
+}
+object TestEnumTable : IntIdTable() {
+    val status = enumerationByName<TestEnum>("status", 255)
+}
+object TestEnumFilter : Filter(TestEnumTable) {
+    val name = add("status_test", TestEnumTable.status)
+}
+enum class TestEnum {
+    ACTIVE, INACTIVE
 }
