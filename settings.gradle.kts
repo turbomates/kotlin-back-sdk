@@ -12,7 +12,7 @@ dependencyResolutionManagement {
             version("hoplite", "2.7.5")
             version("kotlin", "2.0.0")
             version("s3", "1.1.0")
-            version("hikaricp", "5.0.1")
+            version("hikaricp", "5.1.0")
             version("exposed", "0.51.1")
             version("test_logger", "3.2.0")
             version("h2database", "2.2.224")
