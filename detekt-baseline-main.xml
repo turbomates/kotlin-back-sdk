@@ -18,5 +18,45 @@
     <ID>UseDataClass:Message.kt$Message</ID>
   </ManuallySuppressedIssues>
   <CurrentIssues>
+    <ID>ArgumentListWrapping:BaseBatchInsertStatement.kt$BaseBatchInsertStatement$("Can't set $value for $fullIdentity because previous insertion can't be defaulted for that column.")</ID>
+    <ID>BooleanPropertyNaming:SqlBatchInsertStatement.kt$SqlBatchInsertStatement$private val ignore: Boolean</ID>
+    <ID>BooleanPropertyNaming:SqlBatchUpsert.kt$val notTheFirstBatch = this.data.size &gt; 1</ID>
+    <ID>BooleanPropertyNaming:TransactionManager.kt$val locked = exec("SELECT pg_try_advisory_xact_lock($id)") { rs -&gt; rs.next() &amp;&amp; rs.getBoolean(1) }</ID>
+    <ID>BracesOnWhenStatements:AppleAuth.kt$AppleTransformer$when</ID>
+    <ID>BracesOnWhenStatements:FacebookAuth.kt$FacebookTransformer$when</ID>
+    <ID>BracesOnWhenStatements:GoogleAuth.kt$GoogleTransformer$when</ID>
+    <ID>BracesOnWhenStatements:QueryConverter.kt$QueryConverter$when</ID>
+    <ID>BracesOnWhenStatements:TwitterAuth.kt$TwitterTransformer$when</ID>
+    <ID>ClassOrdering:BaseBatchInsertStatement.kt$BaseBatchInsertStatement$override var arguments: List&lt;List&lt;Pair&lt;Column&lt;*&gt;, Any?&gt;&gt;&gt;? = null get() = field ?: run { val nullableColumns by lazy { allColumnsInDataSet().filter { it.columnType.nullable &amp;&amp; !it.isDatabaseGenerated() } } data.map { single -&gt; val valuesAndDefaults = super.valuesAndDefaults(single) as MutableMap val nullableMap = (nullableColumns - valuesAndDefaults.keys).associateWith { null } valuesAndDefaults.putAll(nullableMap) valuesAndDefaults.toList().sortedBy { it.first } }.apply { field = this } }</ID>
+    <ID>ClassOrdering:BaseBatchInsertStatement.kt$BaseBatchInsertStatement$private val allColumnsInDataSet = mutableSetOf&lt;Column&lt;*&gt;&gt;()</ID>
+    <ID>DontDowncastCollectionTypes:BaseBatchInsertStatement.kt$BaseBatchInsertStatement$super.valuesAndDefaults(single) as MutableMap</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:AppleAuth.kt$AppleTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val user = api.getUser(principal.accessToken) provider.load(user?.email, SocialToken(SocialAuthType.APPLE, principal)) } else -&gt; null }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:FacebookAuth.kt$FacebookTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val api = FacebookAPI() val user = api.getUser(principal.accessToken) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.FACEBOOK, principal)) } else null } else -&gt; null }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:GoogleAuth.kt$GoogleTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val api = GoogleAPI() val user = api.getUser(principal.accessToken) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.GOOGLE, principal)) } else null } else -&gt; null }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:InferSerializer.kt$when (value) { is Response.Ok -&gt; ResponseOkSerializer is Response.Listing&lt;*&gt; -&gt; ResponseListingSerializer is Response.Either&lt;*, *&gt; -&gt; ResponseEitherSerializer is Response.Data&lt;*&gt; -&gt; ResponseDataSerializer else -&gt; value::class.serializer() }</ID>
+    <ID>ElseCaseInsteadOfExhaustiveWhen:TwitterAuth.kt$TwitterTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth1a -&gt; { val api = TwitterAPI(clientKey, clientSecret) val user = api.getUser(principal.token, principal.tokenSecret) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.TWITTER, principal)) } else null } else -&gt; null }</ID>
+    <ID>ExplicitCollectionElementAccessMethod:BaseBatchInsertStatement.kt$BaseBatchInsertStatement$super.set(column, value)</ID>
+    <ID>MultiLineIfElse:AppleAPI.kt$AppleAPI$throw JWTVerificationException("Iss didn't come from Apple or time is expired")</ID>
+    <ID>MultiLineIfElse:DescriptionBuilder.kt$this.simpleResponseMap()</ID>
+    <ID>MultiLineIfElse:FacebookAuth.kt$FacebookTransformer$null</ID>
+    <ID>MultiLineIfElse:Filter.kt$emptyList()</ID>
+    <ID>MultiLineIfElse:GoogleAuth.kt$GoogleTransformer$null</ID>
+    <ID>MultiLineIfElse:PublicS3Client.kt$PublicS3Client$""</ID>
+    <ID>MultiLineIfElse:QueryConverter.kt$QueryConverter$SingleValue(value)</ID>
+    <ID>MultiLineIfElse:SqlBatchInsertStatement.kt$SqlBatchInsertStatement$""</ID>
+    <ID>MultiLineIfElse:SqlBatchInsertStatement.kt$SqlBatchInsertStatement$with(builder) { prepareSQLArguments.appendTo(prefix = "VALUES (", postfix = ")") { (col, value) -&gt; registerArgument(col, value) } toString() }</ID>
+    <ID>MultiLineIfElse:TwitterAuth.kt$TwitterTransformer$null</ID>
+    <ID>MultiLineIfElse:Value.kt$SingleValue$EqOp(this, typedWrap(value))</ID>
+    <ID>NullableToStringCall:AppleAPI.kt$AppleAPI$${ignore.message}</ID>
+    <ID>NullableToStringCall:BaseBatchInsertStatement.kt$BaseBatchInsertStatement$$value</ID>
+    <ID>StringLiteralDuplication:DescriptionBuilder.kt$"error"</ID>
+    <ID>UnnecessaryParentheses:Value.kt$RangeValue$('%' + to!!.lowercase())</ID>
+    <ID>UnusedImports:BigDecimalSerializer.kt$import kotlinx.serialization.Serializer</ID>
+    <ID>UnusedImports:Sessions.kt$import kotlinx.serialization.decodeFromString</ID>
+    <ID>UnusedImports:UUIDSerializer.kt$import kotlinx.serialization.Serializer</ID>
+    <ID>UseIfInsteadOfWhen:AppleAuth.kt$AppleTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val user = api.getUser(principal.accessToken) provider.load(user?.email, SocialToken(SocialAuthType.APPLE, principal)) } else -&gt; null }</ID>
+    <ID>UseIfInsteadOfWhen:FacebookAuth.kt$FacebookTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val api = FacebookAPI() val user = api.getUser(principal.accessToken) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.FACEBOOK, principal)) } else null } else -&gt; null }</ID>
+    <ID>UseIfInsteadOfWhen:GoogleAuth.kt$GoogleTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth2 -&gt; { val api = GoogleAPI() val user = api.getUser(principal.accessToken) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.GOOGLE, principal)) } else null } else -&gt; null }</ID>
+    <ID>UseIfInsteadOfWhen:TwitterAuth.kt$TwitterTransformer$when (principal) { is OAuthAccessTokenResponse.OAuth1a -&gt; { val api = TwitterAPI(clientKey, clientSecret) val user = api.getUser(principal.token, principal.tokenSecret) if (user != null) { provider.load(user.email, SocialToken(SocialAuthType.TWITTER, principal)) } else null } else -&gt; null }</ID>
   </CurrentIssues>
 </SmellBaseline>
