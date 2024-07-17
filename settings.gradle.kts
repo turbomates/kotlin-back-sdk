@@ -28,6 +28,7 @@ dependencyResolutionManagement {
             version("tmsoft_openapi", "0.5.2")
             version("tmsoft_time", "0.1.2")
 
+
             library("h2_database", "com.h2database", "h2").versionRef("h2database")
             library("greenmail", "com.icegreen", "greenmail-junit5").versionRef("greenmail")
             library("email", "com.sun.mail", "javax.mail").versionRef("email")
@@ -64,9 +65,14 @@ dependencyResolutionManagement {
             library("hikaricp", "com.zaxxer", "HikariCP").versionRef("hikaricp")
             library("jedis", "redis.clients", "jedis").versionRef("jedis")
             library("s3", "aws.sdk.kotlin", "s3").versionRef("s3")
+            library("detekt_formatting", "io.gitlab.arturbosch.detekt", "detekt-formatting").versionRef("detekt")
 
             library("tmsoft_openapi", "com.turbomates.ktor", "openapi").versionRef("tmsoft_openapi")
             library("tmsoft_time", "com.github.turbomates", "kotlin-time").versionRef("tmsoft_time")
+
+            plugin("kotlin_serialization", "org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin")
+            plugin("test_logger", "com.adarshr.test-logger").versionRef("test_logger")
+            plugin("detekt", "io.gitlab.arturbosch.detekt").versionRef("detekt")
 
             bundle(
                 "turbomates", listOf(
@@ -103,11 +109,6 @@ dependencyResolutionManagement {
                     "exposed_jdbc"
                 )
             )
-
-            plugin("kotlin_serialization", "org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin")
-            plugin("test_logger", "com.adarshr.test-logger").versionRef("test_logger")
-            plugin("detekt", "io.gitlab.arturbosch.detekt").versionRef("detekt")
-            plugin("detekt_formatting", "io.gitlab.arturbosch.detekt").versionRef("detekt")
         }
     }
 }

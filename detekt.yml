@@ -223,7 +223,7 @@ style:
     active: true
   OptionalUnit:
     active: true
-  OptionalWhenBraces:
+  BracesOnWhenStatements:
     active: true
   PreferToOverPairSyntax:
     active: true

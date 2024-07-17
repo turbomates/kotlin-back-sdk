@@ -51,11 +51,13 @@ dependencies {
     }
     testImplementation(deps.embedded.postgres)
     testImplementation(deps.h2.database)
+
+    detektPlugins(deps.detekt.formatting)
 }
 
 detekt {
     toolVersion = deps.versions.detekt.get()
-    autoCorrect = false
+    autoCorrect = true
     parallel = true
     config.setFrom(file("detekt.yml"))
 }
@@ -67,7 +69,7 @@ tasks.named("check").configure {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "21"
         freeCompilerArgs = listOf(
             "-opt-in=io.ktor.locations.KtorExperimentalLocationsAPI",
             "-opt-in=kotlin.ExperimentalStdlibApi",
@@ -82,8 +84,8 @@ tasks.withType<KotlinCompile> {
 
 
 configure<JavaPluginExtension> {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 //  ----------------  TEST ----------------  //
@@ -155,4 +157,7 @@ publishing {
             from(components["java"])
         }
     }
+}
+kotlin {
+    jvmToolchain(21)
 }
