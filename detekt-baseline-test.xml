@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>MultiLineIfElse:EmbeddedTest.kt$MoneyColumn$Money(parts[MoneyColumn.amount] as Int, parts[MoneyColumn.currency] as Currency)</ID>
+    <ID>MultiLineIfElse:ExposedTestTransactionManager.kt$ExposedTestTransactionManager.TestTransaction$null</ID>
+    <ID>SpacingBetweenDeclarationsWithAnnotations:FilterTest.kt$FilterTest$@Test fun `simple enum query`()</ID>
+    <ID>UnusedImports:EmbeddedTest.kt$import org.jetbrains.exposed.sql.Op</ID>
+    <ID>UnusedImports:EmbeddedTest.kt$import org.jetbrains.exposed.sql.SqlExpressionBuilder</ID>
+    <ID>UnusedImports:EmbeddedTest.kt$import org.jetbrains.exposed.sql.select</ID>
+    <ID>UnusedImports:TimeBucketTest.kt$import org.jetbrains.exposed.sql.selectAll</ID>
+  </CurrentIssues>
+</SmellBaseline>
