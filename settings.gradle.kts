@@ -27,7 +27,9 @@ dependencyResolutionManagement {
             version("greenmail", "1.6.9")
             version("tmsoft_openapi", "0.5.2")
             version("tmsoft_time", "0.1.2")
-
+            version("sentry_plugin", "4.14.1")
+            version("opentelemetry", "1.45.0")
+            version("prometheus_micrometer", "1.14.2")
 
             library("h2_database", "com.h2database", "h2").versionRef("h2database")
             library("greenmail", "com.icegreen", "greenmail-junit5").versionRef("greenmail")
@@ -66,14 +68,20 @@ dependencyResolutionManagement {
             library("jedis", "redis.clients", "jedis").versionRef("jedis")
             library("s3", "aws.sdk.kotlin", "s3").versionRef("s3")
             library("detekt_formatting", "io.gitlab.arturbosch.detekt", "detekt-formatting").versionRef("detekt")
-
+            library("opentelemetry-api", "io.opentelemetry", "opentelemetry-api").versionRef("opentelemetry")
+            library("opentelemetry-sdk", "io.opentelemetry", "opentelemetry-sdk").versionRef("opentelemetry")
+            library("opentelemetry-coroutines", "io.opentelemetry", "opentelemetry-extension-kotlin").versionRef(
+                "opentelemetry"
+            )
             library("tmsoft_openapi", "com.turbomates.ktor", "openapi").versionRef("tmsoft_openapi")
             library("tmsoft_time", "com.github.turbomates", "kotlin-time").versionRef("tmsoft_time")
-
+            library("prometheus_micrometer", "io.micrometer", "micrometer-registry-prometheus").versionRef(
+                "prometheus_micrometer"
+            )
             plugin("kotlin_serialization", "org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin")
             plugin("test_logger", "com.adarshr.test-logger").versionRef("test_logger")
             plugin("detekt", "io.gitlab.arturbosch.detekt").versionRef("detekt")
-
+            plugin("sentry", "io.sentry.jvm.gradle").versionRef("sentry_plugin")
             bundle(
                 "turbomates", listOf(
                     "tmsoft_openapi",
@@ -100,7 +108,14 @@ dependencyResolutionManagement {
                     "ktor_server_sessions"
                 )
             )
-
+            bundle(
+                "opentelemetry",
+                listOf(
+                    "opentelemetry-api",
+                    "opentelemetry-sdk",
+                    "opentelemetry-coroutines",
+                )
+            )
             bundle(
                 "exposed", listOf(
                     "exposed_dao",

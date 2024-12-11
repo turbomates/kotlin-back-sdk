@@ -9,12 +9,13 @@ plugins {
     alias(deps.plugins.detekt)
     alias(deps.plugins.test.logger)
     alias(deps.plugins.kotlin.serialization)
+    alias(deps.plugins.sentry)
     id("maven-publish")
     signing
 }
 
 group = "com.github.turbomates"
-version = "0.6.13"
+version = "0.6.14"
 
 
 repositories {
@@ -33,7 +34,9 @@ dependencies {
     api(deps.postgresql.jdbc)
     api(deps.hikaricp)
     api(deps.kotlin.serialization)
+    api(deps.prometheus.micrometer)
     api(deps.kotlin.serialization.json)
+    api(deps.bundles.opentelemetry)
     api(deps.rabbitmq.amqp.client)
     api(deps.swagger.webjar)
     api(deps.s3)
