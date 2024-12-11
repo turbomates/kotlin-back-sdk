@@ -223,8 +223,6 @@ style:
     active: true
   OptionalUnit:
     active: true
-  BracesOnWhenStatements:
-    active: true
   PreferToOverPairSyntax:
     active: true
   RedundantExplicitType:

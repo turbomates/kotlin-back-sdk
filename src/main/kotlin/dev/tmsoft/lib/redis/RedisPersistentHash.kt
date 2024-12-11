@@ -1,12 +1,18 @@
 package dev.tmsoft.lib.redis
 
+import dev.tmsoft.lib.logger.logger
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import redis.clients.jedis.JedisPool
 
-class RedisPersistentHash(private val pool: JedisPool, val serializer: Json = Json, private val prefix: String? = null) {
-
+class RedisPersistentHash(
+    private val pool: JedisPool,
+    val serializer: Json = Json,
+    private val prefix: String? = null
+) {
+    private val logger = logger()
     fun get(key: String, field: String): String? {
+        logger.debug("Get value for key: {}, field: {}", key, field)
         return pool.resource.use { it.hget(prefix?.let { "$prefix:$key" } ?: key, field) }
     }
 
@@ -16,6 +22,7 @@ class RedisPersistentHash(private val pool: JedisPool, val serializer: Json = Js
     }
 
     fun set(key: String, field: String, value: String) {
+        logger.debug("Set value for key: {}, field: {}, value: {}", key, field, value)
         pool.resource.use { it.hset(prefix?.let { "$prefix:$key" } ?: key, field, value) }
     }
 
@@ -24,6 +31,7 @@ class RedisPersistentHash(private val pool: JedisPool, val serializer: Json = Js
     }
 
     fun remove(key: String) {
+        logger.debug("Delete for key: {}", key)
         pool.resource.use { it.del(prefix?.let { "$prefix:$key" } ?: key) }
     }
 }
