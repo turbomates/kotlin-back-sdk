@@ -4,10 +4,10 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import redis.clients.jedis.JedisPool
 
-class RedisPersistentHash(private val pool: JedisPool, val serializer: Json = Json) {
+class RedisPersistentHash(private val pool: JedisPool, val serializer: Json = Json, private val prefix: String? = null) {
 
     fun get(key: String, field: String): String? {
-        return pool.resource.use { it.hget(key, field) }
+        return pool.resource.use { it.hget(prefix?.let { "$prefix:$key" } ?: key, field) }
     }
 
     inline fun <reified T> get(key: String, field: String): T? {
@@ -16,7 +16,7 @@ class RedisPersistentHash(private val pool: JedisPool, val serializer: Json = Js
     }
 
     fun set(key: String, field: String, value: String) {
-        pool.resource.use { it.hset(key, field, value) }
+        pool.resource.use { it.hset(prefix?.let { "$prefix:$key" } ?: key, field, value) }
     }
 
     inline fun <reified T> set(key: String, field: String, value: T) {
@@ -24,6 +24,6 @@ class RedisPersistentHash(private val pool: JedisPool, val serializer: Json = Js
     }
 
     fun remove(key: String) {
-        pool.resource.use { it.del(key) }
+        pool.resource.use { it.del(prefix?.let { "$prefix:$key" } ?: key) }
     }
 }

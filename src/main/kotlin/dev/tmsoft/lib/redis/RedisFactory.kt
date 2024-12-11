@@ -25,6 +25,7 @@ class RedisFactory(private val pool: JedisPool) {
             maxTotal: Int,
             username: String? = null,
             password: String? = null,
+            prefix: String? = null,
             timeout: Int = 10000
         ): RedisFactory {
             val jedisPoolConfig = JedisPoolConfig()

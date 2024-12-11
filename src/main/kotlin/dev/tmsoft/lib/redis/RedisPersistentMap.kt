@@ -4,11 +4,11 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import redis.clients.jedis.JedisPool
 
-class RedisPersistentMap(private val pool: JedisPool) {
+class RedisPersistentMap(private val pool: JedisPool, private val prefix: String? = null) {
     val serializer: Json = Json
 
     fun get(key: String): String? {
-        return pool.resource.use { it[key] }
+        return pool.resource.use { it[prefix?.let { "$prefix:$key" } ?: key] }
     }
 
     inline fun <reified T> get(key: String): T? {
@@ -17,7 +17,7 @@ class RedisPersistentMap(private val pool: JedisPool) {
     }
 
     fun set(key: String, value: String) {
-        pool.resource.use { it[key] = value }
+        pool.resource.use { it[prefix?.let { "$prefix:$key" } ?: key] = value }
     }
 
     inline fun <reified T> set(key: String, value: T) {
@@ -26,7 +26,7 @@ class RedisPersistentMap(private val pool: JedisPool) {
     }
 
     fun set(key: String, ttl: Long, value: String) {
-        pool.resource.use { it.setex(key, ttl, value) }
+        pool.resource.use { it.setex(prefix?.let { "$prefix:$key" } ?: key, ttl, value) }
     }
 
     inline fun <reified T> set(key: String, ttl: Long, value: T) {
@@ -34,6 +34,6 @@ class RedisPersistentMap(private val pool: JedisPool) {
     }
 
     fun remove(key: String) {
-        pool.resource.use { it.del(key) }
+        pool.resource.use { it.del(prefix?.let { "$prefix:$key" } ?: key) }
     }
 }
