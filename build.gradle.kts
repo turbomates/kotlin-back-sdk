@@ -45,7 +45,7 @@ dependencies {
     api(deps.log4j.api)
     api(deps.log4j.slf4j)
     api(deps.email)
-    api(deps.sentry)
+    implementation(deps.sentry)
     runtimeOnly(deps.log4j.core)
 
     testImplementation(deps.kotlin.test)
