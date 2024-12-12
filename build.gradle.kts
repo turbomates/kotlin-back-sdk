@@ -9,7 +9,6 @@ plugins {
     alias(deps.plugins.detekt)
     alias(deps.plugins.test.logger)
     alias(deps.plugins.kotlin.serialization)
-    alias(deps.plugins.sentry)
     id("maven-publish")
     signing
 }
@@ -46,6 +45,7 @@ dependencies {
     api(deps.log4j.api)
     api(deps.log4j.slf4j)
     api(deps.email)
+    api(deps.sentry)
     runtimeOnly(deps.log4j.core)
 
     testImplementation(deps.kotlin.test)

@@ -27,7 +27,7 @@ dependencyResolutionManagement {
             version("greenmail", "1.6.9")
             version("tmsoft_openapi", "0.5.2")
             version("tmsoft_time", "0.1.2")
-            version("sentry_plugin", "4.14.1")
+            version("sentry", "7.19.0")
             version("opentelemetry", "1.45.0")
             version("prometheus_micrometer", "1.14.2")
             version("slf4j_coroutines", "1.7.3")
@@ -84,7 +84,7 @@ dependencyResolutionManagement {
             plugin("kotlin_serialization", "org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin")
             plugin("test_logger", "com.adarshr.test-logger").versionRef("test_logger")
             plugin("detekt", "io.gitlab.arturbosch.detekt").versionRef("detekt")
-            plugin("sentry", "io.sentry.jvm.gradle").versionRef("sentry_plugin")
+            library("sentry","io.sentry", "sentry").versionRef("sentry")
             bundle(
                 "turbomates", listOf(
                     "tmsoft_openapi",
