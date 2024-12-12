@@ -17,13 +17,13 @@ import org.slf4j.LoggerFactory
 
 abstract class Worker(
     private val interval: Long,
-    private val name: String,
     private val meterRegistry: MeterRegistry,
     private val telemetry: OpenTelemetry,
     private val initialDelay: Long? = null,
     dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : CoroutineScope by CoroutineScope(dispatcher) {
     private val logger = LoggerFactory.getLogger(javaClass)
+    abstract val name: String
 
     fun start() = launch {
         initialDelay?.let {
