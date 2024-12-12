@@ -7,8 +7,8 @@ import redis.clients.jedis.JedisPool
 
 class RedisPersistentHash(
     private val pool: JedisPool,
+    private val prefix: String? = null,
     val serializer: Json = Json,
-    private val prefix: String? = null
 ) {
     private val logger = logger()
     fun get(key: String, field: String): String? {

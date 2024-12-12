@@ -3,17 +3,17 @@ package dev.tmsoft.lib.redis
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
 
-class RedisFactory(private val pool: JedisPool) {
+class RedisFactory(private val pool: JedisPool, private val prefix: String? = null) {
     fun createPersistentMap(): RedisPersistentMap {
-        return RedisPersistentMap(pool)
+        return RedisPersistentMap(pool, prefix)
     }
 
     fun createPersistentHash(): RedisPersistentHash {
-        return RedisPersistentHash(pool)
+        return RedisPersistentHash(pool, prefix)
     }
 
     fun createPersistentList(): RedisPersistentList {
-        return RedisPersistentList(pool)
+        return RedisPersistentList(pool, prefix)
     }
 
     companion object {
@@ -36,7 +36,7 @@ class RedisFactory(private val pool: JedisPool) {
             } else {
                 JedisPool(jedisPoolConfig, host, port)
             }
-            return RedisFactory(pool)
+            return RedisFactory(pool, prefix)
         }
     }
 }
