@@ -33,6 +33,7 @@ dependencies {
     api(deps.google.guice)
     api(deps.postgresql.jdbc)
     api(deps.hikaricp)
+    api(deps.slf4j.coroutines)
     api(deps.kotlin.serialization)
     api(deps.prometheus.micrometer)
     api(deps.kotlin.serialization.json)

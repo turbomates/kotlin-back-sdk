@@ -30,6 +30,7 @@ dependencyResolutionManagement {
             version("sentry_plugin", "4.14.1")
             version("opentelemetry", "1.45.0")
             version("prometheus_micrometer", "1.14.2")
+            version("slf4j_coroutines", "1.7.3")
 
             library("h2_database", "com.h2database", "h2").versionRef("h2database")
             library("greenmail", "com.icegreen", "greenmail-junit5").versionRef("greenmail")
@@ -78,6 +79,8 @@ dependencyResolutionManagement {
             library("prometheus_micrometer", "io.micrometer", "micrometer-registry-prometheus").versionRef(
                 "prometheus_micrometer"
             )
+            library("slf4j_coroutines", "org.jetbrains.kotlinx", "kotlinx-coroutines-slf4j")
+                .versionRef("slf4j_coroutines")
             plugin("kotlin_serialization", "org.jetbrains.kotlin.plugin.serialization").versionRef("kotlin")
             plugin("test_logger", "com.adarshr.test-logger").versionRef("test_logger")
             plugin("detekt", "io.gitlab.arturbosch.detekt").versionRef("detekt")
