@@ -29,7 +29,7 @@ dependencyResolutionManagement {
             version("tmsoft_time", "0.1.2")
             version("sentry", "7.19.0")
             version("opentelemetry", "1.45.0")
-            version("prometheus_micrometer", "1.14.2")
+            version("prometheus_micrometer", "1.11.0")
             version("slf4j_coroutines", "1.7.3")
 
             library("h2_database", "com.h2database", "h2").versionRef("h2database")
