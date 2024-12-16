@@ -75,7 +75,8 @@ class ResponseTest {
                                 mapOf(
                                     "message" to JsonPrimitive("error"),
                                     "property" to JsonPrimitive("property"),
-                                    "value" to JsonPrimitive("value")
+                                    "value" to JsonPrimitive("value"),
+                                    "parameters" to JsonObject(mapOf("parameter" to JsonPrimitive("value")))
                                 )
                             )
                         )
@@ -88,7 +89,8 @@ class ResponseTest {
                         dev.tmsoft.lib.validation.Error(
                             "error",
                             "property",
-                            "value"
+                            "value",
+                            mapOf("parameter" to "value")
                         )
                     )
                 )
