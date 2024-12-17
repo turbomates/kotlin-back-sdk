@@ -22,13 +22,13 @@ suspend fun <E> validate(obj: E, block: suspend Validator<E>.(E) -> Unit): List<
 fun <E : ConstraintViolation> Set<E>.toErrorsList(): List<Error> {
     return map { constraint ->
         val message = constraint.toMessage()
-
         val errorMessage = message.message.ifBlank { constraint.constraint.name }
 
         Error(
             errorMessage,
             message.property,
-            if (constraint.constraint is EmptyValueConstraint) "" else message.value
+            if (constraint.constraint is EmptyValueConstraint) "" else message.value,
+            constraint.constraint.messageParams
         )
     }
 }

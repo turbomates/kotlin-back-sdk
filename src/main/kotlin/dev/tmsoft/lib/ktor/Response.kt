@@ -125,6 +125,9 @@ object ResponseErrorSerializer : KSerializer<Error> {
                 value.value
             )
         }
+        if (value.parameters != null) {
+            error["parameters"] = output.json.encodeToJsonElement(resolveSerializer(value.parameters), value.parameters)
+        }
 
         val tree = JsonObject(error)
         output.encodeJsonElement(tree)
