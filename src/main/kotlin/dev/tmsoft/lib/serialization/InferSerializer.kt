@@ -35,10 +35,9 @@ fun Collection<*>.elementSerializer(): KSerializer<*> {
     }.distinctBy { it.descriptor.serialName }
 
     if (serializers.size > 1) {
-        error(
-            "Serializing collections of different element types is not yet supported. " +
-                "Selected serializers: ${serializers.map { it.descriptor.serialName }}"
-        )
+        val supertype = this.first()!!.javaClass.kotlin.supertypes.first()
+        @Suppress("UNCHECKED_CAST")
+        return serializer(supertype) as KSerializer<Any>
     }
 
     val selected: KSerializer<*> = serializers.singleOrNull() ?: String::class.serializer()
