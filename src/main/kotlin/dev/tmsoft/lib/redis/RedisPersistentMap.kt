@@ -38,6 +38,11 @@ class RedisPersistentMap(private val pool: JedisPool, private val prefix: String
         set(key, ttl, serializer.encodeToString(value))
     }
 
+    fun exists(key: String): Boolean {
+        logger.debug("Check if key exists: {}", key)
+        return pool.resource.use { it.exists(prefix?.let { "$prefix:$key" } ?: key) }
+    }
+
     fun remove(key: String) {
         pool.resource.use { it.del(prefix?.let { "$prefix:$key" } ?: key) }
     }

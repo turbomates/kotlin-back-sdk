@@ -29,7 +29,10 @@ class RedisPersistentHash(
     inline fun <reified T> set(key: String, field: String, value: T) {
         set(key, field, serializer.encodeToString(value))
     }
-
+    fun exists(key: String): Boolean {
+        logger.debug("Check if key exists: {}", key)
+        return pool.resource.use { it.exists(prefix?.let { "$prefix:$key" } ?: key) }
+    }
     fun remove(key: String) {
         logger.debug("Delete for key: {}", key)
         pool.resource.use { it.del(prefix?.let { "$prefix:$key" } ?: key) }
