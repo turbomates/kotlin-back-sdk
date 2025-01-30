@@ -17,6 +17,7 @@ class RedisPersistentSet(
         pool.resource.use { it.sadd(prefixedKey(key), value) }
     }
 
+    @JvmName("AddSerializable")
     inline fun <reified T> add(key: String, value: T) = add(key, serializer.encodeToString(value))
 
     fun get(key: String): Set<String> {
@@ -24,6 +25,7 @@ class RedisPersistentSet(
         return pool.resource.use { it.smembers(prefixedKey(key)) }
     }
 
+    @JvmName("GetSerializable")
     inline fun <reified T> get(key: String): Set<T> = get(key).map { serializer.decodeFromString<T>(it) }.toSet()
 
     @Suppress("SpreadOperator")
@@ -32,6 +34,7 @@ class RedisPersistentSet(
         pool.resource.use { it.srem(prefixedKey(key), *values.toTypedArray()) }
     }
 
+    @JvmName("RemoveSerializable")
     inline fun <reified T> remove(key: String, values: List<T>) {
         remove(key, values.map { serializer.encodeToString(it) })
     }
