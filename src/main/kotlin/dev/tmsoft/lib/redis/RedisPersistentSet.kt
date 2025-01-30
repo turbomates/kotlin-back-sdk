@@ -18,7 +18,9 @@ class RedisPersistentSet(
     }
 
     @JvmName("AddSerializable")
-    inline fun <reified T> add(key: String, value: T) = add(key, serializer.encodeToString(value))
+    inline fun <reified T> add(key: String, value: T) {
+        add(key, serializer.encodeToString(value))
+    }
 
     fun get(key: String): Set<String> {
         logger.debug("Get values for key: {}", key)
