@@ -16,6 +16,10 @@ class RedisFactory(private val pool: JedisPool, private val prefix: String? = nu
         return RedisPersistentList(pool, prefix)
     }
 
+    fun createPersistentSet(): RedisPersistentSet {
+        return RedisPersistentSet(pool, prefix)
+    }
+
     companion object {
         @Suppress("LongParameterList")
         fun create(
