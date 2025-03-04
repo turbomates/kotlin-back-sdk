@@ -9,7 +9,10 @@ interface Access {
     fun lrange(key: String): List<String>
     fun lpush(key: String, value: String)
     fun lrem(key: String, value: String)
-
+    fun sadd(key: String, value: String)
+    fun smembers(key: String): Set<String>
+    fun scard(key: String): Long
+    fun srem(key: String, vararg values: String)
     fun findKeys(
         prefix: String,
         count: Int

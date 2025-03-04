@@ -3,10 +3,9 @@ package dev.tmsoft.lib.redis
 import dev.tmsoft.lib.logger.logger
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import redis.clients.jedis.JedisPool
 
 class RedisPersistentSet(
-    private val pool: JedisPool,
+    private val access: Access,
     private val prefix: String? = null,
     val serializer: Json = Json,
 ) {
@@ -14,7 +13,7 @@ class RedisPersistentSet(
 
     fun add(key: String, value: String) {
         logger.debug("Add value for key: {}, value: {}", key, value)
-        pool.resource.use { it.sadd(prefixedKey(key), value) }
+        access.sadd(prefixedKey(key), value)
     }
 
     @JvmName("AddSerializable")
@@ -24,7 +23,7 @@ class RedisPersistentSet(
 
     fun get(key: String): Set<String> {
         logger.debug("Get values for key: {}", key)
-        return pool.resource.use { it.smembers(prefixedKey(key)) }
+        return access.smembers(prefixedKey(key))
     }
 
     @JvmName("GetSerializable")
@@ -33,7 +32,7 @@ class RedisPersistentSet(
     @Suppress("SpreadOperator")
     fun remove(key: String, values: List<String>) {
         logger.debug("Remove for key: {}, values: {}", key, values)
-        pool.resource.use { it.srem(prefixedKey(key), *values.toTypedArray()) }
+        access.srem(prefixedKey(key), *values.toTypedArray())
     }
 
     @JvmName("RemoveSerializable")
@@ -42,7 +41,7 @@ class RedisPersistentSet(
     }
 
     fun size(key: String): Long {
-        return pool.resource.use { it.scard(key) }
+        return access.scard(key)
     }
 
     private fun prefixedKey(key: String) = prefix?.let { "$prefix$key" } ?: key

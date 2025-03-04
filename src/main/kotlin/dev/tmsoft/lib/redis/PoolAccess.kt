@@ -29,6 +29,22 @@ class PoolAccess(private val pool: JedisPool) : Access {
         pool.resource.use { it.lrem(key, 0, value) }
     }
 
+    override fun sadd(key: String, value: String) {
+        pool.resource.use { it.sadd(key, value) }
+    }
+
+    override fun smembers(key: String): Set<String> {
+        return pool.resource.use { it.smembers(key) }
+    }
+
+    override fun scard(key: String): Long {
+        return pool.resource.use { it.scard(key) }
+    }
+
+    override fun srem(key: String, vararg values: String) {
+        return pool.resource.use { it.srem(key, *values) }
+    }
+
     override fun findKeys(
         prefix: String,
         count: Int

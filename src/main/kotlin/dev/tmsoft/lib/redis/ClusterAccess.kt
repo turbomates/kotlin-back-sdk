@@ -31,6 +31,22 @@ class ClusterAccess(private val cluster: JedisCluster) : Access {
         cluster.lrem(key, 0, value)
     }
 
+    override fun sadd(key: String, value: String) {
+        cluster.sadd(key, value)
+    }
+
+    override fun smembers(key: String): Set<String> {
+        return cluster.smembers(key)
+    }
+
+    override fun scard(key: String): Long {
+        return cluster.scard(key)
+    }
+
+    override fun srem(key: String, vararg values: String) {
+        cluster.srem(key, *values)
+    }
+
     override fun findKeys(
         prefix: String,
         count: Int

@@ -19,7 +19,7 @@ class RedisFactory(private val access: Access, private val prefix: String? = nul
     }
 
     fun createPersistentSet(): RedisPersistentSet {
-        return RedisPersistentSet(pool, prefix)
+        return RedisPersistentSet(access, prefix)
     }
 
     companion object {
