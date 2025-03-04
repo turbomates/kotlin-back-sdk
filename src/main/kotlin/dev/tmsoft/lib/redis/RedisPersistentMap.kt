@@ -3,15 +3,14 @@ package dev.tmsoft.lib.redis
 import dev.tmsoft.lib.logger.logger
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import redis.clients.jedis.JedisPool
 
-class RedisPersistentMap(private val pool: JedisPool, private val prefix: String? = null) {
+class RedisPersistentMap(private val access: Access, private val prefix: String? = null) {
     private val logger = logger()
     val serializer: Json = Json
 
     fun get(key: String): String? {
         logger.debug("Get value for key: {}", key)
-        return pool.resource.use { it[prefix?.let { "$prefix:$key" } ?: key] }
+        return access.get(prefix?.let { "$prefix:$key" } ?: key)
     }
 
     inline fun <reified T> get(key: String): T? {
@@ -21,7 +20,7 @@ class RedisPersistentMap(private val pool: JedisPool, private val prefix: String
 
     fun set(key: String, value: String) {
         logger.debug("set value for key: {}, value: {}", key, value)
-        pool.resource.use { it[prefix?.let { "$prefix:$key" } ?: key] = value }
+        access.set(prefix?.let { "$prefix:$key" } ?: key, value)
     }
 
     inline fun <reified T> set(key: String, value: T) {
@@ -31,7 +30,7 @@ class RedisPersistentMap(private val pool: JedisPool, private val prefix: String
 
     fun set(key: String, ttl: Long, value: String) {
         logger.debug("set value for key: {}, ttl: {}, value: {}", key, ttl, value)
-        pool.resource.use { it.setex(prefix?.let { "$prefix:$key" } ?: key, ttl, value) }
+        access.set(prefix?.let { "$prefix:$key" } ?: key, value, ttl)
     }
 
     inline fun <reified T> set(key: String, ttl: Long, value: T) {
@@ -40,10 +39,10 @@ class RedisPersistentMap(private val pool: JedisPool, private val prefix: String
 
     fun exists(key: String): Boolean {
         logger.debug("Check if key exists: {}", key)
-        return pool.resource.use { it.exists(prefix?.let { "$prefix:$key" } ?: key) }
+        return access.exists(prefix?.let { "$prefix:$key" } ?: key)
     }
 
     fun remove(key: String) {
-        pool.resource.use { it.del(prefix?.let { "$prefix:$key" } ?: key) }
+        access.remove(prefix?.let { "$prefix:$key" } ?: key)
     }
 }

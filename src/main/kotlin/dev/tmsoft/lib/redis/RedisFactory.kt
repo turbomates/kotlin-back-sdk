@@ -1,19 +1,21 @@
 package dev.tmsoft.lib.redis
 
+import redis.clients.jedis.HostAndPort
+import redis.clients.jedis.JedisCluster
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
 
-class RedisFactory(private val pool: JedisPool, private val prefix: String? = null) {
+class RedisFactory(private val access: Access, private val prefix: String? = null) {
     fun createPersistentMap(): RedisPersistentMap {
-        return RedisPersistentMap(pool, prefix)
+        return RedisPersistentMap(access, prefix)
     }
 
     fun createPersistentHash(): RedisPersistentHash {
-        return RedisPersistentHash(pool, prefix)
+        return RedisPersistentHash(access, prefix)
     }
 
     fun createPersistentList(): RedisPersistentList {
-        return RedisPersistentList(pool, prefix)
+        return RedisPersistentList(access, prefix)
     }
 
     fun createPersistentSet(): RedisPersistentSet {
@@ -22,25 +24,43 @@ class RedisFactory(private val pool: JedisPool, private val prefix: String? = nu
 
     companion object {
         @Suppress("LongParameterList")
-        fun create(
-            host: String,
-            port: Int,
-            maxIdle: Int,
-            maxTotal: Int,
-            username: String? = null,
-            password: String? = null,
-            prefix: String? = null,
-            timeout: Int = 10000
-        ): RedisFactory {
-            val jedisPoolConfig = JedisPoolConfig()
-            jedisPoolConfig.maxIdle = maxIdle
-            jedisPoolConfig.maxTotal = maxTotal
-            val pool = if (username != null && password != null) {
-                JedisPool(jedisPoolConfig, host, port, timeout, username, password)
-            } else {
-                JedisPool(jedisPoolConfig, host, port)
-            }
-            return RedisFactory(pool, prefix)
+        fun create(config: RedisConfig): RedisFactory {
+            val access =
+                if (config.cluster) {
+                    val jc = JedisCluster(
+                        setOf(HostAndPort(config.host, config.port)),
+                        config.username,
+                        config.password
+                    )
+                    ClusterAccess(jc)
+                } else {
+                    val jedisPoolConfig = JedisPoolConfig()
+                    jedisPoolConfig.maxIdle = config.idle
+                    jedisPoolConfig.maxTotal = config.total
+                    PoolAccess(
+                        JedisPool(
+                            jedisPoolConfig,
+                            config.host,
+                            config.port,
+                            config.timeout,
+                            config.username,
+                            config.password
+                        )
+                    )
+                }
+            return RedisFactory(access, config.prefix)
         }
     }
 }
+
+data class RedisConfig(
+    val host: String,
+    val port: Int = 6379,
+    val idle: Int = 8,
+    val total: Int = 8,
+    val username: String? = null,
+    val password: String? = null,
+    val cluster: Boolean = false,
+    val prefix: String? = null,
+    val timeout: Int = 10000
+)

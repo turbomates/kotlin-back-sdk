@@ -7,4 +7,8 @@ class QueryExecutor @Inject constructor(private val transactional: TransactionMa
     suspend fun <T> execute(queryObject: QueryObject<T>): T {
         return transactional { queryObject.getData() }
     }
+
+    suspend fun <T> ttl(queryObject: CachedQueryObject<T>): Long {
+        return transactional.readOnlyTransaction { queryObject.ttl() }
+    }
 }
