@@ -6,7 +6,6 @@ import org.jetbrains.exposed.sql.ColumnSet
 import org.jetbrains.exposed.sql.EnumerationNameColumnType
 import org.jetbrains.exposed.sql.OrOp
 import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.Slice
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.andWhere
 
@@ -106,12 +105,12 @@ fun Query.filter(filter: Filter, values: PathValues): Query {
 }
 
 fun Query.addJoin(body: ColumnSet.() -> ColumnSet): Query {
-    return adjustSlice { old ->
+    return adjustSelect{ old ->
         val newFieldSet = body()
         if (set.source.columns.containsAll(newFieldSet.source.columns)) {
-            old
+            select(set.source.columns)
         } else {
-            Slice(newFieldSet.source, old.fields)
+            select(newFieldSet.columns)
         }
     }
 }

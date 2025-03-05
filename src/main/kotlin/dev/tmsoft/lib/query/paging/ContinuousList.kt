@@ -16,8 +16,8 @@ import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.exposed.sql.Expression
-import org.jetbrains.exposed.sql.ExpressionAlias
 import org.jetbrains.exposed.sql.ExpressionWithColumnType
+import org.jetbrains.exposed.sql.ExpressionWithColumnTypeAlias
 import org.jetbrains.exposed.sql.LongColumnType
 import org.jetbrains.exposed.sql.Min
 import org.jetbrains.exposed.sql.Query
@@ -67,7 +67,8 @@ suspend fun <T> Query.toContinuousListBuilder(
     } else {
         sortedWith(sortingParameters)
         count = copy().count()
-        limit(page.pageSize + 1, page.offset)
+        limit(page.pageSize + 1)
+        offset(page.offset)
     }
 
     var result = effector()
@@ -87,7 +88,8 @@ fun <T> Query.adjustWhereIn(
 ) {
     val primaryKeyAlias = primaryKey.alias("uniq_field_id")
     val ids = distinctSubQuery(primaryKeyAlias, sortingParameters)
-        .limit(limit, offset)
+        .limit(limit)
+        .offset(offset)
         .map { it[primaryKeyAlias.aliasOnlyExpression()] }
     adjustWhere { SingleValueInListOp(primaryKey, ids) }
     sortedWith(sortingParameters)
@@ -112,7 +114,7 @@ fun Query.buildSortingParameters(sortingParameters: List<SortingParameter>): Arr
 
 //SELECT %s AS dctrn_count FROM (SELECT DISTINCT %s FROM (%s) dctrn_result) dctrn_table
 private fun <T> Query.distinctSubQuery(
-    column: ExpressionAlias<T>,
+    column: ExpressionWithColumnTypeAlias<T>,
     sortingParameters: List<SortingParameter>
 ): Query {
     val query = Query(set, where)

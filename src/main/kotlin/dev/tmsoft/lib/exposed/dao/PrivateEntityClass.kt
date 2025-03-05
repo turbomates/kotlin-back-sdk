@@ -1,13 +1,13 @@
 package dev.tmsoft.lib.exposed.dao
 
+import kotlin.properties.ReadOnlyProperty
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.OptionalBackReference
-import org.jetbrains.exposed.dao.OptionalReferrers
 import org.jetbrains.exposed.dao.Referrers
 import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.Column
-import kotlin.properties.ReadOnlyProperty
 
 private typealias OtherPrivateEntityClass<ID, T> = PrivateEntityClass<ID, T>
 
@@ -87,24 +87,41 @@ open class PrivateEntityClass<ID : Comparable<ID>, out T : Entity<ID>>(private v
         this@referrersOn.base.referrersOn(column, cache)
     }
 
-    infix fun <
-            TargetID : Comparable<TargetID>,
-            Target : Entity<TargetID>,
-            REF : Comparable<REF>
-            > OtherPrivateEntityClass<TargetID, Target>.optionalReferrersOn(
-        column: Column<REF?>
-    ): OptionalReferrers<ID, Entity<ID>, TargetID, Target, REF> = with(this@PrivateEntityClass.base) {
-        this@optionalReferrersOn.base.optionalReferrersOn(column)
-    }
+    //
+//    infix fun <
+//            TargetID : Comparable<TargetID>,
+//            Target : Entity<TargetID>,
+//            REF : Comparable<REF>
+//            > OtherPrivateEntityClass<TargetID, Target>.optionalReferrersOn(
+//        column: Column<REF?>
+//    ): OptionalReferrers<ID, Entity<ID>, TargetID, Target, REF> = with(this@PrivateEntityClass.base) {
+//        this@optionalReferrersOn.base.optionalReferrersOn(column)
+//    }
+//
+//    fun <
+//            TargetID : Comparable<TargetID>,
+//            Target : Entity<TargetID>,
+//            REF : Comparable<REF>
+//            > OtherPrivateEntityClass<TargetID, Target>.optionalReferrersOn(
+//        column: Column<REF?>,
+//        cache: Boolean = false
+//    ): OptionalReferrers<ID, Entity<ID>, TargetID, Target, REF> = with(this@PrivateEntityClass.base) {
+//        this@optionalReferrersOn.base.optionalReferrersOn(column, cache)
+//    }
+    fun <TargetID : Any, Target : Entity<TargetID>, REF : Any> EntityClass<TargetID, Target>.optionalReferrersOn(
+        column: Column<REF?>,
+    ) = this@PrivateEntityClass.base.optionalReferrersOn(column)
 
-    fun <
-            TargetID : Comparable<TargetID>,
-            Target : Entity<TargetID>,
-            REF : Comparable<REF>
-            > OtherPrivateEntityClass<TargetID, Target>.optionalReferrersOn(
+    fun <TargetID : Any, Target : Entity<TargetID>, REF : Any> EntityClass<TargetID, Target>.optionalReferrersOn(
         column: Column<REF?>,
         cache: Boolean = false
-    ): OptionalReferrers<ID, Entity<ID>, TargetID, Target, REF> = with(this@PrivateEntityClass.base) {
-        this@optionalReferrersOn.base.optionalReferrersOn(column, cache)
+    ) = this@PrivateEntityClass.base.optionalReferrersOn(column, cache)
+
+
+    fun <TargetID : Any, Target : Entity<TargetID>> EntityClass<TargetID, Target>.optionalReferrersOn(
+        table: IdTable<*>,
+        cache: Boolean = false
+    ): Referrers<ID, Entity<ID>, TargetID, Target, Any?> {
+        return this@PrivateEntityClass.base.optionalReferrersOn(table, cache) as Referrers<ID, Entity<ID>, TargetID, Target, Any?>
     }
 }
