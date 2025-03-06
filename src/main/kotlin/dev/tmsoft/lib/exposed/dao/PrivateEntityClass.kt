@@ -20,14 +20,14 @@ open class PrivateEntityClass<ID : Any, out T : Entity<ID>>(private val base: En
 
     operator fun get(id: ID): T = base[id]
 
-    infix fun <REF : Comparable<REF>> referencedOn(column: Column<REF>) = base.referencedOn(column)
+    infix fun <REF : Any> referencedOn(column: Column<REF>) = base.referencedOn(column)
 
-    infix fun <REF : Comparable<REF>> optionalReferencedOn(column: Column<REF?>) = base.optionalReferencedOn(column)
+    infix fun <REF : Any> optionalReferencedOn(column: Column<REF?>) = base.optionalReferencedOn(column)
 
     infix fun <
             TargetID : Comparable<TargetID>,
             Target : Entity<TargetID>,
-            REF : Comparable<REF>
+            REF : Any
             > OtherPrivateEntityClass<TargetID, Target>.backReferencedOn(
         column: Column<REF>
     ): ReadOnlyProperty<Entity<ID>, Target> = with(this@PrivateEntityClass.base) {
@@ -38,7 +38,7 @@ open class PrivateEntityClass<ID : Any, out T : Entity<ID>>(private val base: En
     infix fun <
             TargetID : Comparable<TargetID>,
             Target : Entity<TargetID>,
-            REF : Comparable<REF>
+            REF :Any
             > OtherPrivateEntityClass<TargetID, Target>.backReferencedOn(
         column: Column<REF?>
     ): ReadOnlyProperty<Entity<ID>, Target> = with(this@PrivateEntityClass.base) {
@@ -48,7 +48,7 @@ open class PrivateEntityClass<ID : Any, out T : Entity<ID>>(private val base: En
     infix fun <
             TargetID : Comparable<TargetID>,
             Target : Entity<TargetID>,
-            REF : Comparable<REF>
+            REF : Any
             > OtherPrivateEntityClass<TargetID, Target>.optionalBackReferencedOn(
         column: Column<REF>
     ): OptionalBackReference<TargetID, Target, ID, Entity<ID>, REF> = with(this@PrivateEntityClass.base) {
@@ -59,7 +59,7 @@ open class PrivateEntityClass<ID : Any, out T : Entity<ID>>(private val base: En
     infix fun <
             TargetID : Comparable<TargetID>,
             Target : Entity<TargetID>,
-            REF : Comparable<REF>
+            REF : Any
             > OtherPrivateEntityClass<TargetID, Target>.optionalBackReferencedOn(
         column: Column<REF?>
     ): OptionalBackReference<TargetID, Target, ID, Entity<ID>, REF> = with(this@PrivateEntityClass.base) {
@@ -69,7 +69,7 @@ open class PrivateEntityClass<ID : Any, out T : Entity<ID>>(private val base: En
     infix fun <
             TargetID : Comparable<TargetID>,
             Target : Entity<TargetID>,
-            REF : Comparable<REF>
+            REF : Any
             > OtherPrivateEntityClass<TargetID, Target>.referrersOn(
         column: Column<REF>
     ): Referrers<ID, Entity<ID>, TargetID, Target, REF> = with(this@PrivateEntityClass.base) {
@@ -79,7 +79,7 @@ open class PrivateEntityClass<ID : Any, out T : Entity<ID>>(private val base: En
     fun <
             TargetID : Comparable<TargetID>,
             Target : Entity<TargetID>,
-            REF : Comparable<REF>
+            REF : Any
             > OtherPrivateEntityClass<TargetID, Target>.referrersOn(
         column: Column<REF>,
         cache: Boolean
@@ -91,7 +91,7 @@ open class PrivateEntityClass<ID : Any, out T : Entity<ID>>(private val base: En
     infix fun <
             TargetID : Comparable<TargetID>,
             Target : Entity<TargetID>,
-            REF : Comparable<REF>
+            REF : Any
             > OtherPrivateEntityClass<TargetID, Target>.optionalReferrersOn(
         column: Column<REF?>
     ) = with(this@PrivateEntityClass.base) {
