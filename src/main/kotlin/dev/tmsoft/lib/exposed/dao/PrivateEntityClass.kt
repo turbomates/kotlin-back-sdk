@@ -101,12 +101,6 @@ open class PrivateEntityClass<ID : Any, out T : Entity<ID>>(private val base: En
 
     fun <TargetID : Any, Target : Entity<TargetID>, REF : Any> OtherPrivateEntityClass<TargetID, Target>.optionalReferrersOn(
         column: Column<REF?>,
-    ) = with(this@PrivateEntityClass.base) {
-        this@PrivateEntityClass.base.optionalReferrersOn(column)
-    }
-
-    fun <TargetID : Any, Target : Entity<TargetID>, REF : Any> OtherPrivateEntityClass<TargetID, Target>.optionalReferrersOn(
-        column: Column<REF?>,
         cache: Boolean = false
     ) = with(this@PrivateEntityClass.base) { this@PrivateEntityClass.base.optionalReferrersOn(column, cache) }
 
