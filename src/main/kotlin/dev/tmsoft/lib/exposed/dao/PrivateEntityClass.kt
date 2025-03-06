@@ -38,7 +38,7 @@ open class PrivateEntityClass<ID : Any, out T : Entity<ID>>(private val base: En
     infix fun <
             TargetID : Comparable<TargetID>,
             Target : Entity<TargetID>,
-            REF :Any
+            REF : Any
             > OtherPrivateEntityClass<TargetID, Target>.backReferencedOn(
         column: Column<REF?>
     ): ReadOnlyProperty<Entity<ID>, Target> = with(this@PrivateEntityClass.base) {
@@ -108,12 +108,10 @@ open class PrivateEntityClass<ID : Any, out T : Entity<ID>>(private val base: En
     fun <TargetID : Any, Target : Entity<TargetID>> OtherPrivateEntityClass<TargetID, Target>.optionalReferrersOn(
         table: IdTable<*>,
         cache: Boolean = false
-    ): Referrers<ID, Entity<ID>, TargetID, Target, Any?> {
-        return with(this@PrivateEntityClass.base) {
-            this@PrivateEntityClass.base.optionalReferrersOn(
-                table,
-                cache
-            ) as Referrers<ID, Entity<ID>, TargetID, Target, Any?>
-        }
+    ) = with(this@PrivateEntityClass.base) {
+        this@PrivateEntityClass.base.optionalReferrersOn(
+            table,
+            cache
+        )
     }
 }
