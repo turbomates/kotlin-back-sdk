@@ -10,7 +10,6 @@ import io.ktor.server.auth.AuthenticationFailedCause
 import io.ktor.server.auth.AuthenticationProvider
 import io.ktor.server.auth.UserPasswordCredential
 import io.ktor.server.plugins.origin
-import io.ktor.server.request.port
 import io.ktor.server.request.receiveNullable
 import io.ktor.server.request.userAgent
 import io.ktor.server.response.respond
