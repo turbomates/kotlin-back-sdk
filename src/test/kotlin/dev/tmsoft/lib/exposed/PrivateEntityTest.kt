@@ -72,11 +72,11 @@ class PrivateEntityTest {
         transaction(database) {
             SchemaUtils.create(BetTicketTable)
             SchemaUtils.create(BetTicketPickTable)
-            BetTicket.new {
+            val betTicket = BetTicket.new {
                 rejectReason = "test"
                 updatedAt = OffsetDateTime.now()
             }
-             BetTicketPick.new {
+            BetTicketPick.new {
                 this.betTicket = betTicket
                 selectionId = UUID.randomUUID()
             }

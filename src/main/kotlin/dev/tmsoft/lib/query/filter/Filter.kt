@@ -105,7 +105,8 @@ fun Query.filter(filter: Filter, values: PathValues): Query {
 }
 
 fun Query.addJoin(body: ColumnSet.() -> ColumnSet): Query {
-    return adjustSelect{ old ->
+    adjustColumnSet { body() }
+    return adjustSelect { old ->
         val newFieldSet = body()
         if (set.source.columns.containsAll(newFieldSet.source.columns)) {
             select(set.source.columns)
