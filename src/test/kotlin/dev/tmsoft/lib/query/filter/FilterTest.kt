@@ -49,6 +49,7 @@ class FilterTest {
                     )
                 )
 
+            println( query.prepareSQL(this))
             assertTrue(
                 query.prepareSQL(this).lowercase()
                     .contains("((LOWER(\"USER\".FULL_NAME) LIKE ?) OR (LOWER(\"USER\".FULL_NAME) LIKE ?)) AND (\"USER\".\"NUMBER\" >= ?) AND (\"USER\".MODIFY_AT >= ?) AND ((LOWER(PROFILE.ADDRESS) LIKE ?)) AND (\"USER\".MODIFY_AT >= ?) AND (\"USER\".MODIFY_AT <= ?)".lowercase())
@@ -121,6 +122,16 @@ object UserFilter : Filter(UserTable) {
     val number = add("number")
     val custom = add("custom", UserTable.modifyAt)
     val join = add("join", ProfileTable.address) { values ->
+        addJoin {
+            join(
+                ProfileTable,
+                JoinType.LEFT,
+                ProfileTable.user,
+                UserTable.id
+            )
+        }.andWhere { OrOp(values.map { it.op(ProfileTable.address) }) }
+    }
+    val join2 = add("join2", ProfileTable.address) { values ->
         addJoin {
             join(
                 ProfileTable,
