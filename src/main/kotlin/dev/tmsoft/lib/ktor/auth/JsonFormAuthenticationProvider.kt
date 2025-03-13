@@ -9,7 +9,6 @@ import io.ktor.server.auth.AuthenticationContext
 import io.ktor.server.auth.AuthenticationFailedCause
 import io.ktor.server.auth.AuthenticationProvider
 import io.ktor.server.auth.UserPasswordCredential
-import io.ktor.server.plugins.origin
 import io.ktor.server.request.receiveNullable
 import io.ktor.server.response.respond
 
@@ -45,7 +44,7 @@ class JsonFormAuthenticationProvider<T : Principal> internal constructor(config:
         val password = postParameters?.get(passwordParamName)
         val credentials = if (login != null && password != null) UserPasswordCredential(login, password) else null
 
-        val principal = credentials?.let { provider.load(it, call.request.origin.remoteHost) }
+        val principal = credentials?.let { provider.load(it, call) }
         if (principal != null) {
             context.principal(transformer(principal, call))
             return
