@@ -16,6 +16,7 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.date
+import org.jetbrains.exposed.sql.joinQuery
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
@@ -47,6 +48,8 @@ class FilterTest {
                         )
                     )
                 )
+
+            println( query.prepareSQL(this))
             assertTrue(
                 query.prepareSQL(this).lowercase()
                     .contains("((LOWER(\"USER\".FULL_NAME) LIKE ?) OR (LOWER(\"USER\".FULL_NAME) LIKE ?)) AND (\"USER\".\"NUMBER\" >= ?) AND (\"USER\".MODIFY_AT >= ?) AND ((LOWER(PROFILE.ADDRESS) LIKE ?)) AND (\"USER\".MODIFY_AT >= ?) AND (\"USER\".MODIFY_AT <= ?)".lowercase())
@@ -73,7 +76,6 @@ class FilterTest {
                 it[balance] = money
                 it[modifyAt] = LocalDate.now()
             }
-
             val query = UserTable.selectAll()
                 .filter(
                     UserFilter,
@@ -120,6 +122,16 @@ object UserFilter : Filter(UserTable) {
     val number = add("number")
     val custom = add("custom", UserTable.modifyAt)
     val join = add("join", ProfileTable.address) { values ->
+        addJoin {
+            join(
+                ProfileTable,
+                JoinType.LEFT,
+                ProfileTable.user,
+                UserTable.id
+            )
+        }.andWhere { OrOp(values.map { it.op(ProfileTable.address) }) }
+    }
+    val join2 = add("join2", ProfileTable.address) { values ->
         addJoin {
             join(
                 ProfileTable,
