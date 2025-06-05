@@ -24,6 +24,7 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
+import org.jetbrains.exposed.sql.update
 
 object Accounts : IntIdTable() {
     val name = varchar("account", 255).nullable()
@@ -95,7 +96,7 @@ class EmbeddedTest {
             SchemaUtils.create(Accounts)
             val money = Money(10, "EUR")
             val last = Money(20, "EUR")
-            Account.new {
+            val account = Account.new {
                 name = "test"
                 balance = money
                 lastBalance = last
@@ -104,6 +105,9 @@ class EmbeddedTest {
             val result = Account.wrapRows(Accounts.selectAll()).first()
             assertNotNull(result.bonusBalance)
             result.bonusBalance?.let { assertSame(10, it.amount) }
+
+            account.bonusBalance = null
+            assertNull(Account.wrapRows(Accounts.selectAll()).first().bonusBalance)
         }
     }
 

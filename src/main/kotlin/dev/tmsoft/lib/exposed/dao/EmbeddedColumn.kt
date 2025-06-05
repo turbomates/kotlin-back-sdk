@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.CompositeColumn as ExposedCompositeColumn
 abstract class EmbeddableColumn<T : Embedded?>(private val table: Table, private val prefix: String = "") :
     ExposedCompositeColumn<T>() {
     private val columns: MutableMap<ExposedColumn<*>, PrimitiveColumn<*>> = mutableMapOf()
-    private val embeddableColumns: MutableMap<EmbeddableColumn<Embedded>, CompositeColumn<*>> = mutableMapOf()
+    private val embeddableColumns: MutableMap<EmbeddableColumn<Embedded?>, CompositeColumn<*>> = mutableMapOf()
     override fun getRealColumns(): List<ExposedColumn<*>> {
         val result: MutableList<ExposedColumn<*>> = mutableListOf()
         result.addAll(columns.keys.toList())
@@ -21,19 +21,21 @@ abstract class EmbeddableColumn<T : Embedded?>(private val table: Table, private
     @Suppress("UNCHECKED_CAST")
     override fun getRealColumnsWithValues(compositeValue: T): Map<ExposedColumn<*>, Any?> {
         val result = mutableMapOf<ExposedColumn<*>, Any?>()
-        return compositeValue?.let {
-            columns.forEach {
-                result[it.key] = compositeValue.map[it.value]
+        if (compositeValue == null) {
+            columns.forEach { result[it.key] = compositeValue }
+            embeddableColumns.forEach {
+                result += it.key.getRealColumnsWithValues(compositeValue as T)
             }
-
+        } else {
+            columns.forEach { result[it.key] = compositeValue.map[it.value] }
             embeddableColumns.forEach {
                 if (compositeValue.map.containsKey(it.value)) {
                     result += it.key.getRealColumnsWithValues(compositeValue.map[it.value] as Embedded)
                 }
             }
+        }
 
-            result
-        } ?: result
+        return result
     }
 
     override fun restoreValueFromParts(parts: Map<ExposedColumn<*>, Any?>): T {
@@ -63,7 +65,7 @@ abstract class EmbeddableColumn<T : Embedded?>(private val table: Table, private
     @Suppress("UNCHECKED_CAST")
     fun <TColumn : EmbeddableColumn<out Embedded>> column(column: CompositeColumn<TColumn>): TColumn {
         val exposedColumn = column.block(table, prefix)
-        embeddableColumns[exposedColumn as EmbeddableColumn<Embedded>] = column
+        embeddableColumns[exposedColumn as EmbeddableColumn<Embedded?>] = column
         return exposedColumn
     }
 
