@@ -11,7 +11,7 @@ dependencyResolutionManagement {
             version("detekt", "1.23.6")
             version("hoplite", "2.7.5")
             version("kotlin", "2.1.10")
-            version("s3", "1.1.0")
+            version("s3", "1.4.0")
             version("hikaricp", "6.2.1")
             version("exposed", "0.60.0")
             version("test_logger", "3.2.0")

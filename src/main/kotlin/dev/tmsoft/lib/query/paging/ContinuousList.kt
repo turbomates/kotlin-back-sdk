@@ -28,7 +28,7 @@ import org.jetbrains.exposed.sql.ops.SingleValueInListOp
 
 suspend fun <T> Query.toContinuousList(
     page: PagingParameters,
-    effector: ResultRow.() -> T,
+    effector: suspend ResultRow.() -> T,
     sortingParameters: List<SortingParameter> = emptyList(),
     includeCount: Boolean = false
 ): ContinuousList<T> {
@@ -38,7 +38,7 @@ suspend fun <T> Query.toContinuousList(
 @JvmName("toContinuousListIterable")
 suspend fun <T> Query.toContinuousList(
     page: PagingParameters,
-    effector: Iterable<ResultRow>.() -> List<T>,
+    effector: suspend Iterable<ResultRow>.() -> List<T>,
     sortingParameters: List<SortingParameter> = emptyList(),
     includeCount: Boolean = false
 ): ContinuousList<T> {
@@ -50,7 +50,7 @@ suspend fun <T> Query.toContinuousListBuilder(
     page: PagingParameters,
     sortingParameters: List<SortingParameter> = emptyList(),
     includeCount: Boolean = false,
-    effector: Query.() -> List<T>
+    effector: suspend Query.() -> List<T>
 ): ContinuousList<T> = coroutineScope {
     var count: Long? = null
     if (targets.count() > 1) {

@@ -18,7 +18,7 @@ class PoolAccess(private val pool: JedisPool) : Access {
     }
 
     override fun lrange(key: String): List<String> {
-        pool.resource.use { return it.lrange(key, 0, -1) }
+        return pool.resource.use { it.lrange(key, 0, -1) }
     }
 
     override fun lpush(key: String, value: String) {
