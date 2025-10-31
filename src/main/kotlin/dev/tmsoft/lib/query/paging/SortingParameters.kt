@@ -2,7 +2,7 @@ package dev.tmsoft.lib.query.paging
 
 import dev.tmsoft.lib.query.exceptions.InvalidValue
 import io.ktor.http.Parameters
-import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.v1.core.SortOrder
 
 fun Parameters.sortingParameters(): List<SortingParameter> {
     val parameters = mutableListOf<SortingParameter>()

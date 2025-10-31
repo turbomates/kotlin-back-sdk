@@ -1,6 +1,7 @@
 package dev.tmsoft.lib.query.filter
 
-import org.jetbrains.exposed.sql.Query
+import org.jetbrains.exposed.v1.jdbc.Query
+
 
 data class Field(
     val name: String,

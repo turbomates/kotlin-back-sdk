@@ -17,7 +17,6 @@ import io.ktor.server.auth.OAuthAccessTokenResponse
 import io.ktor.server.auth.authentication
 import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Route
-import io.ktor.server.routing.get
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
@@ -52,10 +51,8 @@ fun Route.authenticateBySocial(
     val configurationNames = listOf(configuration)
     val authenticatedRoute = createChild(AuthenticationRouteSelector(configurationNames))
     // application.plugin(Authentication).interceptPipeline(authenticatedRoute, configurationNames)
-    transformSocial(authenticatedRoute, transformer, successUri)
-    authenticatedRoute {
-        get {}
-    }
+//    transformSocial(authenticatedRoute, transformer, successUri)
+
 
     return authenticatedRoute
 }

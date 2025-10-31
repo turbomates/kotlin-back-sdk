@@ -1,13 +1,14 @@
 package dev.tmsoft.lib.query.filter
 
 import dev.tmsoft.lib.query.exceptions.NotEnoughInformation
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.ColumnSet
-import org.jetbrains.exposed.sql.EnumerationNameColumnType
-import org.jetbrains.exposed.sql.OrOp
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.andWhere
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.ColumnSet
+import org.jetbrains.exposed.v1.core.EnumerationNameColumnType
+import org.jetbrains.exposed.v1.core.OrOp
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.jdbc.Query
+import org.jetbrains.exposed.v1.jdbc.andWhere
+import org.jetbrains.exposed.v1.jdbc.select
 
 abstract class Filter(val table: Table) {
     private val fields: MutableList<Field> = mutableListOf()

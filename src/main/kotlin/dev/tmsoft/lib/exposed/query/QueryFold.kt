@@ -1,12 +1,12 @@
 package dev.tmsoft.lib.exposed.query
 
-import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.sql.Expression
-import org.jetbrains.exposed.sql.Join
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.targetTables
+import org.jetbrains.exposed.v1.core.Expression
+import org.jetbrains.exposed.v1.core.Join
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.targetTables
+import org.jetbrains.exposed.v1.jdbc.Query
 
 /**
  * Function used to build nested entities as a result of executing an SQL expression

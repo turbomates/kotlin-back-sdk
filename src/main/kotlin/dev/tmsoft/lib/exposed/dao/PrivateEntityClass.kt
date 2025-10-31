@@ -1,13 +1,13 @@
 package dev.tmsoft.lib.exposed.dao
 
 import kotlin.properties.ReadOnlyProperty
-import org.jetbrains.exposed.dao.Entity
-import org.jetbrains.exposed.dao.EntityClass
-import org.jetbrains.exposed.dao.OptionalBackReference
-import org.jetbrains.exposed.dao.Referrers
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.dao.Entity
+import org.jetbrains.exposed.v1.dao.EntityClass
+import org.jetbrains.exposed.v1.dao.OptionalBackReference
+import org.jetbrains.exposed.v1.dao.Referrers
 
 private typealias OtherPrivateEntityClass<ID, T> = PrivateEntityClass<ID, T>
 

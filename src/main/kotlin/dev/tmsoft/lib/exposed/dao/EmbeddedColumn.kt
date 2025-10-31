@@ -1,12 +1,14 @@
 package dev.tmsoft.lib.exposed.dao
 
 import kotlin.reflect.KProperty
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.Column as ExposedColumn
-import org.jetbrains.exposed.sql.CompositeColumn as ExposedCompositeColumn
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.Table.Dual.nullable
+import org.jetbrains.exposed.v1.core.Column as ExposedColumn
+import org.jetbrains.exposed.v1.core.CompositeColumn as ExposedCompositeColumn
 
 abstract class EmbeddableColumn<T : Embedded?>(private val table: Table, private val prefix: String = "") :
     ExposedCompositeColumn<T>() {
+    internal var isNullable: Boolean = false
     private val columns: MutableMap<ExposedColumn<*>, PrimitiveColumn<*>> = mutableMapOf()
     private val embeddableColumns: MutableMap<EmbeddableColumn<Embedded?>, CompositeColumn<*>> = mutableMapOf()
     override fun getRealColumns(): List<ExposedColumn<*>> {
@@ -68,6 +70,12 @@ abstract class EmbeddableColumn<T : Embedded?>(private val table: Table, private
         embeddableColumns[exposedColumn as EmbeddableColumn<Embedded?>] = column
         return exposedColumn
     }
+
+    @Suppress("UNCHECKED_CAST")
+    fun nullable() = apply {
+        isNullable = true
+        getRealColumns().filter { !it.columnType.nullable }.forEach { (it as ExposedColumn<Any>).nullable() }
+    } as ExposedCompositeColumn<T?>
 
     abstract fun instance(parts: Map<Column<*>, Any?>): T
     override fun hashCode(): Int {

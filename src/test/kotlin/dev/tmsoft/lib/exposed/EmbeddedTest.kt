@@ -1,24 +1,25 @@
 package dev.tmsoft.lib.exposed
 
 import dev.tmsoft.lib.Config
-import dev.tmsoft.lib.exposed.QueryFoldTest.ExtraneousTable.nullable
 import dev.tmsoft.lib.exposed.dao.Column
 import dev.tmsoft.lib.exposed.dao.EmbeddableColumn
 import dev.tmsoft.lib.exposed.dao.Embedded
 import dev.tmsoft.lib.exposed.dao.EmbeddedTable
-import org.jetbrains.exposed.dao.Entity
-import org.jetbrains.exposed.dao.EntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertSame
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.less
+import org.jetbrains.exposed.v1.dao.Entity
+import org.jetbrains.exposed.v1.dao.EntityClass
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.junit.jupiter.api.Test
 
 object Accounts : IntIdTable() {
     val name = varchar("account", 255).nullable()
@@ -30,7 +31,6 @@ object Accounts : IntIdTable() {
 class MoneyColumn<T : Money?>(table: Table, prefix: String = "") : EmbeddableColumn<T>(table, prefix) {
     val amount = column(MoneyColumn.amount)
     val currency = column(MoneyColumn.currency)
-    private var isNullable: Boolean = false
 
     @Suppress("UNCHECKED_CAST")
     override fun instance(parts: Map<Column<*>, Any?>): T {
@@ -42,13 +42,6 @@ class MoneyColumn<T : Money?>(table: Table, prefix: String = "") : EmbeddableCol
 
         return instance as T
     }
-
-    @Suppress("UNCHECKED_CAST")
-    fun nullable() = apply {
-        amount.nullable()
-        currency.nullable()
-        isNullable = true
-    } as MoneyColumn<T?>
 
     companion object : EmbeddedTable() {
         val amount = column { prefix -> integer(prefix + "amount") }

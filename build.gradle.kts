@@ -1,6 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 import com.adarshr.gradle.testlogger.theme.ThemeType
+import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -9,6 +10,7 @@ plugins {
     alias(deps.plugins.detekt)
     alias(deps.plugins.test.logger)
     alias(deps.plugins.kotlin.serialization)
+    alias(deps.plugins.sentry)
     id("maven-publish")
     signing
 }
@@ -45,7 +47,6 @@ dependencies {
     api(deps.log4j.api)
     api(deps.log4j.slf4j)
     api(deps.email)
-    implementation(deps.sentry)
     runtimeOnly(deps.log4j.core)
 
     testImplementation(deps.kotlin.test)
@@ -72,16 +73,17 @@ tasks.named("check").configure {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "21"
-        freeCompilerArgs = listOf(
-            "-opt-in=io.ktor.locations.KtorExperimentalLocationsAPI",
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        allWarningsAsErrors.set(false) // TODO: enable after migrationsMigrate issues resolved
+        freeCompilerArgs.addAll(
             "-opt-in=kotlin.ExperimentalStdlibApi",
             "-opt-in=kotlinx.serialization.InternalSerializationApi",
             "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
-            "-opt-in=kotlin.RequiresOptIn",
             "-opt-in=kotlin.time.ExperimentalTime",
-            "-Xskip-prerelease-check"
+            "-Xlambdas=indy",
+            "-Xskip-prerelease-check",
+            "-Xcontext-parameters"
         )
     }
 }
@@ -112,6 +114,16 @@ tasks.withType<Test> {
 
 java {
     withSourcesJar()
+}
+
+plugins.withId("io.sentry.jvm.gradle") {
+    tasks.named<Jar>("sourcesJar") {
+        dependsOn(
+            "generateSentryDebugMetaPropertiesjava",
+            "collectExternalDependenciesForSentry"
+        )
+        exclude("**/sentry-debug-meta.properties", "**/sentry-external-modules.txt")
+    }
 }
 
 // publishing {

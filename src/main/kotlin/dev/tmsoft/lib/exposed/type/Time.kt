@@ -2,9 +2,9 @@ package dev.tmsoft.lib.exposed.type
 
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.ColumnType
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.ColumnType
+import org.jetbrains.exposed.v1.core.Table
 
 /**
  * A column to store a time.

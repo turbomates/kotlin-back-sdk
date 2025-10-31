@@ -6,20 +6,20 @@ import com.turbomates.time.exposed.UTCDateTimeColumn
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import org.jetbrains.exposed.sql.AndOp
-import org.jetbrains.exposed.sql.EqOp
-import org.jetbrains.exposed.sql.ExpressionWithColumnType
-import org.jetbrains.exposed.sql.GreaterEqOp
-import org.jetbrains.exposed.sql.LessEqOp
-import org.jetbrains.exposed.sql.LikeEscapeOp
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.OrOp
-import org.jetbrains.exposed.sql.QueryParameter
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.wrap
-import org.jetbrains.exposed.sql.StringColumnType
-import org.jetbrains.exposed.sql.javatime.JavaLocalDateColumnType
-import org.jetbrains.exposed.sql.javatime.JavaLocalDateTimeColumnType
-import org.jetbrains.exposed.sql.lowerCase
+import org.jetbrains.exposed.v1.core.AndOp
+import org.jetbrains.exposed.v1.core.EqOp
+import org.jetbrains.exposed.v1.core.ExpressionWithColumnType
+import org.jetbrains.exposed.v1.core.GreaterEqOp
+import org.jetbrains.exposed.v1.core.LessEqOp
+import org.jetbrains.exposed.v1.core.LikeEscapeOp
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.OrOp
+import org.jetbrains.exposed.v1.core.QueryParameter
+import org.jetbrains.exposed.v1.core.StringColumnType
+import org.jetbrains.exposed.v1.core.lowerCase
+import org.jetbrains.exposed.v1.core.wrap
+import org.jetbrains.exposed.v1.javatime.JavaLocalDateColumnType
+import org.jetbrains.exposed.v1.javatime.JavaLocalDateTimeColumnType
 
 abstract class Value {
     abstract fun op(column: ExpressionWithColumnType<*>): Op<Boolean>

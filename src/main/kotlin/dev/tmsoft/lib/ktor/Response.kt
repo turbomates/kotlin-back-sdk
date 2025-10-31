@@ -7,12 +7,12 @@ import dev.tmsoft.lib.query.paging.ContinuousListSerializer
 import dev.tmsoft.lib.serialization.resolveSerializer
 import dev.tmsoft.lib.validation.Error
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
-import io.ktor.server.response.ApplicationSendPipeline
+import io.ktor.server.application.createRouteScopedPlugin
+import io.ktor.server.application.hooks.BeforeResponseTransform
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Route
-import kotlin.collections.set
+import io.ktor.utils.io.InternalAPI
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
@@ -56,22 +56,26 @@ sealed class Response {
 }
 
 class RouteResponseInterceptor : Interceptor() {
+    @OptIn(InternalAPI::class)
     override fun intercept(route: Route) {
-        route.sendPipeline.intercept(ApplicationSendPipeline.Before) { subject ->
-            if (subject is Response.File) {
-                context.response.status(subject.status(call.response.status()))
-                call.respondFile(subject.file)
-                finish()
-            }
-            if (subject is Response.Redirect) {
-                call.respondRedirect(subject.url)
-                finish()
-            }
-            if (subject is Response) {
-                context.response.status(subject.status(call.response.status()))
-                proceedWith(subject)
-            }
-        }
+        route.install(
+            createRouteScopedPlugin(
+                "RouteResponseInterceptor",
+            ) {
+                on(BeforeResponseTransform(Response::class)) { call, subject ->
+                    if (subject is Response.File) {
+                        call.response.status(subject.status(call.response.status()))
+                        call.respondFile(subject.file)
+                        return@on
+                    }
+                    if (subject is Response.Redirect) {
+                        call.respondRedirect(subject.url)
+                        return@on
+                    }
+                    call.response.status(subject.status(call.response.status()))
+                    return@on
+                }
+            })
     }
 }
 
@@ -84,6 +88,7 @@ fun Response.status(currentStatus: HttpStatusCode?): HttpStatusCode {
             { it.status(currentStatus) },
             { it.status(currentStatus) }
         ) as HttpStatusCode
+
         is Response.Data<*> -> currentStatus ?: HttpStatusCode.OK
         is Response.Ok, is Response.Redirect, is Response.File, is Response.Listing<*> -> HttpStatusCode.OK
     }

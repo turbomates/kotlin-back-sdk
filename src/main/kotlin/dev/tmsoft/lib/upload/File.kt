@@ -6,7 +6,6 @@ import java.util.Base64
 import javax.activation.UnsupportedDataTypeException
 import javax.imageio.ImageIO
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializer
 import kotlinx.serialization.builtins.ByteArraySerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -76,7 +75,6 @@ class File(
     }
 }
 
-@Serializer(forClass = File::class)
 object FileSerializer : KSerializer<File> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("File", PrimitiveKind.STRING)
 

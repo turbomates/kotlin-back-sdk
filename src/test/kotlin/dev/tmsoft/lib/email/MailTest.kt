@@ -3,8 +3,9 @@ package dev.tmsoft.lib.email
 import com.icegreen.greenmail.util.GreenMail
 import com.icegreen.greenmail.util.GreenMailUtil
 import com.icegreen.greenmail.util.ServerSetup
+import jakarta.mail.Part
 import javax.mail.internet.InternetAddress
-import javax.mail.internet.MimeMultipart
+import jakarta.mail.internet.MimeMultipart
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -29,7 +30,7 @@ class MailTest {
         val messages = greenMail.receivedMessages
         val mp: MimeMultipart = messages[0].content as MimeMultipart
         assertEquals(subject, messages[0].subject);
-        assertEquals(body, GreenMailUtil.getBody(mp.getBodyPart(0)).trim())
+        assertEquals(body, GreenMailUtil.getBody(mp.getBodyPart(0) as Part?).trim())
         assertEquals(
             listOf(InternetAddress("test-reply@gmail.com", "test reply").toString()),
             messages[0].replyTo.map { it.toString() })

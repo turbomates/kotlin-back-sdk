@@ -3,7 +3,7 @@ package dev.tmsoft.lib.exposed.query
 import kotlin.time.Duration.Companion.days
 
 interface QueryObject<out T> {
-    suspend fun getData(): T
+    fun getData(): T
 }
 @Suppress("EqualsWithHashCodeExist")
 interface CachedQueryObject<out T> : QueryObject<T> {
@@ -13,5 +13,5 @@ interface CachedQueryObject<out T> : QueryObject<T> {
 
     fun key(): String
 
-    suspend fun ttl() = TTL.inWholeSeconds
+    fun ttl() = TTL.inWholeSeconds
 }

@@ -1,7 +1,6 @@
 package dev.tmsoft.lib.redis
 
 import dev.tmsoft.lib.logger.logger
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class RedisPersistentHash(

@@ -1,18 +1,18 @@
 package dev.tmsoft.lib.exposed.type
 
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.ColumnType
-import org.jetbrains.exposed.sql.ComparisonOp
-import org.jetbrains.exposed.sql.Expression
-import org.jetbrains.exposed.sql.ExpressionWithColumnType
-import org.jetbrains.exposed.sql.IsNullOp
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.OrOp
-import org.jetbrains.exposed.sql.QueryBuilder
-import org.jetbrains.exposed.sql.QueryParameter
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.statements.jdbc.JdbcConnectionImpl
-import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.ColumnType
+import org.jetbrains.exposed.v1.core.ComparisonOp
+import org.jetbrains.exposed.v1.core.Expression
+import org.jetbrains.exposed.v1.core.ExpressionWithColumnType
+import org.jetbrains.exposed.v1.core.IsNullOp
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.OrOp
+import org.jetbrains.exposed.v1.core.QueryBuilder
+import org.jetbrains.exposed.v1.core.QueryParameter
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.jdbc.statements.jdbc.JdbcConnectionImpl
+import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 
 fun <T : Any> Table.array(name: String, columnType: ColumnType<T>): Column<Array<T>> =
     registerColumn(name, ArrayColumnType(columnType))

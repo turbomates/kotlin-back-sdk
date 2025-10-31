@@ -14,13 +14,13 @@ class ResponseTest {
 
     @Test
     fun `test ok response serialize`() {
-        val json = Json { }
+        val json = Json
         assertEquals(JsonObject(mapOf("data" to JsonPrimitive("ok"))), json.encodeToJsonElement(Response.Ok))
     }
 
     @Test
     fun `test either response serialize`() {
-        val json = Json { }
+        val json = Json
         assertEquals(
             JsonObject(mapOf("data" to JsonPrimitive("Test"))),
             json.encodeToJsonElement(
@@ -37,7 +37,7 @@ class ResponseTest {
 
     @Test
     fun `test data response serialize`() {
-        val json = Json { }
+        val json = Json
         assertEquals(
             JsonObject(mapOf("data" to JsonPrimitive("Test"))),
             json.encodeToJsonElement(Response.Data<String>("Test"))
@@ -46,7 +46,7 @@ class ResponseTest {
 
     @Test
     fun `test error response serialize`() {
-        val json = Json { }
+        val json = Json
         assertEquals(
             JsonObject(
                 mapOf(
@@ -65,7 +65,7 @@ class ResponseTest {
 
     @Test
     fun `test errors response serialize`() {
-        val json = Json { }
+        val json = Json
         assertEquals(
             JsonObject(
                 mapOf(
@@ -100,7 +100,7 @@ class ResponseTest {
 
     @Test
     fun `test empty response serialize`() {
-        val json = Json { }
+        val json = Json
         assertEquals(JsonNull, json.encodeToJsonElement(Response.Empty))
     }
 }

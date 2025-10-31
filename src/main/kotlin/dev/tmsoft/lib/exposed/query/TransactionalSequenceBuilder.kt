@@ -3,7 +3,7 @@ package dev.tmsoft.lib.exposed.query
 import com.google.inject.Inject
 import dev.tmsoft.lib.exposed.TransactionManager
 import java.time.OffsetDateTime
-import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.v1.core.Transaction
 
 class TransactionalSequenceBuilder @Inject constructor(val transactional: TransactionManager) {
     @Suppress("ForbiddenMethodCall")

@@ -1,29 +1,25 @@
 package dev.tmsoft.lib.exposed
 
-import com.turbomates.time.exposed.CurrentTimestamp
-import com.turbomates.time.exposed.datetime
 import dev.tmsoft.lib.Config
 import dev.tmsoft.lib.exposed.dao.PrivateEntityClass
-import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.assertNotNull
-import org.jetbrains.exposed.dao.EntityClass
-import org.jetbrains.exposed.dao.UUIDEntity
-import org.jetbrains.exposed.dao.flushCache
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.JoinType
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
+import org.jetbrains.exposed.v1.dao.EntityClass
+import org.jetbrains.exposed.v1.dao.UUIDEntity
+import org.jetbrains.exposed.v1.dao.flushCache
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test
 
 class BetTicket private constructor(id: EntityID<UUID>) : UUIDEntity(id) {
     val pick by BetTicketPick referrersOn BetTicketPickTable.betTicketId
     var rejectReason by BetTicketTable.rejectReason
-    var updatedAt by BetTicketTable.updatedAt
 
     companion object : PrivateEntityClass<UUID, BetTicket>(object : Repository() {})
 
@@ -50,7 +46,6 @@ class BetTicketPick private constructor(id: EntityID<UUID>) : UUIDEntity(id) {
 
 object BetTicketTable : UUIDTable("sportsbook_bets_tickets") {
     val rejectReason = text("reject_reason").nullable()
-    val updatedAt = datetime("updated_at").defaultExpression(CurrentTimestamp())
 }
 
 object BetTicketPickTable : UUIDTable("sportsbook_bets_tickets_picks") {
@@ -74,7 +69,6 @@ class PrivateEntityTest {
             SchemaUtils.create(BetTicketPickTable)
             val betTicket = BetTicket.new {
                 rejectReason = "test"
-                updatedAt = OffsetDateTime.now()
             }
             BetTicketPick.new {
                 this.betTicket = betTicket

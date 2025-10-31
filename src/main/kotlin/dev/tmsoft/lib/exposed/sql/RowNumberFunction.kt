@@ -1,10 +1,10 @@
 package dev.tmsoft.lib.exposed.sql
 
-import org.jetbrains.exposed.sql.Expression
-import org.jetbrains.exposed.sql.Function
-import org.jetbrains.exposed.sql.LongColumnType
-import org.jetbrains.exposed.sql.QueryBuilder
-import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.v1.core.Expression
+import org.jetbrains.exposed.v1.core.Function
+import org.jetbrains.exposed.v1.core.LongColumnType
+import org.jetbrains.exposed.v1.core.QueryBuilder
+import org.jetbrains.exposed.v1.core.SortOrder
 
 class RowNumberFunction(
     private val order: Array<Pair<Expression<*>, SortOrder>> = emptyArray(),
