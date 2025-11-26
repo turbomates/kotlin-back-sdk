@@ -14,7 +14,7 @@ dependencyResolutionManagement {
             version("s3", "1.5.65")
             version("hikaricp", "7.0.2")
             version("sentry", "5.12.1")
-            version("exposed", "1.0.0-rc-2")
+            version("exposed", "1.0.0-rc-3")
             version("test_logger", "4.0.0")
             version("h2database", "2.4.240")
             version("google_guice", "7.0.0")

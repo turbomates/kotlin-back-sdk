@@ -15,10 +15,10 @@ import org.jetbrains.exposed.v1.jdbc.Query
  * @param rootMapper root table mapping expression
  * @param dependenciesMappers key - IdTable instance of the entity you are trying to map, value - mapping expression
  */
-fun <T> Query.fold(
+suspend fun <T> Query.fold(
     rootTable: IdTable<*>,
     rootMapper: ResultRow.() -> T,
-    dependenciesMappers: Map<IdTable<*>, ResultRow.(T) -> T> = emptyMap()
+    dependenciesMappers: Map<IdTable<*>, suspend ResultRow.(T) -> T> = emptyMap()
 ): List<T> {
     checkCorrectMappingTable(rootTable)
     val dependencies: MutableMap<IdTable<*>, MutableMap<String, MutableSet<String>>> = mutableMapOf()
@@ -47,7 +47,7 @@ fun <T> Query.fold(
     return roots.values.toList()
 }
 
-private fun ResultRow.callIfExist(column: Expression<*>, callback: ResultRow.() -> Unit) {
+private suspend fun ResultRow.callIfExist(column: Expression<*>, callback: suspend ResultRow.() -> Unit) {
     if (getOrNull(column) != null) {
         callback()
     }

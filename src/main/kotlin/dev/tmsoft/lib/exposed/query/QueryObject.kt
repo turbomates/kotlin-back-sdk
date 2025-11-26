@@ -3,8 +3,9 @@ package dev.tmsoft.lib.exposed.query
 import kotlin.time.Duration.Companion.days
 
 interface QueryObject<out T> {
-    fun getData(): T
+    suspend fun getData(): T
 }
+
 @Suppress("EqualsWithHashCodeExist")
 interface CachedQueryObject<out T> : QueryObject<T> {
     companion object {

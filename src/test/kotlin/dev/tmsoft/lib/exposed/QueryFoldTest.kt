@@ -7,6 +7,7 @@ import dev.tmsoft.lib.Config.h2User
 import dev.tmsoft.lib.exposed.query.fold
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -21,7 +22,8 @@ import org.junit.jupiter.api.Test
 
 class QueryFoldTest {
 
-    private val database: Database = Database.connect(h2DatabaseUrl, driver = h2Driver, user = h2User, password = h2Password)
+    private val database: Database =
+        Database.connect(h2DatabaseUrl, driver = h2Driver, user = h2User, password = h2Password)
 
     @Test
     fun `build entity with non-existent root table`() {
@@ -35,7 +37,7 @@ class QueryFoldTest {
             assertFailsWith<IllegalArgumentException>(
                 message = "The corresponding table is not present in the resulting query",
                 block = {
-                    getEntity(ExtraneousTable, { toExtraneousEntity() })
+                    runBlocking { getEntity(ExtraneousTable, { toExtraneousEntity() }) }
                 }
             )
         }
@@ -52,8 +54,10 @@ class QueryFoldTest {
             }
             assertEquals(
                 countries,
-                Countries.selectAll()
-                    .fold(Countries, { toCountry() })
+                runBlocking {
+                    Countries.selectAll()
+                        .fold(Countries, { toCountry() })
+                }
             )
         }
     }
@@ -67,13 +71,13 @@ class QueryFoldTest {
                 country.countryLanguages.forEach { database.createLanguage(it) }
                 country.presidents.forEach { database.createPresident(it) }
             }
-            assertEquals(getCountriesData(), getEntity(Countries, { toCountry() }))
+            assertEquals(getCountriesData(), runBlocking { getEntity(Countries, { toCountry() }) })
         }
     }
 
     @Test
     fun `build three-level nesting object`() {
-        val dependencyMapper: Map<IdTable<*>, ResultRow.(Country) -> Country> = mapOf(
+        val dependencyMapper: Map<IdTable<*>, suspend ResultRow.(Country) -> Country> = mapOf(
             CountryLanguages to { country -> country.apply { countryLanguages.add(toCountryLanguage()) } },
             Presidents to { country -> country.apply { presidents.add(toPresident()) } },
             Facts to { country ->
@@ -95,13 +99,13 @@ class QueryFoldTest {
                     }
                 }
             }
-            assertEquals(countries, getEntity(Countries, { toCountry() }, dependencyMapper))
+            assertEquals(countries, runBlocking { getEntity(Countries, { toCountry() }, dependencyMapper) })
         }
     }
 
     @Test
     fun `build less dependencies then in resulting row`() {
-        val dependencyMapper: Map<IdTable<*>, ResultRow.(Country) -> Country> = mapOf(
+        val dependencyMapper: Map<IdTable<*>, suspend ResultRow.(Country) -> Country> = mapOf(
             CountryLanguages to { country -> country.apply { countryLanguages.add(toCountryLanguage()) } }
         )
         val (belgium, belarus) = getCountriesData()
@@ -115,7 +119,7 @@ class QueryFoldTest {
             }
             assertEquals(
                 listOf(belgium, belarus),
-                getEntity(Countries, { toCountry() }, dependencyMapper)
+                runBlocking { getEntity(Countries, { toCountry() }, dependencyMapper) }
             )
         }
     }
@@ -123,7 +127,7 @@ class QueryFoldTest {
     @Test
     fun `build entity mapped not to main table`() {
         val countries = expectedDataRelativelyPresident()
-        val dependencyMapper: Map<IdTable<*>, ResultRow.(President) -> President> = mapOf(
+        val dependencyMapper: Map<IdTable<*>, suspend ResultRow.(President) -> President> = mapOf(
             Countries to { president -> president.apply { country = toCountry() } },
             CountryLanguages to { president -> president.apply { country.countryLanguages.add(toCountryLanguage()) } }
         )
@@ -135,7 +139,7 @@ class QueryFoldTest {
             }
             assertEquals(
                 countries.flatMap { it.presidents },
-                getEntity(Presidents, { toPresident() }, dependencyMapper)
+                runBlocking { getEntity(Presidents, { toPresident() }, dependencyMapper) }
             )
         }
     }
@@ -143,7 +147,7 @@ class QueryFoldTest {
     @Test
     fun `build entity with non-existent dependency table`() {
         val countries = expectedDataRelativelyPresident()
-        val dependencyMapper: Map<IdTable<*>, ResultRow.(Country) -> Country> = mapOf(
+        val dependencyMapper: Map<IdTable<*>, suspend ResultRow.(Country) -> Country> = mapOf(
             CountryLanguages to { country -> country.apply { countryLanguages.add(toCountryLanguage()) } },
             ExtraneousTable to { country -> country.apply { toExtraneousEntity() } }
         )
@@ -156,16 +160,18 @@ class QueryFoldTest {
             assertFailsWith<IllegalArgumentException>(
                 message = "The corresponding table is not present in the resulting query",
                 block = {
-                    getEntity(Countries, { toCountry() }, dependencyMapper)
+                    runBlocking {
+                        getEntity(Countries, { toCountry() }, dependencyMapper)
+                    }
                 }
             )
         }
     }
 
-    private fun <T> getEntity(
+    private suspend fun <T> getEntity(
         rootTable: IdTable<*>,
         rootMapper: ResultRow.() -> T,
-        dependencyMapper: Map<IdTable<*>, ResultRow.(T) -> T> = emptyMap()
+        dependencyMapper: Map<IdTable<*>, suspend ResultRow.(T) -> T> = emptyMap()
     ): List<T> {
         return Countries
             .join(Presidents, JoinType.LEFT, Presidents.country, Countries.id)

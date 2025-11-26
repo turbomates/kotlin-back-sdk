@@ -7,6 +7,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.v1.core.Transaction
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 class TransactionManager(
@@ -15,18 +16,17 @@ class TransactionManager(
 ) {
     constructor(primaryDatabase: Database) : this(primaryDatabase, listOf(primaryDatabase))
 
-
-    suspend operator fun <T> invoke(statement: JdbcTransaction.() -> T): T =
+    suspend operator fun <T> invoke(statement: suspend JdbcTransaction.() -> T): T =
         withContext(Dispatchers.IO) {
-            transaction(primaryDatabase, statement = statement)
+            suspendTransaction(primaryDatabase, statement = statement)
         }
 
 
-    suspend fun <T> readOnlyTransaction(statement: Transaction.() -> T) =
+    suspend fun <T> readOnlyTransaction(statement: suspend JdbcTransaction.() -> T) =
         withContext(Dispatchers.IO) {
-            transaction(
+            suspendTransaction(
                 replicaDatabase.random(),
-                statement
+                statement = statement
             )
         }
 
