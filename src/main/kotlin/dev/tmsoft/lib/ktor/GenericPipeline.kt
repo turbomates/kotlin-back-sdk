@@ -1,8 +1,7 @@
 package dev.tmsoft.lib.ktor
 
 import com.google.inject.Inject
-import io.ktor.server.application.ApplicationCall
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 import kotlin.reflect.KClass
 
 class GenericPipeline @Inject constructor(
@@ -11,7 +10,7 @@ class GenericPipeline @Inject constructor(
 ) {
     fun <TController : Controller> controller(
         clazz: KClass<TController>,
-        context: PipelineContext<*, ApplicationCall>
+        context: RoutingContext
     ): TController {
         return controllerPipeline.get(clazz, context)
     }
