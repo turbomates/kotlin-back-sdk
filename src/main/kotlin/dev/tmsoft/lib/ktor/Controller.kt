@@ -1,9 +1,9 @@
 package dev.tmsoft.lib.ktor
 
 import io.ktor.server.application.ApplicationCall
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 
 abstract class Controller {
-    lateinit var pipeline: PipelineContext<*, ApplicationCall>
-    val call: ApplicationCall get() = pipeline.context
+    lateinit var routingContext: RoutingContext
+    val call: ApplicationCall get() = routingContext.call
 }
