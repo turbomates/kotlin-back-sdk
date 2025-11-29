@@ -41,7 +41,7 @@ class RouteAuthorizationConfig {
 }
 
 class Authorization(internal var config: AuthorizationConfiguration) {
-    fun configure(block: AuthorizationConfiguration.() -> Unit) {
+    internal fun configure(block: AuthorizationConfiguration.() -> Unit) {
         val newConfiguration = config
         block(newConfiguration)
         config = newConfiguration
@@ -54,6 +54,10 @@ class Authorization(internal var config: AuthorizationConfiguration) {
             val config = AuthorizationConfiguration().apply(configure)
             return Authorization(config)
         }
+    }
+
+    fun rules(): RouteAuthorizationRules {
+        return config.rules()
     }
 }
 
@@ -148,6 +152,7 @@ private fun Route.buildPath(activities: Set<String>): Map<String, List<String>> 
                 result
             }
         }
+
         else -> {
             mutableMapOf()
         }
