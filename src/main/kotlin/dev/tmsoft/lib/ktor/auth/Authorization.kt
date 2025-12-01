@@ -19,7 +19,7 @@ import io.ktor.util.AttributeKey
 import org.slf4j.LoggerFactory
 
 val AuthorizationInterceptors: RouteScopedPlugin<RouteAuthorizationConfig> = createRouteScopedPlugin(
-    "AuthenticationInterceptors",
+    " AuthorizationInterceptors",
     ::RouteAuthorizationConfig
 ) {
     val logger = LoggerFactory.getLogger(RouteAuthorizationConfig::class.java)
@@ -48,7 +48,7 @@ class Authorization(internal var config: AuthorizationConfiguration) {
     }
 
     companion object : BaseApplicationPlugin<Application, AuthorizationConfiguration, Authorization> {
-        override val key: AttributeKey<Authorization> = AttributeKey("AuthenticationHolder")
+        override val key: AttributeKey<Authorization> = AttributeKey("AuthorizationHolder")
 
         override fun install(pipeline: Application, configure: AuthorizationConfiguration.() -> Unit): Authorization {
             val config = AuthorizationConfiguration().apply(configure)
