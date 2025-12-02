@@ -9,6 +9,7 @@ import dev.tmsoft.lib.validation.Error
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.createRouteScopedPlugin
 import io.ktor.server.application.hooks.BeforeResponseTransform
+import io.ktor.server.response.respond
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Route
@@ -72,7 +73,7 @@ class RouteResponseInterceptor : Interceptor() {
                         call.respondRedirect(subject.url)
                         return@on
                     }
-                    call.response.status(subject.status(call.response.status()))
+                    call.respond(subject.status(call.response.status()), subject)
                 }
             })
     }
