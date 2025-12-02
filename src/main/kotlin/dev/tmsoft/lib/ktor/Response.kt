@@ -73,7 +73,6 @@ class RouteResponseInterceptor : Interceptor() {
                         return@on
                     }
                     call.response.status(subject.status(call.response.status()))
-                    return@on
                 }
             })
     }
