@@ -47,6 +47,13 @@ dependencies {
     api(deps.log4j.api)
     api(deps.log4j.slf4j)
     api(deps.email)
+    implementation("io.ktor:ktor-server-content-negotiation:3.3.0")
+    implementation("io.ktor:ktor-server-core:3.3.0")
+    implementation("io.ktor:ktor-server-core:3.3.0")
+    implementation("io.ktor:ktor-server-content-negotiation:3.3.0")
+    implementation("io.ktor:ktor-server-core:3.3.0")
+    implementation("io.ktor:ktor-server-host-common:3.3.0")
+    implementation("io.ktor:ktor-server-status-pages:3.3.0")
     runtimeOnly(deps.log4j.core)
 
     testImplementation(deps.kotlin.test)

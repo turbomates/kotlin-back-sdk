@@ -7,11 +7,10 @@ import dev.tmsoft.lib.query.paging.ContinuousListSerializer
 import dev.tmsoft.lib.serialization.resolveSerializer
 import dev.tmsoft.lib.validation.Error
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.createRouteScopedPlugin
+import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.BeforeResponseTransform
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondRedirect
-import io.ktor.server.routing.Route
 import io.ktor.utils.io.InternalAPI
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -55,27 +54,43 @@ sealed class Response {
     class Either<TL : Response, TR : Response>(val data: dev.tmsoft.lib.structure.Either<TL, TR>) : Response()
 }
 
-class RouteResponseInterceptor : Interceptor() {
-    @OptIn(InternalAPI::class)
-    override fun intercept(route: Route) {
-        route.install(
-            createRouteScopedPlugin(
-                "RouteResponseInterceptor",
-            ) {
-                on(BeforeResponseTransform(Response::class)) { call, subject ->
-                    if (subject is Response.File) {
-                        call.response.status(subject.status(call.response.status()))
-                        call.respondFile(subject.file)
-                        return@on
-                    }
-                    if (subject is Response.Redirect) {
-                        call.respondRedirect(subject.url)
-                        return@on
-                    }
-                    call.response.status(subject.status(call.response.status()))
-                    subject
-                }
-            })
+/**
+ * Ktor plugin that handles Response sealed class instances.
+ * Automatically sets appropriate HTTP status codes and handles special response types (File, Redirect).
+ *
+ * This plugin uses the BeforeResponseTransform hook to intercept Response objects before serialization,
+ * allowing it to:
+ * - Set appropriate HTTP status codes for all Response types
+ * - Handle File responses by directly serving files
+ * - Handle Redirect responses by redirecting the client
+ *
+ * Install in your Application:
+ * ```
+ * install(ResponsePlugin)
+ * ```
+ *
+ * Note: This plugin uses @OptIn(InternalAPI::class) for BeforeResponseTransform, as Ktor's public API
+ * doesn't currently provide an alternative way to intercept and replace responses before serialization.
+ */
+@OptIn(InternalAPI::class)
+val ResponsePlugin = createApplicationPlugin(name = "ResponsePlugin") {
+    on(BeforeResponseTransform(Response::class)) { call, response ->
+        call.response.status(response.status(call.response.status()))
+        when (response) {
+            is Response.File -> {
+                call.respondFile(response.file)
+                null // Signal that response has been handled
+            }
+
+            is Response.Redirect -> {
+                call.respondRedirect(response.url)
+                null // Signal that response has been handled
+            }
+
+            else -> {
+                response // Continue with normal serialization
+            }
+        } as Any
     }
 }
 
