@@ -16,13 +16,13 @@ open class TransactionManager(
 ) {
     constructor(primaryDatabase: Database) : this(primaryDatabase, listOf(primaryDatabase))
 
-    suspend operator fun <T> invoke(statement: suspend JdbcTransaction.() -> T): T =
+    open suspend operator fun <T> invoke(statement: suspend JdbcTransaction.() -> T): T =
         withContext(Dispatchers.IO) {
             suspendTransaction(primaryDatabase, statement = statement)
         }
 
 
-    suspend fun <T> readOnlyTransaction(statement: suspend JdbcTransaction.() -> T) =
+    open suspend fun <T> readOnlyTransaction(statement: suspend JdbcTransaction.() -> T) =
         withContext(Dispatchers.IO) {
             suspendTransaction(
                 replicaDatabase.random(),
@@ -30,12 +30,12 @@ open class TransactionManager(
             )
         }
 
-    fun <T> sync(statement: Transaction.() -> T): T {
+    open fun <T> sync(statement: Transaction.() -> T): T {
         return transaction(primaryDatabase, statement = statement)
     }
 
 
-    fun <T> readOnlySync(statement: Transaction.() -> T): T {
+    open fun <T> readOnlySync(statement: Transaction.() -> T): T {
         return transaction(replicaDatabase.random(), statement = statement)
     }
 }
