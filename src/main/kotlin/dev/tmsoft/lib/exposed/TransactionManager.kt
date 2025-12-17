@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
-class TransactionManager(
+open class TransactionManager(
     private val primaryDatabase: Database,
     private val replicaDatabase: List<Database> = emptyList()
 ) {
