@@ -1,5 +1,6 @@
 package dev.tmsoft.lib.ktor
 
+import dev.tmsoft.lib.extension.camelToSnakeCase
 import dev.tmsoft.lib.validation.EmptyValueConstraint
 import dev.tmsoft.lib.validation.Error
 import org.valiktor.ConstraintViolation
@@ -22,7 +23,12 @@ suspend fun <E> validate(obj: E, block: suspend Validator<E>.(E) -> Unit): List<
 fun <E : ConstraintViolation> Set<E>.toErrorsList(): List<Error> {
     return map { constraint ->
         val message = constraint.toMessage()
-        val errorMessage = message.message.ifBlank { constraint.constraint.name }
+        val constraintName = message.constraint.name
+        val errorMessage = if (constraintName.contains('.')) {
+            constraintName
+        } else {
+            "validation.${constraintName.camelToSnakeCase()}"
+        }
 
         Error(
             errorMessage,
