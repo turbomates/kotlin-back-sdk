@@ -59,7 +59,7 @@ class ResponseTest {
                     )
                 )
             ),
-            json.encodeToJsonElement(Response.Error(dev.tmsoft.lib.validation.Error("error", "property", "value")))
+            json.encodeToJsonElement(Response.Error(dev.tmsoft.lib.validation.Error(message = "error", property = "property", value = "value")))
         )
     }
 
@@ -87,10 +87,10 @@ class ResponseTest {
                 Response.Errors(
                     listOf(
                         dev.tmsoft.lib.validation.Error(
-                            "error",
-                            "property",
-                            "value",
-                            mapOf("parameter" to "value")
+                            message = "error",
+                            property = "property",
+                            value = "value",
+                            parameters = mapOf("parameter" to "value")
                         )
                     )
                 )
