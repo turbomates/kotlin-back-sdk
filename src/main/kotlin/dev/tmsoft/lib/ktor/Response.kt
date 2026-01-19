@@ -117,7 +117,8 @@ object ResponseErrorSerializer : KSerializer<Error> {
     @Suppress("UNCHECKED_CAST")
     override fun serialize(encoder: Encoder, value: Error) {
         val output = encoder as? JsonEncoder ?: throw SerializationException(JSON_EXCEPTION_MESSAGE)
-        val error: MutableMap<String, JsonElement> = mutableMapOf("message" to JsonPrimitive(value.message))
+        val error: MutableMap<String, JsonElement> = mutableMapOf("key" to JsonPrimitive(value.key))
+        if (value.namespace != null && value.namespace.isNotBlank()) error["namespace"] = JsonPrimitive(value.namespace)
         if (value.property != null && value.property.isNotBlank()) error["property"] = JsonPrimitive(value.property)
         if (value.value != null) {
             error["value"] = output.json.encodeToJsonElement(
