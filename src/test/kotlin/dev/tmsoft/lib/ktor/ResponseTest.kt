@@ -52,14 +52,14 @@ class ResponseTest {
                 mapOf(
                     "error" to JsonObject(
                         mapOf(
-                            "message" to JsonPrimitive("error"),
+                            "key" to JsonPrimitive("error"),
                             "property" to JsonPrimitive("property"),
                             "value" to JsonPrimitive("value")
                         )
                     )
                 )
             ),
-            json.encodeToJsonElement(Response.Error(dev.tmsoft.lib.validation.Error("error", "property", "value")))
+            json.encodeToJsonElement(Response.Error(dev.tmsoft.lib.validation.Error(key = "error", property = "property", value = "value")))
         )
     }
 
@@ -73,7 +73,7 @@ class ResponseTest {
                         listOf(
                             JsonObject(
                                 mapOf(
-                                    "message" to JsonPrimitive("error"),
+                                    "key" to JsonPrimitive("error"),
                                     "property" to JsonPrimitive("property"),
                                     "value" to JsonPrimitive("value"),
                                     "parameters" to JsonObject(mapOf("parameter" to JsonPrimitive("value")))
@@ -87,10 +87,10 @@ class ResponseTest {
                 Response.Errors(
                     listOf(
                         dev.tmsoft.lib.validation.Error(
-                            "error",
-                            "property",
-                            "value",
-                            mapOf("parameter" to "value")
+                            key = "error",
+                            property = "property",
+                            value = "value",
+                            parameters = mapOf("parameter" to "value")
                         )
                     )
                 )
