@@ -4,14 +4,15 @@ import com.icegreen.greenmail.util.GreenMail
 import com.icegreen.greenmail.util.GreenMailUtil
 import com.icegreen.greenmail.util.ServerSetup
 import jakarta.mail.Part
-import javax.mail.internet.InternetAddress
 import jakarta.mail.internet.MimeMultipart
+import javax.mail.internet.InternetAddress
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.coroutines.test.runTest
 
 class MailTest {
     @Test
-    fun `send mail test`() {
+    fun `send mail test`() = runTest {
         val greenMail = GreenMail(ServerSetup(3025, "localhost", ServerSetup.PROTOCOL_SMTP))
         greenMail.start()
         val subject = "Test Subject"
