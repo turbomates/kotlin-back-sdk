@@ -44,7 +44,7 @@ abstract class Filter(val table: Table) {
     fun add(
         name: String,
         possibleValues: List<String>? = null,
-        function: (Query.(value: List<Value>) -> Query)? = null
+        function: (suspend Query.(value: List<Value>) -> Query)? = null
     ): Field {
         val column = table.columns.find { it.name == name }
         val field = if (column != null) {
@@ -73,7 +73,7 @@ abstract class Filter(val table: Table) {
 
     private fun Column<*>.field(
         name: String,
-        customFunction: (Query.(value: List<Value>) -> Query)? = null
+        customFunction: (suspend Query.(value: List<Value>) -> Query)? = null
     ): Field {
         return if (customFunction == null) {
             Field(
