@@ -77,6 +77,8 @@ abstract class EmbeddableColumn<T : Embedded?>(private val table: Table, private
         getRealColumns().filter { !it.columnType.nullable }.forEach { (it as ExposedColumn<Any>).nullable() }
     } as ExposedCompositeColumn<T?>
 
+    fun isNullable() = isNullable
+    
     abstract fun instance(parts: Map<Column<*>, Any?>): T
     override fun hashCode(): Int {
         val result = table.hashCode()
