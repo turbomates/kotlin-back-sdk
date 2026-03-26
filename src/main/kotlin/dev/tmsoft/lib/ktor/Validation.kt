@@ -60,11 +60,7 @@ fun Set<ConstraintViolation>.toErrorsList(formNamespace: String = ""): List<Erro
             "validation.${constraintName.camelToSnakeCase()}"
         }
 
-        val namespace = if (formNamespace.isNotEmpty()) {
-            "$formNamespace.$propertySnakeCase"
-        } else {
-            propertySnakeCase
-        }
+        val namespace = formNamespace.ifEmpty { propertySnakeCase }
 
         Error(
             key = key,

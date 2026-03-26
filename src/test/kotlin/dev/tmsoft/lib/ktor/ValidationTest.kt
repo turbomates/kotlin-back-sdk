@@ -45,7 +45,7 @@ class ValidationTest {
         assertEquals(
             Error(
                 key = "custom.error_code",
-                namespace = "bonus.update_achievement.title",
+                namespace = "bonus.update_achievement",
                 property = "title",
                 value = "value",
                 parameters = mapOf("parameter" to "param")
@@ -62,7 +62,7 @@ class ValidationTest {
         }
         assertEquals(1, errors.size)
         assertEquals("validation.not_null", errors[0].key)
-        assertEquals("bonus.create_achievement.title", errors[0].namespace)
+        assertEquals("bonus.create_achievement", errors[0].namespace)
         assertEquals("title", errors[0].property)
     }
 
@@ -74,8 +74,8 @@ class ValidationTest {
             validate(TestCommand::description).isNotNull()
         }
         assertEquals(2, errors.size)
-        assertEquals("player.register.title", errors[0].namespace)
-        assertEquals("player.register.description", errors[1].namespace)
+        assertEquals("player.register", errors[0].namespace)
+        assertEquals("player.register", errors[1].namespace)
     }
 
     @Test
