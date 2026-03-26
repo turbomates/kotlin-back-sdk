@@ -52,19 +52,15 @@ fun Set<ConstraintViolation>.toErrorsList(formNamespace: String = ""): List<Erro
     return map { violation ->
         val message = violation.toMessage()
         val constraintName = message.constraint.name
-        val propertySnakeCase = message.property.camelToSnakeCase()
-
         val key = if (constraintName.contains('.')) {
             constraintName
         } else {
             "validation.${constraintName.camelToSnakeCase()}"
         }
 
-        val namespace = formNamespace.ifEmpty { propertySnakeCase }
-
         Error(
             key = key,
-            namespace = namespace,
+            namespace = formNamespace,
             property = message.property,
             value = if (violation.constraint is EmptyValueConstraint) "" else message.value,
             parameters = violation.constraint.messageParams

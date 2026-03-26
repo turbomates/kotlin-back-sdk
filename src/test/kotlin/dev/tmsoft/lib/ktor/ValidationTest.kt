@@ -27,7 +27,7 @@ class ValidationTest {
         assertEquals(
             Error(
                 key = "custom.error_code",
-                namespace = "my_property",
+                namespace = "",
                 property = "myProperty",
                 value = "value",
                 parameters = mapOf("parameter" to "parameter-value")
@@ -85,7 +85,7 @@ class ValidationTest {
             validate(TestCommand::title).isNotNull()
         }
         assertEquals(1, errors.size)
-        assertEquals("title", errors[0].namespace)
+        assertEquals("", errors[0].namespace)
         assertEquals("title", errors[0].property)
     }
 }
