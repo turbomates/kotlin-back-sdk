@@ -92,12 +92,6 @@ configure<JavaPluginExtension> {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
-sourceSets {
-    named("main") {
-        resources.setSrcDirs(emptyList<String>())
-    }
-}
-
 //  ----------------  TEST ----------------  //
 
 testlogger {
