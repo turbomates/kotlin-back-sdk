@@ -16,7 +16,7 @@ plugins {
 }
 
 group = "com.github.turbomates"
-version = "0.6.36"
+version = "0.6.40"
 
 
 repositories {
@@ -99,6 +99,12 @@ tasks.withType<KotlinCompile> {
 configure<JavaPluginExtension> {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
+}
+
+sourceSets {
+    named("main") {
+        resources.setSrcDirs(emptyList<String>())
+    }
 }
 
 //  ----------------  TEST ----------------  //
