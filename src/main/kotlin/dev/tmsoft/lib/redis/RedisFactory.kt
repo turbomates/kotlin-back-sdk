@@ -22,6 +22,10 @@ class RedisFactory(private val access: Access, private val prefix: String? = nul
         return RedisPersistentSet(access, prefix)
     }
 
+    fun createPersistentZSet(): RedisPersistentZSet {
+        return RedisPersistentZSet(access, prefix)
+    }
+
     companion object {
         @Suppress("LongParameterList")
         fun create(config: RedisConfig): RedisFactory {

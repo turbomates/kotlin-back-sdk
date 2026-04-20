@@ -34,6 +34,16 @@ interface Access {
         ttl: Long
     )
 
+    fun zadd(key: String, score: Double, member: String)
+    fun zadd(key: String, members: Map<String, Double>)
+    fun zcount(key: String, minScore: Double, maxScore: Double): Long
+    fun zscore(key: String, member: String): Double?
+    fun zincrby(key: String, increment: Double, member: String): Double
+    fun zrangeByScore(key: String, minScore: Double, maxScore: Double): List<String>
+    fun zrem(key: String, vararg members: String): Long
+    fun zremrangeByScore(key: String, minScore: Double, maxScore: Double): Long
+    fun expire(key: String, seconds: Long): Long
+
     fun exists(key: String): Boolean
     fun remove(key: String)
 }

@@ -74,6 +74,42 @@ class ClusterAccess(private val cluster: JedisCluster) : Access {
         cluster.setex(key, ttl, value)
     }
 
+    override fun zadd(key: String, score: Double, member: String) {
+        cluster.zadd(key, score, member)
+    }
+
+    override fun zadd(key: String, members: Map<String, Double>) {
+        cluster.zadd(key, members)
+    }
+
+    override fun zcount(key: String, minScore: Double, maxScore: Double): Long {
+        return cluster.zcount(key, minScore, maxScore)
+    }
+
+    override fun zscore(key: String, member: String): Double? {
+        return cluster.zscore(key, member)
+    }
+
+    override fun zincrby(key: String, increment: Double, member: String): Double {
+        return cluster.zincrby(key, increment, member)
+    }
+
+    override fun zrangeByScore(key: String, minScore: Double, maxScore: Double): List<String> {
+        return cluster.zrangeByScore(key, minScore, maxScore)
+    }
+
+    override fun zrem(key: String, vararg members: String): Long {
+        return cluster.zrem(key, *members)
+    }
+
+    override fun zremrangeByScore(key: String, minScore: Double, maxScore: Double): Long {
+        return cluster.zremrangeByScore(key, minScore, maxScore)
+    }
+
+    override fun expire(key: String, seconds: Long): Long {
+        return cluster.expire(key, seconds)
+    }
+
     override fun exists(key: String): Boolean {
         return cluster.exists(key)
     }
