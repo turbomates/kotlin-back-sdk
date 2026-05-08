@@ -41,6 +41,28 @@ open class TransactionManager(
 }
 
 suspend fun <T> JdbcTransaction.withDatabaseLock(
+    id: Long,
+    body: suspend () -> T
+): T {
+    exec("SELECT pg_advisory_xact_lock($id)")
+    return body()
+}
+
+suspend fun <T> JdbcTransaction.withTryDatabaseLock(
+    id: Long,
+    body: suspend () -> T
+): T {
+    val locked =
+        exec("SELECT pg_try_advisory_xact_lock($id)") { rs ->
+            rs.next() && rs.getBoolean(1)
+        }
+    if (locked != null && !locked) {
+        throw LockUnavailable()
+    }
+    return body()
+}
+
+suspend fun <T> JdbcTransaction.withDatabaseLock(
     id: Int,
     body: suspend () -> T
 ): T {
