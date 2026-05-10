@@ -94,7 +94,7 @@ fun Route.authorize(
         AuthorizationActivitiesKey,
         AuthorizationActivities(distinctActivities)
     )
-    val allActivities = generateSequence(authorizationRoute) { it.parent }
+    val allActivities = generateSequence(authorizationRoute) { if (it is RoutingNode) it.parent else null }
         .mapNotNull { it.attributes.getOrNull(AuthorizationActivitiesKey) }
         .toList()
         .reversed()
