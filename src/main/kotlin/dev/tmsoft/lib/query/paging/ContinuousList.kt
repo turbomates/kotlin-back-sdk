@@ -2,7 +2,6 @@
 
 package dev.tmsoft.lib.query.paging
 
-import dev.tmsoft.lib.exposed.sql.RowNumberFunction
 import dev.tmsoft.lib.serialization.elementSerializer
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.KSerializer
@@ -15,11 +14,8 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Expression
-import org.jetbrains.exposed.v1.core.ExpressionWithColumnType
-import org.jetbrains.exposed.v1.core.ExpressionWithColumnTypeAlias
-import org.jetbrains.exposed.v1.core.LongColumnType
-import org.jetbrains.exposed.v1.core.Min
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.alias
@@ -56,13 +52,12 @@ suspend fun <T> Query.toContinuousListBuilder(
     var count: Long? = null
     if (targets.count() > 1) {
         val rootTable = targets.first()
-        if (rootTable.primaryKey != null) {
-            val primaryKey = rootTable.primaryKey!!.columns.first()
-            val primaryKeyAlias = primaryKey.alias("uniq_field_id")
+        val primaryKey = rootTable.primaryKey?.columns?.first()
+        if (primaryKey != null) {
             val countQuery = Query(set, where)
             adjustWhereIn(primaryKey, sortingParameters, page.pageSize + 1, page.offset)
             if (includeCount) {
-                count = countQuery.distinctSubQuery(primaryKeyAlias, sortingParameters).count()
+                count = countQuery.distinctCount(primaryKey)
             }
         }
     } else {
@@ -74,24 +69,25 @@ suspend fun <T> Query.toContinuousListBuilder(
 
     var result = effector()
     var hasMore = false
-    if (result.count() > page.pageSize) {
-        hasMore = result.count() > page.pageSize
+    if (result.size > page.pageSize) {
+        hasMore = true
         result = result.dropLast(1)
     }
     ContinuousList(result, page.pageSize, page.currentPage, hasMore, count)
 }
 
 fun <T> Query.adjustWhereIn(
-    primaryKey: ExpressionWithColumnType<T>,
+    primaryKey: Column<T>,
     sortingParameters: List<SortingParameter>,
     limit: Int,
     offset: Long
 ) {
-    val primaryKeyAlias = primaryKey.alias("uniq_field_id")
-    val ids = distinctSubQuery(primaryKeyAlias, sortingParameters)
+    val (idsQuery, idExpression) = distinctSubQuery(primaryKey, sortingParameters)
+    val ids = idsQuery
         .limit(limit)
         .offset(offset)
-        .map { it[primaryKeyAlias.aliasOnlyExpression()] }
+        .map { it[idExpression] }
+
     adjustWhere { SingleValueInListOp(primaryKey, ids) }
     sortedWith(sortingParameters)
 }
@@ -103,37 +99,55 @@ private fun Query.sortedWith(sortingParameters: List<SortingParameter>): Query {
 }
 
 fun Query.buildSortingParameters(sortingParameters: List<SortingParameter>): Array<Pair<Expression<*>, SortOrder>> {
-    val columns = targets.map { it.columns }.flatten()
+    val columns = targets.flatMap { it.columns }
     return sortingParameters
         .associate { sortingParameter ->
             val column = columns.find { sortingParameter.name == it.name }
                 ?: throw IllegalArgumentException("Unknown sorting parameter: ${sortingParameter.name}")
             column to sortingParameter.sortOrder
         }
-        .toList().toTypedArray()
+        .toList()
+        .toTypedArray()
 }
 
-//SELECT %s AS dctrn_count FROM (SELECT DISTINCT %s FROM (%s) dctrn_result) dctrn_table
-private fun <T> Query.distinctSubQuery(
-    column: ExpressionWithColumnTypeAlias<T>,
-    sortingParameters: List<SortingParameter>
-): Query {
-    val query = Query(set, where)
-    val rowNumber =
-        RowNumberFunction(buildSortingParameters(sortingParameters) + orderByExpressions).alias("row_number")
-    val subQuery = query.adjustSelect { select(listOf(column) + rowNumber) }
-        .withDistinct().alias("subquery")
-    val minColumn = Min(rowNumber.aliasOnlyExpression(), LongColumnType()).alias("min_column")
-    return subQuery
-        .select(
-            listOf<Expression<*>>(
-                column.aliasOnlyExpression(),
-                minColumn
-            )
-        )
+private fun <T> Query.distinctCount(primaryKey: Column<T>): Long {
+    return Query(set, where)
+        .adjustSelect { select(primaryKey) }
         .withDistinct()
-        .groupBy(column.aliasOnlyExpression())
-        .orderBy(minColumn)
+        .count()
+}
+
+private fun <T> Query.distinctSubQuery(
+    primaryKey: Column<T>,
+    sortingParameters: List<SortingParameter>
+): Pair<Query, Expression<T>> {
+    val sorting = buildSortingParameters(sortingParameters) + orderByExpressions
+    val sortingAliases = sorting.mapIndexed { index, (expression, sortOrder) ->
+        expression.alias("sort_field_$index") to sortOrder
+    }
+
+    val primaryKeyAlias = primaryKey.alias("uniq_field_id")
+    val selectedExpressions = listOf<Expression<*>>(primaryKeyAlias) + sortingAliases.map { it.first }
+
+    val deduplicatedSubQuery = Query(set, where)
+        .adjustSelect { select(selectedExpressions) }
+        .withDistinctOn(primaryKey to SortOrder.ASC)
+        .apply {
+            sorting.forEach { (expression, sortOrder) -> orderBy(expression, sortOrder) }
+        }
+        .alias("subquery")
+
+    val outerSort = sortingAliases
+        .map { (expressionAlias, sortOrder) -> deduplicatedSubQuery[expressionAlias] to sortOrder }
+        .toTypedArray()
+
+    val selectedPrimaryKey: Expression<T> = deduplicatedSubQuery[primaryKeyAlias]
+
+    val distinctIdsQuery = deduplicatedSubQuery
+        .select(selectedPrimaryKey)
+        .apply { if (outerSort.isNotEmpty()) orderBy(*outerSort) }
+
+    return distinctIdsQuery to selectedPrimaryKey
 }
 
 data class ContinuousList<T>(
