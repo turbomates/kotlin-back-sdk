@@ -8,17 +8,26 @@ import dev.tmsoft.lib.query.paging.toContinuousList
 import io.ktor.http.Parameters
 import java.time.LocalDate
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.SqlLogger
+import org.jetbrains.exposed.v1.core.Transaction
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.exists
+import org.jetbrains.exposed.v1.core.statements.StatementContext
+import org.jetbrains.exposed.v1.core.statements.expandArgs
 import org.jetbrains.exposed.v1.javatime.date
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Assertions
@@ -178,6 +187,138 @@ class ContinuousListTest {
             assertEquals(count.toLong(), users.count)
         }
     }
+
+    @Test
+    fun `root query path - join paginated by root table column`() {
+        val database = Database.connect(
+            "jdbc:h2:mem:test_root_join;MODE=MySQL",
+            Config.h2Driver, Config.h2User, Config.h2Password
+        )
+        transaction(database) {
+            val sql = captureSql()
+
+            SchemaUtils.create(UserTable, AddressTable)
+            for (i in 1..5) {
+                val userId = UserTable.insertAndGetId {
+                    it[name] = "u$i"; it[number] = i; it[modifyAt] = LocalDate.now()
+                }
+                AddressTable.insert { it[user] = userId.value; it[address] = "a$i"; it[sequence] = i * 10 }
+            }
+
+            val page1 = runBlocking {
+                UserTable.join(AddressTable, JoinType.LEFT, AddressTable.user, UserTable.id)
+                    .selectAll()
+                    .toContinuousList(
+                        PagingParameters(2, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.DESC))
+                    )
+            }
+            assertEquals(2, page1.data.size)
+            assertEquals(5, page1.data[0].order)
+            assertEquals(4, page1.data[1].order)
+            assertTrue(page1.hasMore)
+            assertTrue(sql.none { "DISTINCT ON" in it }, "ID subquery must not contain DISTINCT ON")
+
+            val page3 = runBlocking {
+                UserTable.join(AddressTable, JoinType.LEFT, AddressTable.user, UserTable.id)
+                    .selectAll()
+                    .toContinuousList(
+                        PagingParameters(2, 3), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.DESC))
+                    )
+            }
+            assertEquals(1, page3.data.size)
+            assertEquals(1, page3.data[0].order)
+            assertFalse(page3.hasMore)
+        }
+    }
+
+    @Test
+    fun `root query path - exists filter on child table`() {
+        val database = Database.connect(
+            "jdbc:h2:mem:test_exists_filter;MODE=MySQL",
+            Config.h2Driver, Config.h2User, Config.h2Password
+        )
+        transaction(database) {
+            val sql = captureSql()
+
+            SchemaUtils.create(UserTable, TagTable)
+            for (i in 1..10) {
+                val userId = UserTable.insertAndGetId {
+                    it[name] = "u$i"; it[number] = i; it[modifyAt] = LocalDate.now()
+                }
+                if (i <= 5) {
+                    TagTable.insert { it[user] = userId; it[label] = "premium" }
+                }
+            }
+
+            val result = runBlocking {
+                UserTable.join(TagTable, JoinType.LEFT, TagTable.user, UserTable.id)
+                    .selectAll()
+                    .where {
+                        exists(
+                            TagTable.select(TagTable.id)
+                                .where { (TagTable.user eq UserTable.id) and (TagTable.label eq "premium") }
+                        )
+                    }
+                    .toContinuousList(
+                        PagingParameters(3, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.ASC)), true
+                    )
+            }
+            assertEquals(3, result.data.size)
+            assertEquals(1, result.data[0].order)
+            assertEquals(3, result.data[2].order)
+            assertTrue(result.hasMore)
+            assertEquals(5L, result.count)
+            assertTrue(sql.none { "DISTINCT ON" in it }, "ID subquery must not contain DISTINCT ON")
+        }
+    }
+
+    @Test
+    fun `distinct query path - sort on joined column orders correctly`() {
+        val database = Database.connect(
+            "jdbc:h2:mem:test_distinct_order;MODE=MySQL",
+            Config.h2Driver, Config.h2User, Config.h2Password
+        )
+        transaction(database) {
+            val sql = captureSql()
+
+            SchemaUtils.create(UserTable, AddressTable)
+            for (i in 1..4) {
+                val userId = UserTable.insertAndGetId {
+                    it[name] = "u$i"; it[number] = i; it[modifyAt] = LocalDate.now()
+                }
+                AddressTable.insert { it[user] = userId.value; it[address] = "a$i"; it[sequence] = i * 10 }
+            }
+
+            val result = runBlocking {
+                UserTable.join(AddressTable, JoinType.LEFT, AddressTable.user, UserTable.id)
+                    .selectAll()
+                    .toContinuousList(
+                        PagingParameters(2, 1), ResultRow::toUser,
+                        listOf(SortingParameter("sequence", SortOrder.DESC))
+                    )
+            }
+            assertEquals(2, result.data.size)
+            assertEquals(4, result.data[0].order)
+            assertEquals(3, result.data[1].order)
+            assertTrue(result.hasMore)
+            assertTrue(sql.any { "DISTINCT ON" in it }, "ID subquery must contain DISTINCT ON")
+        }
+    }
+}
+
+private fun Transaction.captureSql(): MutableList<String> {
+    val statements = mutableListOf<String>()
+    addLogger(object : SqlLogger {
+        override fun log(context: StatementContext, transaction: Transaction) {
+            val sql = context.expandArgs(transaction)
+            println("[SQL] $sql")
+            statements.add(sql)
+        }
+    })
+    return statements
 }
 
 object UserTable : IntIdTable() {
@@ -201,3 +342,8 @@ fun ResultRow.toUser() = User(
     this[UserTable.name],
     this[UserTable.number]
 )
+
+object TagTable : IntIdTable() {
+    val user = reference("user_id", UserTable)
+    val label = varchar("label", 100)
+}
