@@ -17,6 +17,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.exposed.v1.core.AndOp
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ColumnSet
+import org.jetbrains.exposed.v1.core.ops.AllAnyFromBaseOp
 import org.jetbrains.exposed.v1.core.ComparisonOp
 import org.jetbrains.exposed.v1.core.CompoundBooleanOp
 import org.jetbrains.exposed.v1.core.Concat
@@ -231,7 +232,10 @@ private fun <T> Query.joinToExistsIdQuery(
     for (condition in whereLeaves) {
         val matched = joinedTables.filter { condition.referencesTable(it) }
         when (matched.size) {
-            0 -> rootConditions.add(condition)
+            0 -> {
+                if (!condition.referencesTable(rootTable)) return null
+                rootConditions.add(condition)
+            }
             1 -> tableConditions[matched.first()]?.add(condition)
             else -> return null
         }
@@ -239,7 +243,13 @@ private fun <T> Query.joinToExistsIdQuery(
 
     val existsOps = joinParts.mapNotNull { part ->
         val joinedTable = part.joinedTable() as? Table ?: return null
-        val onOps = part.joinConditions()?.map { (l, r) -> EqOp(l, r) } ?: return null
+        val onConditions = part.joinConditions() ?: return null
+        val chainReferenced = onConditions.any { (l, r) ->
+            !(l.referencesOnly(rootTable) || l.referencesOnly(joinedTable)) ||
+                !(r.referencesOnly(rootTable) || r.referencesOnly(joinedTable))
+        }
+        if (chainReferenced) return null
+        val onOps = onConditions.map { (l, r) -> EqOp(l, r) }
         val extra = part.additionalConstraint()?.invoke()
         val bodyOps = onOps + tableConditions.getValue(joinedTable) + listOfNotNull(extra)
         Exists(joinedTable.select(intLiteral(1)).where(bodyOps.compoundAnd()))
@@ -301,6 +311,11 @@ private fun Expression<*>.referencesTable(table: Table): Boolean = when (this) {
     is CustomOperator<*> -> expr1.referencesTable(table) || expr2.referencesTable(table)
     is ModOp<*, *, *> -> expr1.referencesTable(table) || expr2.referencesTable(table)
     is NoOpConversion<*, *> -> expr.referencesTable(table)
+    is AllAnyFromBaseOp<*, *> -> when (val s = subSearch) {
+        is Expression<*> -> s.referencesTable(table)
+        is Table -> s == table
+        else -> false
+    }
     else -> false
 }
 
@@ -366,6 +381,11 @@ private fun Expression<*>.referencesOnly(table: Table): Boolean {
         is CustomOperator<*> -> expr1.referencesOnly(table) && expr2.referencesOnly(table)
         is ModOp<*, *, *> -> expr1.referencesOnly(table) && expr2.referencesOnly(table)
         is NoOpConversion<*, *> -> expr.referencesOnly(table)
+        is AllAnyFromBaseOp<*, *> -> when (val s = subSearch) {
+            is Expression<*> -> s.referencesOnly(table)
+            is Table -> s == table
+            else -> true
+        }
         else -> false
     }
 }

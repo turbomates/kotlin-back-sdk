@@ -13,10 +13,13 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.IntegerColumnType
+import org.jetbrains.exposed.v1.core.QueryParameter
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.SqlLogger
 import org.jetbrains.exposed.v1.core.Transaction
 import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.anyFrom
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.exists
@@ -276,6 +279,102 @@ class ContinuousListTest {
     }
 
     @Test
+    fun `chain join with where on leaf table does not produce invalid exists subquery`() {
+        val database = Database.connect(
+            "jdbc:h2:mem:test_chain_join;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE",
+            Config.h2Driver, Config.h2User, Config.h2Password
+        )
+        transaction(database) {
+            val sql = captureSql()
+
+            SchemaUtils.create(UserTable, AddressTable, GroupTable)
+            val targetGroup = "vip"
+            for (i in 1..4) {
+                val userId = UserTable.insertAndGetId {
+                    it[name] = "u$i"; it[number] = i; it[modifyAt] = LocalDate.now()
+                }
+                val addressId = AddressTable.insertAndGetId {
+                    it[user] = userId.value; it[address] = "a$i"; it[sequence] = i
+                }
+                GroupTable.insert {
+                    it[address] = addressId
+                    it[groupName] = if (i <= 2) targetGroup else "other"
+                }
+            }
+
+            val result = runBlocking {
+                UserTable
+                    .join(AddressTable, JoinType.INNER, AddressTable.user, UserTable.id)
+                    .join(GroupTable, JoinType.INNER, GroupTable.address, AddressTable.id)
+                    .selectAll()
+                    .where { GroupTable.groupName eq targetGroup }
+                    .toContinuousList(
+                        PagingParameters(10, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.ASC))
+                    )
+            }
+            assertEquals(2, result.data.size)
+            assertEquals(1, result.data[0].order)
+            assertEquals(2, result.data[1].order)
+            assertFalse(result.hasMore)
+            assertTrue(
+                sql.none { stmt ->
+                    stmt.startsWith("SELECT", ignoreCase = true) &&
+                        stmt.contains("EXISTS (SELECT 1 FROM", ignoreCase = true)
+                },
+                "ID subquery must not produce EXISTS that references an unjoined intermediate table"
+            )
+        }
+    }
+
+    @Test
+    fun `where uses anyFrom over joined-table array column does not drop the join in id subquery`() {
+        val database = Database.connect(
+            "jdbc:h2:mem:test_anyfrom;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE",
+            Config.h2Driver, Config.h2User, Config.h2Password
+        )
+        transaction(database) {
+            val sql = captureSql()
+
+            SchemaUtils.create(UserTable, ChannelTable)
+            val users = (1..4).map { i ->
+                UserTable.insertAndGetId {
+                    it[name] = "u$i"; it[number] = i; it[modifyAt] = LocalDate.now()
+                }
+            }
+            ChannelTable.insert {
+                it[owner] = users[0]; it[subscribers] = listOf(users[1].value, users[2].value)
+            }
+
+            val targetId = users[1].value
+            val result = runBlocking {
+                UserTable
+                    .join(ChannelTable, JoinType.INNER, UserTable.id, ChannelTable.owner)
+                    .selectAll()
+                    .where { QueryParameter(targetId, IntegerColumnType()) eq anyFrom(ChannelTable.subscribers) }
+                    .toContinuousList(
+                        PagingParameters(10, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.ASC))
+                    )
+            }
+            assertEquals(1, result.data.size)
+            assertEquals(1, result.data[0].order)
+            assertFalse(result.hasMore)
+            val unjoinedReferences = sql.any { stmt ->
+                stmt.startsWith("SELECT", ignoreCase = true) &&
+                    stmt.contains("channel", ignoreCase = true) &&
+                    !stmt.contains("JOIN", ignoreCase = true) &&
+                    !stmt.contains("FROM channel", ignoreCase = true) &&
+                    !stmt.contains("FROM \"channel", ignoreCase = true)
+            }
+            assertFalse(
+                unjoinedReferences,
+                "Generated SELECT must keep the channel table in FROM/JOIN if its column is referenced"
+            )
+        }
+    }
+
+    @Test
     fun `distinct query path - sort on joined column orders correctly`() {
         val database = Database.connect(
             "jdbc:h2:mem:test_distinct_order;MODE=MySQL",
@@ -346,4 +445,14 @@ fun ResultRow.toUser() = User(
 object TagTable : IntIdTable() {
     val user = reference("user_id", UserTable)
     val label = varchar("label", 100)
+}
+
+object GroupTable : IntIdTable() {
+    val address = reference("address_id", AddressTable)
+    val groupName = varchar("group_name", 100)
+}
+
+object ChannelTable : IntIdTable() {
+    val owner = reference("owner_id", UserTable)
+    val subscribers = array("subscribers", IntegerColumnType())
 }
