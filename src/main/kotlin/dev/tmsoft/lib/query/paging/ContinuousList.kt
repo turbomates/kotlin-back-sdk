@@ -33,6 +33,7 @@ import org.jetbrains.exposed.v1.core.IsNotDistinctFromOp
 import org.jetbrains.exposed.v1.core.IsNotNullOp
 import org.jetbrains.exposed.v1.core.IsNullOp
 import org.jetbrains.exposed.v1.core.Join
+import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.LiteralOp
 import org.jetbrains.exposed.v1.core.LowerCase
 import org.jetbrains.exposed.v1.core.Max
@@ -243,6 +244,16 @@ private fun <T> Query.joinToExistsIdQuery(
 
     val existsOps = joinParts.mapNotNull { part ->
         val joinedTable = part.joinedTable() as? Table ?: return null
+        val partConditions = tableConditions.getValue(joinedTable)
+        if (part.joinType() != JoinType.INNER) {
+            // For non-INNER joins the table may have NULL rows. Adding an EXISTS
+            // would turn them into INNER semantics and silently drop root rows.
+            // If WHERE has conditions on this table, switching the semantics is
+            // unsafe — bail out to the distinct fallback. Otherwise the join is
+            // purely decorative and can be omitted from the id subquery.
+            if (partConditions.isNotEmpty()) return null
+            return@mapNotNull null
+        }
         val onConditions = part.joinConditions() ?: return null
         val chainReferenced = onConditions.any { (l, r) ->
             !(l.referencesOnly(rootTable) || l.referencesOnly(joinedTable)) ||
@@ -251,7 +262,7 @@ private fun <T> Query.joinToExistsIdQuery(
         if (chainReferenced) return null
         val onOps = onConditions.map { (l, r) -> EqOp(l, r) }
         val extra = part.additionalConstraint()?.invoke()
-        val bodyOps = onOps + tableConditions.getValue(joinedTable) + listOfNotNull(extra)
+        val bodyOps = onOps + partConditions + listOfNotNull(extra)
         Exists(joinedTable.select(intLiteral(1)).where(bodyOps.compoundAnd()))
     }
 
@@ -280,6 +291,12 @@ private fun Any.joinConditions(): List<Pair<Expression<*>, Expression<*>>>? = ru
     javaClass.getDeclaredField("conditions")
         .apply { isAccessible = true }
         .get(this) as List<Pair<Expression<*>, Expression<*>>>
+}.getOrNull()
+
+private fun Any.joinType(): JoinType? = runCatching {
+    javaClass.getDeclaredField("joinType")
+        .apply { isAccessible = true }
+        .get(this) as JoinType
 }.getOrNull()
 
 @Suppress("UNCHECKED_CAST")

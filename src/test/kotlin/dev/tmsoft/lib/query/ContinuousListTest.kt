@@ -375,6 +375,95 @@ class ContinuousListTest {
     }
 
     @Test
+    fun `mixed INNER and LEFT joins - LEFT without conditions does not filter root rows`() {
+        val database = Database.connect(
+            "jdbc:h2:mem:test_mixed_joins;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE",
+            Config.h2Driver, Config.h2User, Config.h2Password
+        )
+        transaction(database) {
+            val sql = captureSql()
+
+            SchemaUtils.create(UserTable, AddressTable, TagTable)
+            val target = "match"
+            val users = (1..4).map { i ->
+                val userId = UserTable.insertAndGetId {
+                    it[name] = "u$i"; it[number] = i; it[modifyAt] = LocalDate.now()
+                }
+                AddressTable.insert {
+                    it[user] = userId.value
+                    it[address] = if (i <= 3) target else "other"
+                    it[sequence] = i
+                }
+                userId
+            }
+            // Tags exist only for some users — LEFT join must not require their presence.
+            TagTable.insert { it[user] = users[0]; it[label] = "premium" }
+
+            val result = runBlocking {
+                UserTable
+                    .join(AddressTable, JoinType.INNER, AddressTable.user, UserTable.id)
+                    .join(TagTable, JoinType.LEFT, TagTable.user, UserTable.id)
+                    .selectAll()
+                    .where { AddressTable.address eq target }
+                    .toContinuousList(
+                        PagingParameters(10, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.ASC))
+                    )
+            }
+            assertEquals(3, result.data.size, "INNER filter should keep 3 users; LEFT join must not drop rows")
+            assertEquals(listOf(1, 2, 3), result.data.map { it.order })
+
+            val idSubqueries = sql.filter { it.startsWith("SELECT", ignoreCase = true) }
+            assertTrue(
+                idSubqueries.none { it.contains("FROM tag", ignoreCase = true) },
+                "id subquery must not select FROM the LEFT-joined tag table"
+            )
+            assertTrue(
+                idSubqueries.any { it.contains("EXISTS", ignoreCase = true) && it.contains("address", ignoreCase = true) },
+                "INNER join with a WHERE condition should still be emitted as an EXISTS subquery"
+            )
+        }
+    }
+
+    @Test
+    fun `LEFT join with WHERE condition on joined table falls back to distinct subquery`() {
+        val database = Database.connect(
+            "jdbc:h2:mem:test_left_with_where;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE",
+            Config.h2Driver, Config.h2User, Config.h2Password
+        )
+        transaction(database) {
+            val sql = captureSql()
+
+            SchemaUtils.create(UserTable, TagTable)
+            val users = (1..4).map { i ->
+                val userId = UserTable.insertAndGetId {
+                    it[name] = "u$i"; it[number] = i; it[modifyAt] = LocalDate.now()
+                }
+                if (i <= 2) TagTable.insert { it[user] = userId; it[label] = "premium" }
+                userId
+            }
+
+            val result = runBlocking {
+                UserTable
+                    .join(TagTable, JoinType.LEFT, TagTable.user, UserTable.id)
+                    .selectAll()
+                    .where { TagTable.label eq "premium" }
+                    .toContinuousList(
+                        PagingParameters(10, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.ASC))
+                    )
+            }
+            assertEquals(2, result.data.size)
+            assertEquals(listOf(1, 2), result.data.map { it.order })
+            // The unsafe EXISTS path is rejected, so the lib falls back to DISTINCT ON
+            assertTrue(
+                sql.any { it.contains("DISTINCT ON", ignoreCase = true) },
+                "LEFT join with a WHERE condition on the joined table must use distinct fallback"
+            )
+        }
+    }
+
+    @Test
     fun `distinct query path - sort on joined column orders correctly`() {
         val database = Database.connect(
             "jdbc:h2:mem:test_distinct_order;MODE=MySQL",
