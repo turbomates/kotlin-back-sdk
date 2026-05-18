@@ -11,12 +11,15 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.v1.core.IntegerColumnType
 import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.QueryParameter
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.SqlLogger
 import org.jetbrains.exposed.v1.core.Transaction
 import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.anyFrom
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.exists
@@ -276,6 +279,46 @@ class ContinuousListTest {
     }
 
     @Test
+    fun `left join without where filter stays optional and does not exclude unmatched rows`() {
+        val database = Database.connect(
+            "jdbc:h2:mem:test_left_join_optional;MODE=MySQL",
+            Config.h2Driver, Config.h2User, Config.h2Password
+        )
+        transaction(database) {
+            SchemaUtils.create(UserTable, AddressTable, TagTable)
+
+            // user 1: matches address filter AND has tag
+            val u1 = UserTable.insertAndGetId { it[name] = "u1"; it[number] = 1; it[modifyAt] = LocalDate.now() }
+            AddressTable.insert { it[user] = u1.value; it[address] = "premium"; it[sequence] = 10 }
+            TagTable.insert { it[user] = u1; it[label] = "vip" }
+
+            // user 2: matches address filter, NO tag — must still appear (TagTable LEFT JOIN is optional)
+            val u2 = UserTable.insertAndGetId { it[name] = "u2"; it[number] = 2; it[modifyAt] = LocalDate.now() }
+            AddressTable.insert { it[user] = u2.value; it[address] = "premium"; it[sequence] = 20 }
+
+            // user 3: wrong address — must not appear
+            val u3 = UserTable.insertAndGetId { it[name] = "u3"; it[number] = 3; it[modifyAt] = LocalDate.now() }
+            AddressTable.insert { it[user] = u3.value; it[address] = "other"; it[sequence] = 30 }
+
+            val result = runBlocking {
+                UserTable
+                    .join(AddressTable, JoinType.LEFT, AddressTable.user, UserTable.id)
+                    .join(TagTable, JoinType.LEFT, TagTable.user, UserTable.id)
+                    .selectAll()
+                    .where { AddressTable.address eq "premium" }
+                    .toContinuousList(
+                        PagingParameters(10, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.ASC))
+                    )
+            }
+
+            assertEquals(2, result.data.size)
+            assertEquals(1, result.data[0].order)
+            assertEquals(2, result.data[1].order)
+        }
+    }
+
+    @Test
     fun `distinct query path - sort on joined column orders correctly`() {
         val database = Database.connect(
             "jdbc:h2:mem:test_distinct_order;MODE=MySQL",
@@ -307,6 +350,63 @@ class ContinuousListTest {
             assertTrue(sql.any { "DISTINCT ON" in it }, "ID subquery must contain DISTINCT ON")
         }
     }
+    @Test
+    fun `where uses anyFrom over joined-table array column does not drop the join in id subquery`() {
+        val database = Database.connect(
+            "jdbc:h2:mem:test_anyfrom;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE",
+            Config.h2Driver, Config.h2User, Config.h2Password
+        )
+        transaction(database) {
+            val sql = captureSql()
+
+            SchemaUtils.create(UserTable, ChannelTable)
+            val users = (1..4).map { i ->
+                UserTable.insertAndGetId {
+                    it[name] = "u$i"; it[number] = i; it[modifyAt] = LocalDate.now()
+                }
+            }
+            ChannelTable.insert {
+                it[owner] = users[0]; it[subscribers] = listOf(users[1].value, users[2].value)
+            }
+
+            val targetId = users[1].value
+            val result = runBlocking {
+                UserTable
+                    .join(ChannelTable, JoinType.INNER, UserTable.id, ChannelTable.owner)
+                    .selectAll()
+                    .where { QueryParameter(targetId, IntegerColumnType()) eq anyFrom(ChannelTable.subscribers) }
+                    .toContinuousList(
+                        PagingParameters(10, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.ASC))
+                    )
+            }
+            assertEquals(1, result.data.size)
+            assertEquals(1, result.data[0].order)
+            assertFalse(result.hasMore)
+            val unjoinedReferences = sql.any { stmt ->
+                stmt.startsWith("SELECT", ignoreCase = true) &&
+                        stmt.contains("channel", ignoreCase = true) &&
+                        !stmt.contains("JOIN", ignoreCase = true) &&
+                        !stmt.contains("FROM channel", ignoreCase = true) &&
+                        !stmt.contains("FROM \"channel", ignoreCase = true)
+            }
+            assertFalse(
+                unjoinedReferences,
+                "Generated SELECT must keep the channel table in FROM/JOIN if its column is referenced"
+            )
+        }
+    }
+}
+
+
+object GroupTable : IntIdTable() {
+    val address = reference("address_id", AddressTable)
+    val groupName = varchar("group_name", 100)
+}
+
+object ChannelTable : IntIdTable() {
+    val owner = reference("owner_id", UserTable)
+    val subscribers = array("subscribers", IntegerColumnType())
 }
 
 private fun Transaction.captureSql(): MutableList<String> {

@@ -241,7 +241,12 @@ private fun <T> Query.joinToExistsIdQuery(
         val joinedTable = part.joinedTable() as? Table ?: return null
         val onOps = part.joinConditions()?.map { (l, r) -> EqOp(l, r) } ?: return null
         val extra = part.additionalConstraint()?.invoke()
-        val bodyOps = onOps + tableConditions.getValue(joinedTable) + listOfNotNull(extra)
+        val tableConditionsForPart = tableConditions.getValue(joinedTable)
+        // Without knowing the join type (INNER vs LEFT), we can't safely add EXISTS when there
+        // are no WHERE conditions on the joined table — LEFT JOIN would incorrectly become mandatory.
+        // Fall back to distinctSubQuery in that case.
+        if (tableConditionsForPart.isEmpty() && extra == null) return null
+        val bodyOps = onOps + tableConditionsForPart + listOfNotNull(extra)
         Exists(joinedTable.select(intLiteral(1)).where(bodyOps.compoundAnd()))
     }
 
