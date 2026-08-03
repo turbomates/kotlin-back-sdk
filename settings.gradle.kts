@@ -5,7 +5,7 @@ rootProject.name = "dev.tmsoft.lib"
 dependencyResolutionManagement {
     versionCatalogs {
         create("deps") {
-            version("ktor", "3.4.3")
+            version("ktor", "3.5.1")
             version("jedis", "7.5.0")
             version("log4j", "2.25.2")
             version("detekt", "1.23.6")
@@ -14,7 +14,7 @@ dependencyResolutionManagement {
             version("s3", "1.5.65")
             version("hikaricp", "7.0.2")
             version("sentry", "5.12.1")
-            version("exposed", "1.2.0")
+            version("exposed", "1.3.1")
             version("test_logger", "4.0.0")
             version("h2database", "2.4.240")
             version("google_guice", "7.0.0")
@@ -37,9 +37,12 @@ dependencyResolutionManagement {
             library("ktor_server_auth", "io.ktor", "ktor-server-auth").versionRef("ktor")
             library("ktor_server_webjars", "io.ktor", "ktor-server-webjars").versionRef("ktor")
             library("ktor_server_auth_jwt", "io.ktor", "ktor-server-auth-jwt").versionRef("ktor")
-            library("ktor_server_locations", "io.ktor", "ktor-server-locations").versionRef("ktor")
             library("ktor_server_core", "io.ktor", "ktor-server-core").versionRef("ktor")
             library("ktor_server_sessions", "io.ktor", "ktor-server-sessions").versionRef("ktor")
+            library("ktor_server_host_common", "io.ktor", "ktor-server-host-common").versionRef("ktor")
+            library("ktor_server_status_pages", "io.ktor", "ktor-server-status-pages").versionRef("ktor")
+            library("ktor_server_content_negotiation", "io.ktor", "ktor-server-content-negotiation")
+                .versionRef("ktor")
             library("ktor_server_test_host", "io.ktor", "ktor-server-test-host").versionRef("ktor")
             library("ktor_client_content_negotiation", "io.ktor", "ktor-client-content-negotiation").versionRef("ktor")
             library("ktor_client_cio", "io.ktor", "ktor-client-cio").versionRef("ktor")
