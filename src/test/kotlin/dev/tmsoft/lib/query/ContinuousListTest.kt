@@ -265,7 +265,7 @@ class ContinuousListTest {
                     .where {
                         exists(
                             TagTable.select(TagTable.id)
-                                .where { (TagTable.user eq UserTable.id) and (TagTable.label eq "premium") }
+                                .where { TagTable.user eq UserTable.id and (TagTable.label eq "premium") }
                         )
                     }
                     .toContinuousList(
@@ -354,6 +354,7 @@ class ContinuousListTest {
             assertTrue(sql.any { "DISTINCT ON" in it }, "ID subquery must contain DISTINCT ON")
         }
     }
+
     @Test
     fun `where uses anyFrom over joined-table array column does not drop the join in id subquery`() {
         val database = Database.connect(
@@ -506,7 +507,7 @@ class ContinuousListTest {
             val premiumOrWithout = runBlocking {
                 UserTable.join(AddressTable, JoinType.LEFT, AddressTable.user, UserTable.id)
                     .selectAll()
-                    .where { (AddressTable.address eq "premium") or AddressTable.address.isNull() }
+                    .where { AddressTable.address eq "premium" or AddressTable.address.isNull() }
                     .toContinuousList(
                         PagingParameters(10, 1), ResultRow::toUser,
                         listOf(SortingParameter("number", SortOrder.ASC)), true
