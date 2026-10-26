@@ -8,6 +8,7 @@ import dev.tmsoft.lib.exposed.Money
 import dev.tmsoft.lib.exposed.money
 import java.time.LocalDate
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.OrOp
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
@@ -17,14 +18,14 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.andWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.junit.jupiter.api.Test
 
 class FilterTest {
     @Test
-    fun `simple query`() {
+    fun `simple query`() = runTest {
         val database = Database.connect(h2DatabaseUrl, driver = h2Driver, user = h2User, password = h2Password)
-        transaction(database) {
+        suspendTransaction(database) {
             SchemaUtils.create(UserTable)
             val money = Money(10, "EUR")
             UserTable.insert {
@@ -48,7 +49,7 @@ class FilterTest {
                     )
                 )
 
-            println( query.prepareSQL(this))
+            println(query.prepareSQL(this))
             assertTrue(
                 query.prepareSQL(this).lowercase()
                     .contains("((LOWER(\"USER\".FULL_NAME) LIKE ?) OR (LOWER(\"USER\".FULL_NAME) LIKE ?)) AND (\"USER\".\"NUMBER\" >= ?) AND (\"USER\".MODIFY_AT >= ?) AND ((LOWER(PROFILE.ADDRESS) LIKE ?)) AND (\"USER\".MODIFY_AT >= ?) AND (\"USER\".MODIFY_AT <= ?)".lowercase())
@@ -57,9 +58,9 @@ class FilterTest {
     }
 
     @Test
-    fun `list query`() {
+    fun `list query`() = runTest {
         val database = Database.connect(h2DatabaseUrl, driver = h2Driver, user = h2User, password = h2Password)
-        transaction(database) {
+        suspendTransaction(database) {
             SchemaUtils.create(UserTable)
             val money = Money(10, "EUR")
             UserTable.insert {
@@ -86,15 +87,16 @@ class FilterTest {
                     )
                 )
             assertTrue(
-                 query.prepareSQL(this).lowercase()
+                query.prepareSQL(this).lowercase()
                     .contains("((LOWER(\"USER\".FULL_NAME) LIKE ?) OR (LOWER(\"USER\".FULL_NAME) LIKE ?)) AND ((\"USER\".\"NUMBER\" = ?) OR (\"USER\".\"NUMBER\" = ?))".lowercase())
             )
         }
     }
+
     @Test
-    fun `simple enum query`() {
+    fun `simple enum query`() = runTest {
         val database = Database.connect(h2DatabaseUrl, driver = h2Driver, user = h2User, password = h2Password)
-        transaction(database) {
+        suspendTransaction(database) {
             SchemaUtils.create(TestEnumTable)
             TestEnumTable.insert {
                 it[status] = TestEnum.ACTIVE
@@ -155,12 +157,15 @@ object ProfileTable : IntIdTable() {
     val address = varchar("address", 255)
     val phone = varchar("phone", 255)
 }
+
 object TestEnumTable : IntIdTable() {
     val status = enumerationByName<TestEnum>("status", 255)
 }
+
 object TestEnumFilter : Filter(TestEnumTable) {
     val name = add("status_test", TestEnumTable.status)
 }
+
 enum class TestEnum {
     ACTIVE, INACTIVE
 }

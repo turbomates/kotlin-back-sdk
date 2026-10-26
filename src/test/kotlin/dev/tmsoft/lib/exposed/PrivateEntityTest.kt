@@ -7,10 +7,11 @@ import kotlin.test.assertNotNull
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
-import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
+import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
+import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.dao.EntityClass
-import org.jetbrains.exposed.v1.dao.UUIDEntity
 import org.jetbrains.exposed.v1.dao.flushCache
+import org.jetbrains.exposed.v1.dao.java.UUIDEntity
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -50,7 +51,7 @@ object BetTicketTable : UUIDTable("sportsbook_bets_tickets") {
 
 object BetTicketPickTable : UUIDTable("sportsbook_bets_tickets_picks") {
     val betTicketId = reference("bet_ticket_id", BetTicketTable)
-    val selectionId = uuid("selection_id")
+    val selectionId = javaUUID("selection_id")
 }
 
 object Repository : BetTicketPick.Repository()

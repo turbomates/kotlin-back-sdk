@@ -16,7 +16,7 @@ plugins {
 }
 
 group = "com.github.turbomates"
-version = "0.6.33"
+version = "0.7.16"
 
 
 repositories {
@@ -47,13 +47,9 @@ dependencies {
     api(deps.log4j.api)
     api(deps.log4j.slf4j)
     api(deps.email)
-    implementation("io.ktor:ktor-server-content-negotiation:3.4.0")
-    implementation("io.ktor:ktor-server-core:3.4.0")
-    implementation("io.ktor:ktor-server-core:3.4.0")
-    implementation("io.ktor:ktor-server-content-negotiation:3.4.0")
-    implementation("io.ktor:ktor-server-core:3.4.0")
-    implementation("io.ktor:ktor-server-host-common:3.4.0")
-    implementation("io.ktor:ktor-server-status-pages:3.4.0")
+    implementation(deps.ktor.server.content.negotiation)
+    implementation(deps.ktor.server.host.common)
+    implementation(deps.ktor.server.status.pages)
     runtimeOnly(deps.log4j.core)
 
     testImplementation(deps.kotlin.test)
@@ -99,6 +95,12 @@ tasks.withType<KotlinCompile> {
 configure<JavaPluginExtension> {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
+}
+
+sourceSets {
+    named("main") {
+        resources.setSrcDirs(emptyList<String>())
+    }
 }
 
 //  ----------------  TEST ----------------  //

@@ -1,5 +1,5 @@
 package dev.tmsoft.lib.email
 
 interface Mail {
-    fun send(message: Message): Boolean
+    suspend fun send(message: Message): Boolean
 }

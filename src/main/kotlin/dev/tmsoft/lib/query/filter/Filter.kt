@@ -21,7 +21,7 @@ abstract class Filter(val table: Table) {
         name: String,
         column: Column<*>,
         possibleValues: List<String>? = null,
-        function: (Query.(values: List<Value>) -> Query)? = null
+        function: (suspend Query.(List<Value>) -> Query)? = null
     ): Field {
         val field = Field(
             name,
@@ -44,7 +44,7 @@ abstract class Filter(val table: Table) {
     fun add(
         name: String,
         possibleValues: List<String>? = null,
-        function: (Query.(value: List<Value>) -> Query)? = null
+        function: (suspend Query.(value: List<Value>) -> Query)? = null
     ): Field {
         val column = table.columns.find { it.name == name }
         val field = if (column != null) {
@@ -60,7 +60,7 @@ abstract class Filter(val table: Table) {
         return field
     }
 
-    fun apply(query: Query, parameters: PathValues): Query {
+    suspend fun apply(query: Query, parameters: PathValues): Query {
         var buildQuery = query.copy()
         fields.forEach { field ->
             val values = parameters[field.name] ?: emptyList()
@@ -73,7 +73,7 @@ abstract class Filter(val table: Table) {
 
     private fun Column<*>.field(
         name: String,
-        customFunction: (Query.(value: List<Value>) -> Query)? = null
+        customFunction: (suspend Query.(value: List<Value>) -> Query)? = null
     ): Field {
         return if (customFunction == null) {
             Field(
@@ -101,7 +101,7 @@ private fun Column<*>.possibleValues(): List<String> {
     } else emptyList()
 }
 
-fun Query.filter(filter: Filter, values: PathValues): Query {
+suspend fun Query.filter(filter: Filter, values: PathValues): Query {
     return filter.apply(this, values)
 }
 

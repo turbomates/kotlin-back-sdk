@@ -37,7 +37,7 @@ class JavaxMail(val config: SMTPConfig) : Mail {
         transport
     }
 
-    override fun send(message: Message): Boolean {
+    override suspend fun send(message: Message): Boolean {
         connect()
         transport.sendMessage(
             convertMessage(message),
