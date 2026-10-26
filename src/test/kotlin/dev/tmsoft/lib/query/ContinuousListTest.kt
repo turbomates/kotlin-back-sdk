@@ -22,6 +22,10 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.anyFrom
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.notInList
+import org.jetbrains.exposed.v1.core.isNull
+import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.core.exists
 import org.jetbrains.exposed.v1.core.statements.StatementContext
 import org.jetbrains.exposed.v1.core.statements.expandArgs
@@ -395,6 +399,180 @@ class ContinuousListTest {
                 "Generated SELECT must keep the channel table in FROM/JOIN if its column is referenced"
             )
         }
+    }
+
+    @Test
+    fun `exists path - an inner join without conditions keeps filtering next to a condition on another table`() {
+        transaction(database("test_inner_no_conditions")) {
+            val sql = captureSql()
+            SchemaUtils.create(UserTable, AddressTable, TagTable)
+            val users = (1..3).map { user(it) }
+            address(users[0], "a1")
+            address(users[2], "a3")
+            users.forEach { userId -> TagTable.insert { it[user] = userId; it[label] = "vip" } }
+
+            val result = runBlocking {
+                UserTable
+                    .join(AddressTable, JoinType.INNER, AddressTable.user, UserTable.id)
+                    .join(TagTable, JoinType.LEFT, TagTable.user, UserTable.id)
+                    .selectAll()
+                    .where { TagTable.label eq "vip" }
+                    .toContinuousList(
+                        PagingParameters(10, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.ASC)), true
+                    )
+            }
+            assertEquals(listOf(1, 3), result.data.map { it.order })
+            assertEquals(2L, result.count)
+            assertTrue(sql.none { "DISTINCT" in it }, "Neither the page nor the count may need DISTINCT")
+        }
+    }
+
+    @Test
+    fun `exists path - left join without conditions is left out of the id and count queries`() {
+        transaction(database("test_left_no_conditions")) {
+            val sql = captureSql()
+            SchemaUtils.create(UserTable, AddressTable, TagTable)
+            val users = (1..3).map { user(it) }
+            users.forEach { address(it, if (it.value == users[2].value) "other" else "premium") }
+            TagTable.insert { it[user] = users[0]; it[label] = "vip" }
+
+            val result = runBlocking {
+                UserTable
+                    .join(AddressTable, JoinType.LEFT, AddressTable.user, UserTable.id)
+                    .join(TagTable, JoinType.LEFT, TagTable.user, UserTable.id)
+                    .selectAll()
+                    .where { AddressTable.address eq "premium" }
+                    .toContinuousList(
+                        PagingParameters(10, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.ASC)), true
+                    )
+            }
+            assertEquals(listOf(1, 2), result.data.map { it.order })
+            assertEquals(2L, result.count)
+            val idAndCountQueries = sql.filter { it.startsWith("SELECT") && "EXISTS" in it }
+            assertEquals(2, idAndCountQueries.size, "The page and the count both go through EXISTS")
+            assertTrue(idAndCountQueries.none { "TAG" in it.uppercase() }, "A LEFT join without conditions must not be checked")
+            assertTrue(sql.none { "DISTINCT" in it })
+        }
+    }
+
+    @Test
+    fun `exists path - one to many left join with a condition neither repeats ids nor inflates the count`() {
+        transaction(database("test_left_one_to_many")) {
+            val sql = captureSql()
+            SchemaUtils.create(UserTable, AddressTable)
+            val users = (1..4).map { user(it) }
+            users.take(3).forEach { userId -> repeat(3) { address(userId, "premium") } }
+
+            val result = runBlocking {
+                UserTable.join(AddressTable, JoinType.LEFT, AddressTable.user, UserTable.id)
+                    .selectAll()
+                    .where { AddressTable.address eq "premium" }
+                    .toContinuousList(
+                        PagingParameters(10, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.DESC)), true
+                    )
+            }
+            // the page rows themselves repeat per joined address; the ids and the count must not
+            assertEquals(listOf(3, 2, 1), result.data.map { it.order }.distinct())
+            assertEquals(3L, result.count)
+            val idQuery = sql.single { it.startsWith("SELECT \"User\".ID FROM \"User\" WHERE EXISTS") }
+            assertTrue("LIMIT 11" in idQuery)
+            assertTrue(sql.none { "DISTINCT" in it })
+        }
+    }
+
+    @Test
+    fun `distinct path - a condition true for the null row keeps root rows without a match`() {
+        transaction(database("test_left_is_null")) {
+            val sql = captureSql()
+            SchemaUtils.create(UserTable, AddressTable)
+            val users = (1..3).map { user(it) }
+            address(users[0], "premium")
+
+            val withoutAddress = runBlocking {
+                UserTable.join(AddressTable, JoinType.LEFT, AddressTable.user, UserTable.id)
+                    .selectAll()
+                    .where { AddressTable.address.isNull() }
+                    .toContinuousList(
+                        PagingParameters(10, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.ASC)), true
+                    )
+            }
+            assertEquals(listOf(2, 3), withoutAddress.data.map { it.order })
+            assertEquals(2L, withoutAddress.count)
+
+            val premiumOrWithout = runBlocking {
+                UserTable.join(AddressTable, JoinType.LEFT, AddressTable.user, UserTable.id)
+                    .selectAll()
+                    .where { (AddressTable.address eq "premium") or AddressTable.address.isNull() }
+                    .toContinuousList(
+                        PagingParameters(10, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.ASC)), true
+                    )
+            }
+            assertEquals(listOf(1, 2, 3), premiumOrWithout.data.map { it.order })
+            assertEquals(3L, premiumOrWithout.count)
+            assertTrue(sql.any { "DISTINCT ON" in it }, "Must fall back to DISTINCT ON")
+        }
+    }
+
+    @Test
+    fun `distinct path - not in an empty list on a left joined table keeps root rows without a match`() {
+        transaction(database("test_left_not_in_empty")) {
+            SchemaUtils.create(UserTable, AddressTable)
+            val users = (1..2).map { user(it) }
+            address(users[0], "premium")
+
+            val result = runBlocking {
+                UserTable.join(AddressTable, JoinType.LEFT, AddressTable.user, UserTable.id)
+                    .selectAll()
+                    .where { AddressTable.address notInList emptyList() }
+                    .toContinuousList(
+                        PagingParameters(10, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.ASC)), true
+                    )
+            }
+            assertEquals(listOf(1, 2), result.data.map { it.order })
+            assertEquals(2L, result.count)
+        }
+    }
+
+    @Test
+    fun `distinct path - right join is not turned into exists`() {
+        transaction(database("test_right_join")) {
+            val sql = captureSql()
+            SchemaUtils.create(UserTable, AddressTable)
+            val users = (1..2).map { user(it) }
+            address(users[0], "premium")
+
+            val result = runBlocking {
+                UserTable.join(AddressTable, JoinType.RIGHT, AddressTable.user, UserTable.id)
+                    .selectAll()
+                    .where { AddressTable.address eq "premium" }
+                    .toContinuousList(
+                        PagingParameters(10, 1), ResultRow::toUser,
+                        listOf(SortingParameter("number", SortOrder.ASC)), true
+                    )
+            }
+            assertEquals(listOf(1), result.data.map { it.order })
+            assertEquals(1L, result.count)
+            assertTrue(sql.any { "DISTINCT ON" in it }, "Must fall back to DISTINCT ON")
+        }
+    }
+
+    private fun database(name: String) = Database.connect(
+        "jdbc:h2:mem:$name;MODE=MySQL",
+        Config.h2Driver, Config.h2User, Config.h2Password
+    )
+
+    private fun user(number: Int) = UserTable.insertAndGetId {
+        it[name] = "u$number"; it[this.number] = number; it[modifyAt] = LocalDate.now()
+    }
+
+    private fun address(userId: EntityID<Int>, address: String) = AddressTable.insert {
+        it[user] = userId.value; it[this.address] = address; it[sequence] = userId.value
     }
 }
 

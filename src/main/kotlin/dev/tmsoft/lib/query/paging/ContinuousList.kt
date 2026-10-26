@@ -32,6 +32,7 @@ import org.jetbrains.exposed.v1.core.IsNotDistinctFromOp
 import org.jetbrains.exposed.v1.core.IsNotNullOp
 import org.jetbrains.exposed.v1.core.IsNullOp
 import org.jetbrains.exposed.v1.core.Join
+import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.LiteralOp
 import org.jetbrains.exposed.v1.core.LowerCase
 import org.jetbrains.exposed.v1.core.Max
@@ -41,6 +42,7 @@ import org.jetbrains.exposed.v1.core.NoOpConversion
 import org.jetbrains.exposed.v1.core.NotExists
 import org.jetbrains.exposed.v1.core.NotOp
 import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.OrOp
 import org.jetbrains.exposed.v1.core.QueryParameter
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
@@ -150,7 +152,7 @@ private fun <T> Query.distinctCount(primaryKey: Column<T>): Long {
 }
 
 private fun <T> Query.uniqueCount(primaryKey: Column<T>): Long {
-    return rootQuery(primaryKey, emptyArray())?.count() ?: distinctCount(primaryKey)
+    return (rootQuery(primaryKey, emptyArray()) ?: rootExistsQuery(primaryKey))?.count() ?: distinctCount(primaryKey)
 }
 
 private fun <T> Query.idSubQuery(
@@ -158,7 +160,7 @@ private fun <T> Query.idSubQuery(
     sortingParameters: List<SortingParameter>
 ): Pair<Query, Expression<T>> {
     return rootIdSubQuery(primaryKey, sortingParameters)?.let { it to primaryKey }
-        ?: joinToExistsIdQuery(primaryKey, sortingParameters)?.let { it to primaryKey }
+        ?: existsIdSubQuery(primaryKey, sortingParameters)?.let { it to primaryKey }
         ?: distinctSubQuery(primaryKey, sortingParameters)
 }
 
@@ -208,81 +210,110 @@ private fun Query.buildSortingParametersForRoot(
         .toTypedArray()
 }
 
-private fun <T> Query.joinToExistsIdQuery(
+private fun <T> Query.existsIdSubQuery(
     primaryKey: Column<T>,
     sortingParameters: List<SortingParameter>
 ): Query? {
+    val rootTable = rootTable() ?: return null
+    val sorting = buildSortingParametersForRoot(sortingParameters) ?: return null
+    val allSorting = sorting + orderByExpressions.toTypedArray()
+    if (allSorting.any { (expression, _) -> !expression.referencesOnly(rootTable) }) return null
+    return rootExistsQuery(primaryKey)?.apply {
+        allSorting.forEach { (expression, sortOrder) -> orderBy(expression, sortOrder) }
+    }
+}
+
+/**
+ * The ids of the root table with the conditions on each joined table moved into an EXISTS, so the rows are
+ * neither multiplied by 1:N joins nor joined at all. The page and the count both read it.
+ *
+ * An INNER join keeps filtering through its EXISTS even without conditions. A LEFT join without conditions never
+ * filters and is left out; with conditions it becomes an EXISTS only when they are false for the all-NULL row an
+ * unmatched root row gets, otherwise a root row without a match would be lost. Other join types, lateral joins
+ * and conditions that cannot be attributed to the root and one joined table give null.
+ */
+private fun <T> Query.rootExistsQuery(primaryKey: Column<T>): Query? {
     val join = set.source as? Join ?: return null
     val rootTable = join.table as? Table ?: return null
     if (primaryKey !in rootTable.columns.toSet()) return null
 
-    val sorting = buildSortingParametersForRoot(sortingParameters) ?: return null
-    val existingSorting = orderByExpressions.toTypedArray()
-    if ((sorting + existingSorting).any { (expr, _) -> !expr.referencesOnly(rootTable) }) return null
-
     val joinParts = join.joinPartsReflect() ?: return null
-
-    val whereLeaves = where?.flattenAnd() ?: emptyList()
-    val joinedTables = joinParts.mapNotNull { it.joinedTable() as? Table }
+    val joinedTables = joinParts.map { it.table as? Table ?: return null }
 
     val rootConditions = mutableListOf<Op<Boolean>>()
     val tableConditions = joinedTables.associateWith { mutableListOf<Op<Boolean>>() }
-
-    for (condition in whereLeaves) {
+    for (condition in where?.flattenAnd().orEmpty()) {
         val matched = joinedTables.filter { condition.referencesTable(it) }
-        when (matched.size) {
-            0 -> rootConditions.add(condition)
-            1 -> tableConditions[matched.first()]?.add(condition)
-            else -> return null
-        }
+        val scope = listOf(rootTable) + matched
+        if (matched.size > 1 || !condition.referencesOnly(*scope.toTypedArray())) return null
+        matched.firstOrNull()?.let { tableConditions.getValue(it).add(condition) } ?: rootConditions.add(condition)
     }
 
     val existsOps = joinParts.mapNotNull { part ->
-        val joinedTable = part.joinedTable() as? Table ?: return null
-        val onOps = part.joinConditions()?.map { (l, r) -> EqOp(l, r) } ?: return null
-        val extra = part.additionalConstraint()?.invoke()
-        val tableConditionsForPart = tableConditions.getValue(joinedTable)
-        // Without knowing the join type (INNER vs LEFT), we can't safely add EXISTS when there
-        // are no WHERE conditions on the joined table — LEFT JOIN would incorrectly become mandatory.
-        // Fall back to distinctSubQuery in that case.
-        if (tableConditionsForPart.isEmpty() && extra == null) return null
-        val bodyOps = onOps + tableConditionsForPart + listOfNotNull(extra)
+        val joinedTable = part.table as Table
+        val conditions = tableConditions.getValue(joinedTable)
+        when {
+            part.isLateral -> return null
+            part.joinType == JoinType.INNER -> Unit
+            part.joinType != JoinType.LEFT -> return null
+            conditions.isEmpty() -> return@mapNotNull null
+            !conditions.all { it.rejectsNull(joinedTable) } -> return null
+        }
+        val bodyOps = part.conditions.map { (left, right) -> EqOp(left, right) } +
+            listOfNotNull(part.additionalConstraint?.invoke()) + conditions
+        if (bodyOps.isEmpty() || !bodyOps.all { it.referencesOnly(rootTable, joinedTable) }) return null
         Exists(joinedTable.select(intLiteral(1)).where(bodyOps.compoundAnd()))
     }
 
     val finalWhere = (rootConditions + existsOps).takeIf { it.isNotEmpty() }?.compoundAnd()
-
-    return Query(rootTable.select(primaryKey).set, finalWhere).apply {
-        (sorting + existingSorting).forEach { (expr, order) -> orderBy(expr, order) }
-    }
+    return Query(rootTable.select(primaryKey).set, finalWhere)
 }
 
-@Suppress("UNCHECKED_CAST")
-private fun Join.joinPartsReflect(): List<Any>? = runCatching {
-    Join::class.java.getDeclaredField("joinParts")
-        .apply { isAccessible = true }
-        .get(this) as List<Any>
-}.getOrNull()
-
-private fun Any.joinedTable(): ColumnSet? = runCatching {
-    javaClass.getDeclaredField("joinPart")
-        .apply { isAccessible = true }
-        .get(this) as ColumnSet
-}.getOrNull()
+/** The parts of a join as Exposed keeps them; its `JoinPart` is internal, so they are read reflectively. */
+private data class JoinPartView(
+    val joinType: JoinType,
+    val table: ColumnSet,
+    val conditions: List<Pair<Expression<*>, Expression<*>>>,
+    val isLateral: Boolean,
+    val additionalConstraint: (() -> Op<Boolean>)?
+)
 
 @Suppress("UNCHECKED_CAST")
-private fun Any.joinConditions(): List<Pair<Expression<*>, Expression<*>>>? = runCatching {
-    javaClass.getDeclaredField("conditions")
-        .apply { isAccessible = true }
-        .get(this) as List<Pair<Expression<*>, Expression<*>>>
+private fun Join.joinPartsReflect(): List<JoinPartView>? = runCatching {
+    val parts = Join::class.java.getDeclaredField("joinParts").apply { isAccessible = true }.get(this) as List<Any>
+    parts.map { part ->
+        fun field(name: String): Any? = part.javaClass.getDeclaredField(name).apply { isAccessible = true }.get(part)
+        JoinPartView(
+            joinType = field("joinType") as JoinType,
+            table = field("joinPart") as ColumnSet,
+            conditions = field("conditions") as List<Pair<Expression<*>, Expression<*>>>,
+            isLateral = field("lateral") as Boolean,
+            additionalConstraint = field("additionalConstraint") as? () -> Op<Boolean>
+        )
+    }
 }.getOrNull()
 
+/**
+ * False for the all-NULL row a LEFT join gives [table] when nothing matches: a comparison, IN list or IS NOT NULL
+ * on its column, and AND / OR built from them. Anything else, IS NULL first of all, is not known to be.
+ */
 @Suppress("UNCHECKED_CAST")
-private fun Any.additionalConstraint(): (() -> Op<Boolean>)? = runCatching {
-    javaClass.getDeclaredField("additionalConstraint")
-        .apply { isAccessible = true }
-        .get(this) as? (() -> Op<Boolean>)
-}.getOrNull()
+private fun Op<Boolean>.rejectsNull(table: Table): Boolean = when (this) {
+    is AndOp -> expressions().orEmpty().any { (it as? Op<Boolean>)?.rejectsNull(table) == true }
+    is OrOp -> expressions()?.all { (it as? Op<Boolean>)?.rejectsNull(table) == true } == true
+    is IsNotNullOp -> expr.isColumnOf(table)
+    is ComparisonOp -> expr1.isColumnOf(table) || expr2.isColumnOf(table)
+    // NOT IN an empty list is rendered as TRUE
+    is InListOrNotInListBaseOp<*> -> (isInList || list.any()) && (expr as? Expression<*>)?.isColumnOf(table) == true
+    else -> false
+}
+
+private fun Expression<*>.isColumnOf(table: Table): Boolean = when (this) {
+    is Column<*> -> this.table == table
+    is LowerCase<*> -> expr.isColumnOf(table)
+    is UpperCase<*> -> expr.isColumnOf(table)
+    else -> false
+}
 
 private fun Expression<Boolean>.flattenAnd(): List<Op<Boolean>> = when (this) {
     is AndOp -> expressions().orEmpty().flatMap { it.flattenAnd() }
@@ -342,46 +373,46 @@ private fun <T> Query.distinctSubQuery(
     return distinctIdsQuery to selectedPrimaryKey
 }
 
-private fun Expression<*>.referencesOnly(table: Table): Boolean {
+private fun Expression<*>.referencesOnly(vararg tables: Table): Boolean {
     return when (this) {
         Op.TRUE, Op.FALSE -> true
-        is Column<*> -> this.table == table
+        is Column<*> -> this.table in tables
         is QueryParameter<*> -> true
         is LiteralOp<*> -> true
-        is IExpressionAlias<*> -> delegate.referencesOnly(table)
-        is CompoundBooleanOp -> expressions()?.all { it.referencesOnly(table) } == true
-        is NotOp<*> -> expr.referencesOnly(table)
-        is ComparisonOp -> expr1.referencesOnly(table) && expr2.referencesOnly(table)
-        is IsNullOp -> expr.referencesOnly(table)
-        is IsNotNullOp -> expr.referencesOnly(table)
-        is IsNotDistinctFromOp -> expression1.referencesOnly(table) && expression2.referencesOnly(table)
-        is IsDistinctFromOp -> expression1.referencesOnly(table) && expression2.referencesOnly(table)
-        is InListOrNotInListBaseOp<*> -> expr.referencesOnly(table)
+        is IExpressionAlias<*> -> delegate.referencesOnly(*tables)
+        is CompoundBooleanOp -> expressions()?.all { it.referencesOnly(*tables) } == true
+        is NotOp<*> -> expr.referencesOnly(*tables)
+        is ComparisonOp -> expr1.referencesOnly(*tables) && expr2.referencesOnly(*tables)
+        is IsNullOp -> expr.referencesOnly(*tables)
+        is IsNotNullOp -> expr.referencesOnly(*tables)
+        is IsNotDistinctFromOp -> expression1.referencesOnly(*tables) && expression2.referencesOnly(*tables)
+        is IsDistinctFromOp -> expression1.referencesOnly(*tables) && expression2.referencesOnly(*tables)
+        is InListOrNotInListBaseOp<*> -> expr.referencesOnly(*tables)
         is Exists -> true
         is NotExists -> true
-        is SubQueryOp<*> -> expr.referencesOnly(table)
-        is LowerCase<*> -> expr.referencesOnly(table)
-        is UpperCase<*> -> expr.referencesOnly(table)
-        is Concat -> expr.all { it.referencesOnly(table) }
-        is Min<*, *> -> expr.referencesOnly(table)
-        is Max<*, *> -> expr.referencesOnly(table)
-        is Sum<*> -> expr.referencesOnly(table)
-        is Count -> expr.referencesOnly(table)
-        is CustomFunction<*> -> expr.all { it.referencesOnly(table) }
-        is CustomOperator<*> -> expr1.referencesOnly(table) && expr2.referencesOnly(table)
-        is ModOp<*, *, *> -> expr1.referencesOnly(table) && expr2.referencesOnly(table)
-        is NoOpConversion<*, *> -> expr.referencesOnly(table)
+        is SubQueryOp<*> -> expr.referencesOnly(*tables)
+        is LowerCase<*> -> expr.referencesOnly(*tables)
+        is UpperCase<*> -> expr.referencesOnly(*tables)
+        is Concat -> expr.all { it.referencesOnly(*tables) }
+        is Min<*, *> -> expr.referencesOnly(*tables)
+        is Max<*, *> -> expr.referencesOnly(*tables)
+        is Sum<*> -> expr.referencesOnly(*tables)
+        is Count -> expr.referencesOnly(*tables)
+        is CustomFunction<*> -> expr.all { it.referencesOnly(*tables) }
+        is CustomOperator<*> -> expr1.referencesOnly(*tables) && expr2.referencesOnly(*tables)
+        is ModOp<*, *, *> -> expr1.referencesOnly(*tables) && expr2.referencesOnly(*tables)
+        is NoOpConversion<*, *> -> expr.referencesOnly(*tables)
         else -> false
     }
 }
 
-private fun Any?.referencesOnly(table: Table): Boolean {
+private fun Any?.referencesOnly(vararg tables: Table): Boolean {
     return when (this) {
         null -> true
-        is Expression<*> -> referencesOnly(table)
-        is Pair<*, *> -> first.referencesOnly(table) && second.referencesOnly(table)
-        is Triple<*, *, *> -> first.referencesOnly(table) && second.referencesOnly(table) && third.referencesOnly(table)
-        is Iterable<*> -> all { it.referencesOnly(table) }
+        is Expression<*> -> referencesOnly(*tables)
+        is Pair<*, *> -> first.referencesOnly(*tables) && second.referencesOnly(*tables)
+        is Triple<*, *, *> -> first.referencesOnly(*tables) && second.referencesOnly(*tables) && third.referencesOnly(*tables)
+        is Iterable<*> -> all { it.referencesOnly(*tables) }
         else -> true
     }
 }
