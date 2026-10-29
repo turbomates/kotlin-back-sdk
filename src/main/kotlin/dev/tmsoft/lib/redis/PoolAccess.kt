@@ -2,6 +2,7 @@ package dev.tmsoft.lib.redis
 
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.params.ScanParams
+import redis.clients.jedis.params.SetParams
 
 @Suppress("TooManyFunctions")
 class PoolAccess(private val pool: JedisPool) : Access {
@@ -73,6 +74,14 @@ class PoolAccess(private val pool: JedisPool) : Access {
         ttl: Long
     ) {
         pool.resource.use { it.setex(key, ttl, value) }
+    }
+
+    override fun setIfAbsent(
+        key: String,
+        value: String,
+        ttl: Long
+    ): Boolean {
+        return pool.resource.use { it.set(key, value, SetParams().nx().ex(ttl)) } == "OK"
     }
 
     override fun zadd(key: String, score: Double, member: String) {
