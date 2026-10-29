@@ -5,7 +5,6 @@ import redis.clients.jedis.JedisCluster
 import redis.clients.jedis.params.ScanParams
 import redis.clients.jedis.params.SetParams
 
-
 @Suppress("TooManyFunctions")
 class ClusterAccess(private val cluster: JedisCluster) : Access {
     override fun get(key: String): String? {
