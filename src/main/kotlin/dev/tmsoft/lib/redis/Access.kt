@@ -34,6 +34,13 @@ interface Access {
         ttl: Long
     )
 
+    /** SET NX EX: writes [value] with [ttl] seconds only when [key] does not exist; true if it was written. */
+    fun setIfAbsent(
+        key: String,
+        value: String,
+        ttl: Long
+    ): Boolean
+
     fun zadd(key: String, score: Double, member: String)
     fun zadd(key: String, members: Map<String, Double>)
     fun zcount(key: String, minScore: Double, maxScore: Double): Long

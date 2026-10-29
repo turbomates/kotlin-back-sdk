@@ -3,7 +3,7 @@ package dev.tmsoft.lib.redis
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisCluster
 import redis.clients.jedis.params.ScanParams
-
+import redis.clients.jedis.params.SetParams
 
 @Suppress("TooManyFunctions")
 class ClusterAccess(private val cluster: JedisCluster) : Access {
@@ -72,6 +72,14 @@ class ClusterAccess(private val cluster: JedisCluster) : Access {
         ttl: Long
     ) {
         cluster.setex(key, ttl, value)
+    }
+
+    override fun setIfAbsent(
+        key: String,
+        value: String,
+        ttl: Long
+    ): Boolean {
+        return cluster.set(key, value, SetParams().nx().ex(ttl)) == "OK"
     }
 
     override fun zadd(key: String, score: Double, member: String) {
